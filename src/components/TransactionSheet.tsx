@@ -9,15 +9,19 @@ import { formatRupiah, toISODate } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 import type { Transaction, TxType } from '@/types'
 
+import type { AddPreset } from '@/store/uiStore'
+
 interface Props {
   open: boolean
   onClose: () => void
   /** Jika diisi → mode edit */
   editing?: Transaction | null
+  /** Prefill saat tambah baru (quick-add) */
+  preset?: AddPreset | null
 }
 
 /** Sheet tambah/edit transaksi: toggle tipe, nominal+numpad, kategori, tanggal, catatan. */
-export function TransactionSheet({ open, onClose, editing }: Props) {
+export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [type, setType] = useState<TxType>('expense')
   const [amount, setAmount] = useState(0)
   const [categoryId, setCategoryId] = useState<string | null>(null)
@@ -39,14 +43,15 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
       setNote(editing.note ?? '')
       setRecurring(editing.is_recurring)
     } else {
-      setType('expense')
+      // Tambah baru — pakai preset bila ada (quick-add)
+      setType(preset?.type ?? 'expense')
       setAmount(0)
-      setCategoryId(null)
+      setCategoryId(preset?.category_id ?? null)
       setDate(toISODate(new Date()))
-      setNote('')
+      setNote(preset?.note ?? '')
       setRecurring(false)
     }
-  }, [open, editing])
+  }, [open, editing, preset])
 
   // Default kategori pertama bila belum dipilih
   const resolvedCategoryId = useMemo(() => {

@@ -1,5 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { TxType } from '@/types'
+
+/** Prefill untuk sheet tambah cepat (quick-add chips). */
+export interface AddPreset {
+  type?: TxType
+  category_id?: string | null
+  note?: string | null
+}
 
 interface UIState {
   // Dark mode
@@ -13,6 +21,12 @@ interface UIState {
   // Bulan aktif (ISO string tanggal-1 bulan terpilih) — disimpan string agar serializable
   activeMonthISO: string
   setActiveMonth: (iso: string) => void
+
+  // Sheet tambah transaksi (global, agar bisa dibuka dari mana saja + prefill)
+  addOpen: boolean
+  addPreset: AddPreset | null
+  openAdd: (preset?: AddPreset) => void
+  closeAdd: () => void
 }
 
 const firstOfThisMonth = () => {
@@ -31,6 +45,11 @@ export const useUIStore = create<UIState>()(
 
       activeMonthISO: firstOfThisMonth(),
       setActiveMonth: (iso) => set({ activeMonthISO: iso }),
+
+      addOpen: false,
+      addPreset: null,
+      openAdd: (preset) => set({ addOpen: true, addPreset: preset ?? null }),
+      closeAdd: () => set({ addOpen: false, addPreset: null }),
     }),
     {
       name: 'uangku-ui',

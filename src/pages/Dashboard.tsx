@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Sparkles, Eye, EyeOff, Wallet, PiggyBank, Repeat, Tags, Settings as Cog, ArrowDownLeft, ArrowUpRight } from 'lucide-react'
+import { Sparkles, Eye, EyeOff, Wallet, PiggyBank, Repeat, Tags, Settings as Cog, ArrowDownLeft, ArrowUpRight, Zap, Plus } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
@@ -12,25 +12,42 @@ import { useUIStore } from '@/store/uiStore'
 import { useProfile } from '@/hooks/useProfile'
 import { useTransactions, useRecentTransactions, useTotalBalance } from '@/hooks/useTransactions'
 import { useBudgets } from '@/hooks/useBudgets'
-import { buildPeriode } from '@/lib/dateRange'
-import { summarize, buildInsight } from '@/lib/summary'
+import { buildPeriode, bulanSebelum } from '@/lib/dateRange'
+import { summarize, buildInsight, buildComparison } from '@/lib/summary'
+import { buildQuickChips } from '@/lib/quickadd'
 import { formatRupiah } from '@/lib/format'
 
-export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
+export function Dashboard() {
   const iso = useUIStore((s) => s.activeMonthISO)
   const privacy = useUIStore((s) => s.privacy)
   const togglePrivacy = useUIStore((s) => s.togglePrivacy)
+  const openAdd = useUIStore((s) => s.openAdd)
   const ref = new Date(iso)
   const periode = useMemo(() => buildPeriode(ref), [iso]) // eslint-disable-line react-hooks/exhaustive-deps
+  const prevPeriode = useMemo(() => buildPeriode(bulanSebelum(ref)), [iso]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: profile } = useProfile()
   const { data: txs = [] } = useTransactions(periode)
+  const { data: prevTxs = [] } = useTransactions(prevPeriode)
   const { data: recent = [] } = useRecentTransactions(5)
-  const { data: balance = 0 } = useTotalBalance()
+  const { data: recentMany = [] } = useRecentTransactions(50)
+  const { data: txBalance = 0 } = useTotalBalance()
   const { data: budgets = [] } = useBudgets(periode)
+
+  // Saldo total = transaksi + saldo awal yang diset user
+  const balance = txBalance + (profile?.opening_balance ?? 0)
 
   const summary = useMemo(() => summarize(txs, ref), [txs]) // eslint-disable-line react-hooks/exhaustive-deps
   const insight = useMemo(() => buildInsight(summary, balance, ref), [summary, balance]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Banding pengeluaran vs bulan lalu
+  const comparison = useMemo(() => {
+    const prevExpense = prevTxs.filter((t) => t.type === 'expense').reduce((a, t) => a + t.amount, 0)
+    return buildComparison(summary.expense, prevExpense)
+  }, [prevTxs, summary.expense])
+
+  // Saran quick-add dari transaksi tersering
+  const quickChips = useMemo(() => buildQuickChips(recentMany, 4), [recentMany])
 
   // Pengeluaran per kategori untuk progress anggaran
   const spentByCat = useMemo(() => {
@@ -90,10 +107,45 @@ export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
       <MonthSelector className="my-4" />
 
       {/* Kartu insight */}
-      <div className="mb-4 flex gap-3 rounded-2xl bg-dusty-100 p-4 dark:bg-dusty-500/10">
-        <Sparkles className="mt-0.5 shrink-0 text-dusty-600" size={20} />
-        <p className="text-sm leading-relaxed text-maroon-800 dark:text-dusty-200">{insight}</p>
+      <div className="mb-4 rounded-2xl bg-dusty-100 p-4 dark:bg-dusty-500/10">
+        <div className="flex gap-3">
+          <Sparkles className="mt-0.5 shrink-0 text-dusty-600" size={20} />
+          <p className="text-sm leading-relaxed text-maroon-800 dark:text-dusty-200">{insight}</p>
+        </div>
+        {comparison && (
+          <p className="mt-2 border-t border-dusty-200/60 pt-2 text-xs leading-relaxed text-maroon-700 dark:border-dusty-500/20 dark:text-dusty-300">
+            {comparison}
+          </p>
+        )}
       </div>
+
+      {/* Quick-add: transaksi yang sering dicatat (1 tap) */}
+      {quickChips.length > 0 && (
+        <div className="mb-4">
+          <div className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-gray-500">
+            <Zap size={14} className="text-dusty-600" /> Catat Cepat
+          </div>
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+            {quickChips.map((c, i) => (
+              <button
+                key={i}
+                onClick={() => openAdd({ type: c.type, category_id: c.category_id, note: c.note })}
+                className="flex shrink-0 items-center gap-2 rounded-full bg-white py-2 pl-2 pr-3 shadow-card active:scale-95 dark:bg-gray-900"
+              >
+                <CategoryIcon icon={c.icon} color={c.color} size="sm" />
+                <span className="text-sm font-medium">{c.label}</span>
+              </button>
+            ))}
+            {/* Chip generik tambah */}
+            <button
+              onClick={() => openAdd()}
+              className="flex shrink-0 items-center gap-1 rounded-full bg-maroon-700 px-4 py-2 text-sm font-semibold text-white shadow-card active:scale-95"
+            >
+              <Plus size={16} /> Lainnya
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Menu cepat */}
       <div className="mb-4 grid grid-cols-4 gap-2">

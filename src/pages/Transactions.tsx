@@ -13,7 +13,7 @@ import type { Transaction, TxType } from '@/types'
 
 type Filter = 'all' | TxType
 
-export function Transactions(_: { onAdd: () => void }) {
+export function Transactions() {
   const iso = useUIStore((s) => s.activeMonthISO)
   const periode = useMemo(() => buildPeriode(new Date(iso)), [iso])
   const { data: txs = [], isLoading } = useTransactions(periode)

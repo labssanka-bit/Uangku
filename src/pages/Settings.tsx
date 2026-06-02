@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight } from 'lucide-react'
+import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile'
 import { useUIStore } from '@/store/uiStore'
 import { exportTransactionsCSV } from '@/lib/export'
+import { formatRupiah, parseRupiah } from '@/lib/format'
 import { supabase } from '@/lib/supabase'
 
 export function Settings() {
@@ -17,6 +18,8 @@ export function Settings() {
 
   const [editName, setEditName] = useState(false)
   const [name, setName] = useState('')
+  const [editOpening, setEditOpening] = useState(false)
+  const [opening, setOpening] = useState('')
   const [busy, setBusy] = useState(false)
 
   async function handleExport() {
@@ -70,6 +73,17 @@ export function Settings() {
             <span className={`block h-5 w-5 rounded-full bg-white transition ${dark ? 'translate-x-5' : ''}`} />
           </span>
         } />
+        <Row
+          icon={Wallet}
+          label="Saldo Awal"
+          onClick={() => {
+            setOpening(profile?.opening_balance ? String(profile.opening_balance) : '')
+            setEditOpening(true)
+          }}
+          right={
+            <span className="nums text-sm text-gray-400">{formatRupiah(profile?.opening_balance ?? 0)}</span>
+          }
+        />
         <Row icon={Coins} label="Mata Uang" right={<span className="text-sm text-gray-400">{profile?.currency ?? 'IDR'}</span>} />
         <Row icon={Download} label={busy ? 'Mengekspor…' : 'Ekspor Data (CSV)'} onClick={handleExport} right={<ChevronRight size={18} className="text-gray-300" />} />
       </Card>
@@ -94,6 +108,31 @@ export function Settings() {
           onClick={async () => {
             await updateProfile.mutateAsync({ full_name: name.trim() })
             setEditName(false)
+          }}
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
+        >
+          Simpan
+        </button>
+      </Sheet>
+
+      {/* Saldo awal */}
+      <Sheet open={editOpening} onClose={() => setEditOpening(false)} title="Saldo Awal">
+        <p className="mb-3 text-center text-xs text-gray-400">
+          Masukkan saldo uangmu saat ini (kas + rekening). Dipakai sebagai titik awal
+          perhitungan Total Saldo, tanpa perlu mencatat semua transaksi lama.
+        </p>
+        <input
+          autoFocus
+          inputMode="numeric"
+          value={opening ? formatRupiah(parseRupiah(opening), false) : ''}
+          onChange={(e) => setOpening(e.target.value)}
+          placeholder="0"
+          className="nums mb-4 w-full rounded-2xl bg-gray-100 px-4 py-3 text-center text-2xl font-bold outline-none dark:bg-gray-800"
+        />
+        <button
+          onClick={async () => {
+            await updateProfile.mutateAsync({ opening_balance: parseRupiah(opening) })
+            setEditOpening(false)
           }}
           className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
         >

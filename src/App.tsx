@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useUIStore } from '@/store/uiStore'
 import { useAuth } from '@/hooks/useAuth'
+import { useAutoPostRecurring } from '@/hooks/useAutoPostRecurring'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { TransactionSheet } from '@/components/TransactionSheet'
 import { Login } from '@/pages/Login'
@@ -15,8 +16,11 @@ import { Settings } from '@/pages/Settings'
 
 export default function App() {
   const dark = useUIStore((s) => s.dark)
+  const { addOpen, addPreset, openAdd, closeAdd } = useUIStore()
   const { session, loading } = useAuth()
-  const [addOpen, setAddOpen] = useState(false)
+
+  // Auto-post transaksi berulang yang jatuh tempo (sekali per sesi)
+  useAutoPostRecurring()
 
   // Terapkan class `dark` ke <html> untuk Tailwind dark mode
   useEffect(() => {
@@ -34,10 +38,10 @@ export default function App() {
   if (!session) return <Login />
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-gray-100 pb-28 dark:bg-gray-950">
+    <div className="mx-auto min-h-screen max-w-md bg-dusty-50 pb-28 dark:bg-gray-950">
       <Routes>
-        <Route path="/" element={<Dashboard onAdd={() => setAddOpen(true)} />} />
-        <Route path="/transaksi" element={<Transactions onAdd={() => setAddOpen(true)} />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/transaksi" element={<Transactions />} />
         <Route path="/statistik" element={<Statistics />} />
         <Route path="/anggaran" element={<Budget />} />
         <Route path="/berulang" element={<Recurring />} />
@@ -45,8 +49,8 @@ export default function App() {
         <Route path="/setting" element={<Settings />} />
       </Routes>
 
-      <BottomNav onAdd={() => setAddOpen(true)} />
-      <TransactionSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <BottomNav onAdd={() => openAdd()} />
+      <TransactionSheet open={addOpen} onClose={closeAdd} preset={addPreset} />
     </div>
   )
 }

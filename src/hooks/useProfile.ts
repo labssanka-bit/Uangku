@@ -26,7 +26,7 @@ export function useUpdateProfile() {
   const { user } = useAuth()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (patch: Partial<Pick<Profile, 'full_name' | 'currency'>>) => {
+    mutationFn: async (patch: Partial<Pick<Profile, 'full_name' | 'currency' | 'opening_balance'>>) => {
       const { error } = await supabase.from('profiles').update(patch).eq('id', user!.id)
       if (error) throw error
     },

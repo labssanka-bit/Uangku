@@ -15,6 +15,10 @@ Rupiah (Rp 212.048.000), dan tanggal lokal (Sen, 25 Mei 2026).
 - **Kategori custom** — tambah/edit dengan pemilih ikon & warna.
 - **Setting** — profil, mata uang, ekspor CSV, reset data, dark mode, logout.
 - **Dark mode** & **privacy mode** (sembunyikan semua angka dengan satu tap).
+- **Auto-post berulang** — transaksi berulang yang jatuh tempo otomatis dibuat saat app dibuka (tanpa server/cron).
+- **Catat Cepat (quick-add)** — chip 1-tap di Dashboard dari transaksi yang paling sering kamu catat.
+- **Saldo Awal** — set saldo saat ini sekali di Setting → Total Saldo langsung akurat tanpa input histori lama.
+- **Insight banding bulan lalu** — "Pengeluaran naik/turun X% dari bulan lalu".
 
 ## 🧱 Tech Stack
 
@@ -66,6 +70,8 @@ npm install
    Ini membuat semua tabel, Row Level Security, dan trigger yang otomatis
    membuat profil + kategori default saat ada user baru mendaftar.
 3. Buka **Project Settings → API**, salin **Project URL** dan **anon public key**.
+4. (Update Tier 1) Jalankan juga [`supabase/migrations/2026_tier1.sql`](supabase/migrations/2026_tier1.sql)
+   untuk menambah kolom **saldo awal**. Aman dijalankan berulang.
 
 ### 3. Konfigurasi environment
 

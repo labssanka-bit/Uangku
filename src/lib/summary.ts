@@ -84,3 +84,16 @@ export function buildInsight(s: MonthSummary, balance: number, ref: Date): strin
 
   return parts.join(' ') || 'Mulai catat transaksi untuk melihat insight keuanganmu.'
 }
+
+/**
+ * Banding pengeluaran bulan ini vs bulan lalu.
+ * Kembalikan null bila bulan lalu kosong (tak ada pembanding).
+ */
+export function buildComparison(curExpense: number, prevExpense: number): string | null {
+  if (prevExpense <= 0) return null
+  const diff = curExpense - prevExpense
+  const pct = Math.round((Math.abs(diff) / prevExpense) * 100)
+  if (pct < 1) return 'Pengeluaranmu stabil dibanding bulan lalu.'
+  if (diff > 0) return `Pengeluaran naik ${pct}% dari bulan lalu (${formatRupiahRingkas(diff)}).`
+  return `Mantap! Pengeluaran turun ${pct}% dari bulan lalu (${formatRupiahRingkas(-diff)}). 🎉`
+}

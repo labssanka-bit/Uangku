@@ -7,6 +7,7 @@ export interface Profile {
   id: string
   full_name: string | null
   currency: string
+  opening_balance: number
   created_at: string
 }
 
