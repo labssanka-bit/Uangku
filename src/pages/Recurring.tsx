@@ -55,7 +55,7 @@ export function Recurring() {
         action={
           <button
             onClick={() => setOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500 text-white shadow-card"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-maroon-700 text-white shadow-card"
             aria-label="Tambah"
           >
             <Plus size={20} />
@@ -94,7 +94,7 @@ export function Recurring() {
                 </button>
                 <button
                   onClick={() => confirm('Hapus transaksi berulang ini?') && remove.mutate(r.id)}
-                  className="flex-1 rounded-xl bg-rose-50 py-1.5 text-xs font-medium text-rose-500 dark:bg-rose-500/10"
+                  className="flex-1 rounded-xl bg-wine-50 py-1.5 text-xs font-medium text-wine-500 dark:bg-wine-500/10"
                 >
                   Hapus
                 </button>
@@ -111,7 +111,7 @@ export function Recurring() {
             <button
               key={t}
               onClick={() => setType(t)}
-              className={clsx('flex-1 rounded-xl py-2 text-sm font-semibold', type === t ? (t === 'income' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white') : 'text-gray-500')}
+              className={clsx('flex-1 rounded-xl py-2 text-sm font-semibold', type === t ? (t === 'income' ? 'bg-sage-600 text-white' : 'bg-wine-500 text-white') : 'text-gray-500')}
             >
               {t === 'income' ? 'Pemasukan' : 'Pengeluaran'}
             </button>
@@ -131,7 +131,7 @@ export function Recurring() {
             <button
               key={c.id}
               onClick={() => setCategoryId(c.id)}
-              className={clsx('flex flex-col items-center gap-1 rounded-2xl p-2', categoryId === c.id && 'ring-2 ring-emerald-500')}
+              className={clsx('flex flex-col items-center gap-1 rounded-2xl p-2', categoryId === c.id && 'ring-2 ring-maroon-600')}
             >
               <CategoryIcon icon={c.icon} color={c.color} size="sm" />
               <span className="w-full truncate text-center text-[11px]">{c.name}</span>
@@ -170,7 +170,7 @@ export function Recurring() {
           </label>
         </div>
 
-        <button onClick={handleCreate} className="w-full rounded-2xl bg-emerald-500 py-3 font-bold text-white shadow-soft">
+        <button onClick={handleCreate} className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft">
           Simpan
         </button>
       </Sheet>

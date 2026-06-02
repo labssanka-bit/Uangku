@@ -39,7 +39,7 @@ export function Login() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center bg-gray-100 px-6 dark:bg-gray-950">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-soft">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-maroon-600 to-maroon-800 text-white shadow-soft">
           <Wallet size={32} />
         </div>
         <h1 className="text-2xl font-extrabold">UangKu</h1>
@@ -75,12 +75,12 @@ export function Login() {
           className="w-full rounded-2xl bg-white px-4 py-3 text-sm shadow-card outline-none dark:bg-gray-900"
         />
 
-        {msg && <p className="text-center text-xs text-rose-500">{msg}</p>}
+        {msg && <p className="text-center text-xs text-wine-500">{msg}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-2xl bg-emerald-500 py-3 text-base font-bold text-white shadow-soft disabled:opacity-50"
+          className="w-full rounded-2xl bg-maroon-700 py-3 text-base font-bold text-white shadow-soft disabled:opacity-50"
         >
           {loading ? 'Memproses…' : mode === 'login' ? 'Masuk' : 'Daftar'}
         </button>
@@ -94,7 +94,7 @@ export function Login() {
         className="mt-4 text-center text-sm text-gray-500"
       >
         {mode === 'login' ? 'Belum punya akun? ' : 'Sudah punya akun? '}
-        <span className="font-semibold text-emerald-600">
+        <span className="font-semibold text-maroon-700">
           {mode === 'login' ? 'Daftar' : 'Masuk'}
         </span>
       </button>

@@ -88,13 +88,13 @@ export function Budget() {
                       {formatRupiah(used)} <span className="text-gray-300">/</span> {formatRupiah(limit)}
                     </>
                   ) : (
-                    <span className="text-xs text-emerald-600">Atur anggaran</span>
+                    <span className="text-xs text-maroon-700">Atur anggaran</span>
                   )}
                 </span>
               </div>
               {limit > 0 && <ProgressBar ratio={ratio} />}
               {over && (
-                <p className="mt-1 text-xs font-medium text-rose-500">
+                <p className="mt-1 text-xs font-medium text-wine-500">
                   Melebihi anggaran {formatRupiah(used - limit)}!
                 </p>
               )}
@@ -118,7 +118,7 @@ export function Budget() {
         />
         <button
           onClick={handleSave}
-          className="w-full rounded-2xl bg-emerald-500 py-3 font-bold text-white shadow-soft"
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
         >
           Simpan
         </button>

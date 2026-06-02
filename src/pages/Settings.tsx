@@ -44,7 +44,7 @@ export function Settings() {
       {/* Profil */}
       <Card className="mb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-maroon-100 text-maroon-700 dark:bg-maroon-500/20">
             <User size={24} />
           </div>
           <div className="min-w-0 flex-1">
@@ -56,7 +56,7 @@ export function Settings() {
               setName(profile?.full_name ?? '')
               setEditName(true)
             }}
-            className="text-sm font-semibold text-emerald-600"
+            className="text-sm font-semibold text-maroon-700"
           >
             Edit
           </button>
@@ -66,7 +66,7 @@ export function Settings() {
       {/* Daftar setting */}
       <Card className="mb-4 divide-y divide-gray-100 p-0 dark:divide-gray-800">
         <Row icon={dark ? Sun : Moon} label="Mode Gelap" onClick={toggleDark} right={
-          <span className={`h-6 w-11 rounded-full p-0.5 transition ${dark ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'}`}>
+          <span className={`h-6 w-11 rounded-full p-0.5 transition ${dark ? 'bg-maroon-700' : 'bg-gray-300 dark:bg-gray-700'}`}>
             <span className={`block h-5 w-5 rounded-full bg-white transition ${dark ? 'translate-x-5' : ''}`} />
           </span>
         } />
@@ -76,7 +76,7 @@ export function Settings() {
 
       {/* Zona bahaya */}
       <Card className="mb-4 divide-y divide-gray-100 p-0 dark:divide-gray-800">
-        <Row icon={Trash2} label="Reset Semua Transaksi" onClick={handleReset} danger right={<ChevronRight size={18} className="text-rose-300" />} />
+        <Row icon={Trash2} label="Reset Semua Transaksi" onClick={handleReset} danger right={<ChevronRight size={18} className="text-wine-500/40" />} />
         <Row icon={LogOut} label="Keluar" onClick={signOut} danger />
       </Card>
 
@@ -95,7 +95,7 @@ export function Settings() {
             await updateProfile.mutateAsync({ full_name: name.trim() })
             setEditName(false)
           }}
-          className="w-full rounded-2xl bg-emerald-500 py-3 font-bold text-white shadow-soft"
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
         >
           Simpan
         </button>
@@ -119,8 +119,8 @@ function Row({
 }) {
   return (
     <button onClick={onClick} className="flex w-full items-center gap-3 px-4 py-3.5 text-left">
-      <Icon size={20} className={danger ? 'text-rose-500' : 'text-gray-500'} />
-      <span className={`flex-1 text-sm font-medium ${danger ? 'text-rose-500' : ''}`}>{label}</span>
+      <Icon size={20} className={danger ? 'text-wine-500' : 'text-gray-500'} />
+      <span className={`flex-1 text-sm font-medium ${danger ? 'text-wine-500' : ''}`}>{label}</span>
       {right}
     </button>
   )

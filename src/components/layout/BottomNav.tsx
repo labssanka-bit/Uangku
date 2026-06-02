@@ -27,7 +27,7 @@ export function BottomNav({ onAdd }: BottomNavProps) {
         <button
           onClick={onAdd}
           aria-label="Tambah transaksi"
-          className="relative -mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-soft ring-4 ring-gray-100 active:scale-95 dark:ring-gray-950"
+          className="relative -mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-maroon-600 to-maroon-800 text-white shadow-soft ring-4 ring-dusty-50 active:scale-95 dark:ring-gray-950"
         >
           <Plus size={30} strokeWidth={2.6} />
         </button>
@@ -62,13 +62,13 @@ function NavItem({
           <Icon
             size={22}
             className={clsx(
-              isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
+              isActive ? 'text-maroon-700 dark:text-maroon-300' : 'text-gray-400'
             )}
           />
           <span
             className={clsx(
               'text-[10px] font-medium',
-              isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
+              isActive ? 'text-maroon-700 dark:text-maroon-300' : 'text-gray-400'
             )}
           >
             {label}

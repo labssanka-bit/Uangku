@@ -72,18 +72,18 @@ export function Statistics() {
 
       {/* Kartu pengeluaran & pemasukan */}
       <div className="mb-3 grid grid-cols-2 gap-3">
-        <Card className="bg-rose-50 dark:bg-rose-500/10">
-          <span className="flex items-center gap-1 text-xs font-medium text-rose-500">
+        <Card className="bg-wine-50 dark:bg-wine-500/10">
+          <span className="flex items-center gap-1 text-xs font-medium text-wine-500">
             <TrendingDown size={14} /> Pengeluaran
           </span>
-          <Amount value={summary.expense} className="mt-1 block text-lg font-extrabold text-rose-600" />
+          <Amount value={summary.expense} className="mt-1 block text-lg font-extrabold text-wine-600" />
           <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'expense').length} transaksi</span>
         </Card>
-        <Card className="bg-emerald-50 dark:bg-emerald-500/10">
-          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+        <Card className="bg-sage-50 dark:bg-sage-500/10">
+          <span className="flex items-center gap-1 text-xs font-medium text-sage-600">
             <TrendingUp size={14} /> Pemasukan
           </span>
-          <Amount value={summary.income} className="mt-1 block text-lg font-extrabold text-emerald-600" />
+          <Amount value={summary.income} className="mt-1 block text-lg font-extrabold text-sage-600" />
           <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'income').length} transaksi</span>
         </Card>
       </div>
@@ -99,7 +99,7 @@ export function Statistics() {
       <Card className="mb-3">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="font-bold">Arus Kas Bersih</h2>
-          <span className={clsx('rounded-full px-2 py-0.5 text-xs font-semibold', net >= 0 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20' : 'bg-rose-100 text-rose-600 dark:bg-rose-500/20')}>
+          <span className={clsx('rounded-full px-2 py-0.5 text-xs font-semibold', net >= 0 ? 'bg-sage-100 text-sage-700 dark:bg-sage-500/20' : 'bg-wine-100 text-wine-600 dark:bg-wine-500/20')}>
             {net >= 0 ? 'Surplus' : 'Defisit'}
           </span>
         </div>
@@ -116,8 +116,8 @@ export function Statistics() {
             <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tickFormatter={(v) => formatRupiahRingkas(v).replace('Rp ', '')} tick={{ fontSize: 10 }} width={44} axisLine={false} tickLine={false} />
             <Tooltip formatter={(v: number) => formatRupiah(v)} />
-            <Bar dataKey="masuk" name="Masuk" fill="#10b981" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="keluar" name="Keluar" fill="#f87171" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="masuk" name="Masuk" fill="#3E7A66" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="keluar" name="Keluar" fill="#C04A5E" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Card>
@@ -158,7 +158,7 @@ export function Statistics() {
 function Metric({ icon: Icon, label, value }: { icon: typeof Wallet; label: string; value: string }) {
   return (
     <Card className="flex flex-col items-center gap-1 px-2 py-3 text-center">
-      <Icon size={18} className="text-indigo-500" />
+      <Icon size={18} className="text-dusty-600" />
       <span className="nums text-sm font-bold">{value}</span>
       <span className="text-[10px] leading-tight text-gray-400">{label}</span>
     </Card>
@@ -170,8 +170,8 @@ function CashFlowBar({ income, expense }: { income: number; expense: number }) {
   const total = income + expense || 1
   return (
     <div className="flex h-4 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
-      <div className="bg-emerald-500" style={{ width: `${(income / total) * 100}%` }} />
-      <div className="bg-rose-400" style={{ width: `${(expense / total) * 100}%` }} />
+      <div className="bg-sage-600" style={{ width: `${(income / total) * 100}%` }} />
+      <div className="bg-wine-500" style={{ width: `${(expense / total) * 100}%` }} />
     </div>
   )
 }

@@ -7,7 +7,8 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-gray-100 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+    /* Background hangat (dusty pink sangat lembut) agar serasi tema maroon */
+    @apply bg-dusty-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
     font-feature-settings: 'tnum' on, 'lnum' on; /* angka rata */
   }
   /* Angka penting pakai tabular-nums agar rapi saat berubah */

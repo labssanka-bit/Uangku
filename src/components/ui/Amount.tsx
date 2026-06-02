@@ -18,9 +18,9 @@ export function Amount({ value, className, signed }: AmountProps) {
   const prefix = signed === 'income' ? '+' : signed === 'expense' ? '-' : ''
   const colorClass =
     signed === 'income'
-      ? 'text-emerald-600 dark:text-emerald-400'
+      ? 'text-sage-600 dark:text-sage-500'
       : signed === 'expense'
-        ? 'text-rose-500 dark:text-rose-400'
+        ? 'text-wine-500 dark:text-wine-500'
         : ''
 
   return (

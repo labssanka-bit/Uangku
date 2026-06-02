@@ -94,8 +94,8 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
               'flex-1 rounded-xl py-2 text-sm font-semibold transition',
               type === t
                 ? t === 'income'
-                  ? 'bg-emerald-500 text-white shadow'
-                  : 'bg-rose-500 text-white shadow'
+                  ? 'bg-sage-600 text-white shadow'
+                  : 'bg-wine-500 text-white shadow'
                 : 'text-gray-500'
             )}
           >
@@ -110,7 +110,7 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
         <p
           className={clsx(
             'nums text-4xl font-extrabold',
-            type === 'income' ? 'text-emerald-600' : 'text-rose-500'
+            type === 'income' ? 'text-sage-600' : 'text-wine-500'
           )}
         >
           {formatRupiah(amount)}
@@ -127,7 +127,7 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
             className={clsx(
               'flex flex-col items-center gap-1 rounded-2xl p-2 transition',
               resolvedCategoryId === c.id
-                ? 'bg-gray-100 ring-2 ring-emerald-500 dark:bg-gray-800'
+                ? 'bg-gray-100 ring-2 ring-maroon-600 dark:bg-gray-800'
                 : 'active:bg-gray-50 dark:active:bg-gray-800'
             )}
           >
@@ -166,14 +166,14 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
         className={clsx(
           'mb-4 flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm',
           recurring
-            ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10'
+            ? 'bg-dusty-100 text-dusty-600 dark:bg-dusty-500/10'
             : 'bg-gray-100 text-gray-500 dark:bg-gray-800'
         )}
       >
         <span className="flex items-center gap-2">
           <Repeat size={16} /> Jadikan transaksi berulang
         </span>
-        <span className={clsx('h-5 w-9 rounded-full p-0.5 transition', recurring ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-gray-600')}>
+        <span className={clsx('h-5 w-9 rounded-full p-0.5 transition', recurring ? 'bg-dusty-500' : 'bg-gray-300 dark:bg-gray-600')}>
           <span className={clsx('block h-4 w-4 rounded-full bg-white transition', recurring && 'translate-x-4')} />
         </span>
       </button>
@@ -186,7 +186,7 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
         {editing && (
           <button
             onClick={handleDelete}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 dark:bg-rose-500/10"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-wine-50 text-wine-500 dark:bg-wine-500/10"
             aria-label="Hapus"
           >
             <Trash2 size={20} />
@@ -195,7 +195,7 @@ export function TransactionSheet({ open, onClose, editing }: Props) {
         <button
           onClick={handleSave}
           disabled={!canSave || saving}
-          className="h-12 flex-1 rounded-2xl bg-emerald-500 text-base font-bold text-white shadow-soft disabled:opacity-40"
+          className="h-12 flex-1 rounded-2xl bg-maroon-700 text-base font-bold text-white shadow-soft disabled:opacity-40"
         >
           {saving ? 'Menyimpan…' : 'Simpan'}
         </button>

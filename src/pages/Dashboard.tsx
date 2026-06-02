@@ -57,7 +57,7 @@ export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
 
       {/* Kartu saldo gradient */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-5 text-white shadow-soft">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-maroon-700 to-maroon-900 p-5 text-white shadow-soft">
           <div className="flex items-center justify-between">
             <span className="text-sm/none opacity-90">Total Saldo</span>
             <button onClick={togglePrivacy} aria-label="Sembunyikan saldo" className="opacity-90">
@@ -90,9 +90,9 @@ export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
       <MonthSelector className="my-4" />
 
       {/* Kartu insight */}
-      <div className="mb-4 flex gap-3 rounded-2xl bg-indigo-50 p-4 dark:bg-indigo-500/10">
-        <Sparkles className="mt-0.5 shrink-0 text-indigo-500" size={20} />
-        <p className="text-sm leading-relaxed text-indigo-900 dark:text-indigo-200">{insight}</p>
+      <div className="mb-4 flex gap-3 rounded-2xl bg-dusty-100 p-4 dark:bg-dusty-500/10">
+        <Sparkles className="mt-0.5 shrink-0 text-dusty-600" size={20} />
+        <p className="text-sm leading-relaxed text-maroon-800 dark:text-dusty-200">{insight}</p>
       </div>
 
       {/* Menu cepat */}
@@ -108,7 +108,7 @@ export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
         <Card className="mb-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-bold">Ringkasan Anggaran</h2>
-            <Link to="/anggaran" className="text-xs font-semibold text-emerald-600">Lihat semua</Link>
+            <Link to="/anggaran" className="text-xs font-semibold text-maroon-700">Lihat semua</Link>
           </div>
           <div className="space-y-3">
             {budgets.slice(0, 4).map((b) => {
@@ -137,7 +137,7 @@ export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
       <Card>
         <div className="mb-1 flex items-center justify-between">
           <h2 className="font-bold">Transaksi Terakhir</h2>
-          <Link to="/transaksi" className="text-xs font-semibold text-emerald-600">Lihat semua</Link>
+          <Link to="/transaksi" className="text-xs font-semibold text-maroon-700">Lihat semua</Link>
         </div>
         {recent.length === 0 ? (
           <p className="py-6 text-center text-sm text-gray-400">Belum ada transaksi. Tap tombol + untuk menambah.</p>
@@ -156,7 +156,7 @@ export function Dashboard({ onAdd: _onAdd }: { onAdd: () => void }) {
 function QuickMenu({ to, icon: Icon, label }: { to: string; icon: typeof Wallet; label: string }) {
   return (
     <Link to={to} className="flex flex-col items-center gap-1.5">
-      <span className="flex h-14 w-full items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-card dark:bg-gray-900">
+      <span className="flex h-14 w-full items-center justify-center rounded-2xl bg-white text-maroon-700 shadow-card dark:bg-gray-900">
         <Icon size={22} />
       </span>
       <span className="text-[11px] font-medium text-gray-500">{label}</span>

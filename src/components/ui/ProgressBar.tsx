@@ -11,10 +11,10 @@ export function ProgressBar({ ratio, className }: ProgressBarProps) {
   const pct = Math.min(ratio, 1) * 100
   const color =
     ratio >= 1
-      ? 'bg-rose-500'
+      ? 'bg-wine-500'
       : ratio >= 0.8
         ? 'bg-amber-400'
-        : 'bg-emerald-500'
+        : 'bg-sage-500'
 
   return (
     <div className={clsx('h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800', className)}>

@@ -76,7 +76,7 @@ export function Categories() {
             <button
               key={n}
               onClick={() => setIcon(n)}
-              className={clsx('flex items-center justify-center rounded-xl p-1', icon === n && 'ring-2 ring-emerald-500')}
+              className={clsx('flex items-center justify-center rounded-xl p-1', icon === n && 'ring-2 ring-maroon-600')}
             >
               <CategoryIcon icon={n} color={color} size="sm" />
             </button>
@@ -100,12 +100,12 @@ export function Categories() {
           {editing && !editing.is_default && (
             <button
               onClick={() => confirm('Hapus kategori ini?') && remove.mutate(editing.id, { onSuccess: () => setOpen(false) })}
-              className="rounded-2xl bg-rose-50 px-4 font-semibold text-rose-500 dark:bg-rose-500/10"
+              className="rounded-2xl bg-wine-50 px-4 font-semibold text-wine-500 dark:bg-wine-500/10"
             >
               Hapus
             </button>
           )}
-          <button onClick={handleSave} className="h-12 flex-1 rounded-2xl bg-emerald-500 font-bold text-white shadow-soft">
+          <button onClick={handleSave} className="h-12 flex-1 rounded-2xl bg-maroon-700 font-bold text-white shadow-soft">
             Simpan
           </button>
         </div>
@@ -129,7 +129,7 @@ function Section({
     <div className="mb-5">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="font-bold">{title}</h2>
-        <button onClick={onAdd} className="flex items-center gap-1 text-sm font-semibold text-emerald-600">
+        <button onClick={onAdd} className="flex items-center gap-1 text-sm font-semibold text-maroon-700">
           <Plus size={16} /> Tambah
         </button>
       </div>

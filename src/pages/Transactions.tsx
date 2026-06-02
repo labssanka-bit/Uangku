@@ -82,7 +82,7 @@ export function Transactions(_: { onAdd: () => void }) {
             onClick={() => setFilter(key)}
             className={clsx(
               'flex-1 rounded-xl py-2 text-sm font-semibold transition',
-              filter === key ? 'bg-emerald-500 text-white' : 'text-gray-500'
+              filter === key ? 'bg-maroon-700 text-white' : 'text-gray-500'
             )}
           >
             {label}
@@ -124,7 +124,7 @@ export function Transactions(_: { onAdd: () => void }) {
       {/* FAB */}
       <button
         onClick={openAdd}
-        className="fixed bottom-24 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-soft active:scale-95"
+        className="fixed bottom-24 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-maroon-700 text-white shadow-soft active:scale-95"
         aria-label="Tambah transaksi"
       >
         <Plus size={26} />
