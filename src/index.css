@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-gray-100 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+    font-feature-settings: 'tnum' on, 'lnum' on; /* angka rata */
+  }
+  /* Angka penting pakai tabular-nums agar rapi saat berubah */
+  .nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Sembunyikan scrollbar tapi tetap bisa scroll */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* Aman untuk area notch / home indicator di mobile */
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+  }
+}
+
+/* Animasi blur untuk privacy mode */
+.privacy-blur {
+  filter: blur(7px);
+  transition: filter 0.2s ease;
+  user-select: none;
+}
