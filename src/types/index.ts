@@ -2,6 +2,13 @@
 
 export type TxType = 'income' | 'expense'
 export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+/** Satu baris item hasil parsing struk oleh Gemini. */
+export interface ReceiptItem {
+  name: string
+  qty?: number
+  price: number
+}
 export type WalletGroup = 'cashflow' | 'saving'
 export type DebtType = 'hutang' | 'piutang' // hutang=aku pinjam, piutang=aku beri pinjam
 export type DebtStatus = 'belum' | 'lunas'
@@ -77,6 +84,8 @@ export interface Transaction {
   is_recurring: boolean
   wallet_id: string | null
   receipt_url: string | null
+  merchant: string | null
+  items: ReceiptItem[] | null
   created_at: string
   /** Hasil join kategori (opsional) */
   category?: Category | null
@@ -119,4 +128,6 @@ export interface TransactionInput {
   is_recurring?: boolean
   wallet_id?: string | null
   receipt_url?: string | null
+  merchant?: string | null
+  items?: ReceiptItem[] | null
 }

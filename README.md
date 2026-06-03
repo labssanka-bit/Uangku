@@ -82,21 +82,28 @@ npm install
 5. (Update Batch 2) Jalankan [`supabase/migrations/2026_batch2.sql`](supabase/migrations/2026_batch2.sql)
    untuk dompet, hutang-piutang, aset, kolom struk, + bucket Storage `receipts`.
 
-### Setup OCR Struk (Google Vision) — opsional, untuk fitur Foto Struk
-Key Vision TIDAK boleh di client. Pakai Edge Function sebagai proxy:
+6. (Update Batch 3) Jalankan [`supabase/migrations/2026_batch3_gemini.sql`](supabase/migrations/2026_batch3_gemini.sql)
+   untuk kolom `merchant` + `items` (rincian item struk) di transaksi.
+
+### Setup Foto Struk AI (Google Gemini) — opsional
+Foto struk dibaca **Gemini 2.0 Flash**: ekstrak merchant, total, tanggal, dan
+**rincian tiap item** otomatis. Key TIDAK boleh di client → pakai Edge Function:
 ```bash
 # 1. Login & link project (sekali)
-supabase login
-supabase link --project-ref <PROJECT_REF>
+npx supabase@latest login
+npx supabase@latest link --project-ref <PROJECT_REF>
 
-# 2. Set secret key Vision
-supabase secrets set GOOGLE_VISION_API_KEY=AIza...
+# 2. Set secret key Gemini (dari Google AI Studio)
+npx supabase@latest secrets set GEMINI_API_KEY=AIza...
 
 # 3. Deploy function
-supabase functions deploy ocr-receipt --no-verify-jwt
+npx supabase@latest functions deploy parse-receipt --no-verify-jwt
 ```
-Aktifkan **Cloud Vision API** di Google Cloud Console dan buat API key di sana.
-Tanpa setup ini, fitur lain tetap jalan; tombol Foto Struk akan menampilkan pesan error.
+Ambil API key gratis di **Google AI Studio** (https://aistudio.google.com/apikey).
+Free tier ±1500 request/hari. Tanpa setup ini, fitur lain tetap jalan; tombol
+Foto Struk menampilkan pesan error.
+
+> Edge Function lama `ocr-receipt` (Google Vision) sudah digantikan `parse-receipt`.
 
 ### 3. Konfigurasi environment
 

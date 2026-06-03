@@ -8,11 +8,11 @@ import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { useAuth } from '@/hooks/useAuth'
 import { formatRupiah, toISODate } from '@/lib/format'
-import { ocrReceipt, uploadReceipt } from '@/lib/ocr'
+import { parseReceipt, uploadReceipt } from '@/lib/receipt'
 import { listenOnce, isVoiceSupported } from '@/lib/voice'
 import { extractAmount, guessCategoryName } from '@/lib/parseAmount'
 import { clsx } from '@/lib/clsx'
-import type { Transaction, TxType } from '@/types'
+import type { Transaction, TxType, ReceiptItem } from '@/types'
 
 import type { AddPreset } from '@/store/uiStore'
 
@@ -35,6 +35,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [note, setNote] = useState('')
   const [recurring, setRecurring] = useState(false)
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null)
+  const [merchant, setMerchant] = useState<string | null>(null)
+  const [items, setItems] = useState<ReceiptItem[] | null>(null)
   const [busy, setBusy] = useState<null | 'ocr' | 'voice'>(null)
   const [hint, setHint] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -57,6 +59,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setNote(editing.note ?? '')
       setRecurring(editing.is_recurring)
       setReceiptUrl(editing.receipt_url)
+      setMerchant(editing.merchant)
+      setItems(editing.items)
     } else {
       // Tambah baru — pakai preset bila ada (quick-add)
       setType(preset?.type ?? 'expense')
@@ -67,6 +71,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setNote(preset?.note ?? '')
       setRecurring(false)
       setReceiptUrl(null)
+      setMerchant(null)
+      setItems(null)
     }
   }, [open, editing, preset])
 
@@ -90,23 +96,34 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
     if (cat) setCategoryId(cat.id)
   }
 
-  // === Foto struk (OCR) ===
+  // === Foto struk → Gemini (merchant, total, item) ===
   async function handleReceipt(file: File) {
     setBusy('ocr')
-    setHint('Membaca struk…')
+    setHint('Membaca struk dengan AI…')
     try {
-      const res = await ocrReceipt(file)
-      if (res.amount > 0) setAmount(res.amount)
+      const catNames = categories.map((c) => c.name)
+      const res = await parseReceipt(file, catNames)
+      if (res.total > 0) setAmount(res.total)
       if (res.date) setDate(res.date)
-      applyGuessedCategory(guessCategoryName(res.text))
+      if (res.merchant) {
+        setMerchant(res.merchant)
+        setNote((n) => n || res.merchant)
+      }
+      if (res.items.length) setItems(res.items)
+      // Kategori: pakai saran Gemini, fallback tebakan kata kunci dari merchant
+      applyGuessedCategory(res.category ?? guessCategoryName(res.merchant))
       // Unggah foto (best-effort)
       if (user) {
         const url = await uploadReceipt(file, user.id)
         if (url) setReceiptUrl(url)
       }
-      setHint(res.amount > 0 ? `Terbaca: ${formatRupiah(res.amount)}. Cek & simpan.` : 'Nominal tak terbaca, isi manual.')
+      setHint(
+        res.total > 0
+          ? `${res.merchant || 'Struk'} · ${formatRupiah(res.total)} · ${res.items.length} item. Cek & simpan.`
+          : 'Struk tak terbaca jelas, isi manual.'
+      )
     } catch (e) {
-      setHint(e instanceof Error ? e.message : 'OCR gagal.')
+      setHint(e instanceof Error ? e.message : 'Gagal membaca struk.')
     } finally {
       setBusy(null)
     }
@@ -151,6 +168,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       is_recurring: recurring,
       wallet_id: resolvedWalletId,
       receipt_url: receiptUrl,
+      merchant,
+      items,
     }
     if (editing) await update.mutateAsync({ id: editing.id, ...payload })
     else await create.mutateAsync(payload)
@@ -229,6 +248,35 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </button>
       </div>
       {hint && <p className="mb-3 text-center text-xs text-gray-500">{hint}</p>}
+
+      {/* Rincian item hasil struk (Gemini) */}
+      {items && items.length > 0 && (
+        <div className="mb-4 rounded-2xl bg-dusty-50 p-3 dark:bg-gray-800">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-xs font-semibold text-maroon-700 dark:text-dusty-300">
+              🧾 {items.length} item{merchant ? ` · ${merchant}` : ''}
+            </span>
+            <button onClick={() => setItems(null)} className="text-xs text-gray-400">hapus rincian</button>
+          </div>
+          <div className="max-h-40 space-y-1 overflow-y-auto no-scrollbar">
+            {items.map((it, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <span className="min-w-0 flex-1 truncate">
+                  {it.qty && it.qty > 1 ? `${it.qty}× ` : ''}{it.name}
+                </span>
+                <span className="nums ml-2 shrink-0 text-gray-500">{formatRupiah(it.price)}</span>
+                <button
+                  onClick={() => setItems((prev) => (prev ? prev.filter((_, j) => j !== i) : prev))}
+                  className="ml-2 text-gray-300 hover:text-wine-500"
+                  aria-label="Hapus item"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Kategori grid */}
       <p className="mb-2 text-xs font-medium text-gray-400">Kategori</p>

@@ -13,7 +13,13 @@ interface Props {
 /** Satu baris transaksi: ikon kategori, nama, sub-info, nominal berwarna. */
 export function TransactionItem({ tx, showDate = true, onClick }: Props) {
   const title = tx.note?.trim() || tx.category?.name || 'Transaksi'
-  const sub = [tx.category?.name, showDate ? formatTanggal(tx.date) : null]
+  const itemCount = tx.items?.length ?? 0
+  const sub = [
+    tx.category?.name,
+    tx.wallet?.name,
+    itemCount > 0 ? `🧾 ${itemCount} item` : null,
+    showDate ? formatTanggal(tx.date) : null,
+  ]
     .filter(Boolean)
     .join(' · ')
 
