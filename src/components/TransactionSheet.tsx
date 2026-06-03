@@ -39,6 +39,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [items, setItems] = useState<ReceiptItem[] | null>(null)
   const [busy, setBusy] = useState<null | 'ocr' | 'voice'>(null)
   const [hint, setHint] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const { user } = useAuth()
@@ -50,6 +51,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   useEffect(() => {
     if (!open) return
     setHint(null)
+    setSaveError(null)
     if (editing) {
       setType(editing.type)
       setAmount(editing.amount)
@@ -151,6 +153,10 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
     }
   }
 
+  // Ambil pesan dari Error atau objek error Supabase (PostgrestError: {message})
+  const errMsg = (e: unknown, fallback: string) =>
+    e instanceof Error ? e.message : (e as { message?: string })?.message || fallback
+
   const handleDigit = (d: string) => setAmount((a) => Number(`${a}${d}`.slice(0, 13)))
   const handleBackspace = () => setAmount((a) => Math.floor(a / 10))
 
@@ -159,6 +165,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
 
   async function handleSave() {
     if (!canSave) return
+    setSaveError(null)
     const payload = {
       category_id: resolvedCategoryId,
       amount,
@@ -171,16 +178,25 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       merchant,
       items,
     }
-    if (editing) await update.mutateAsync({ id: editing.id, ...payload })
-    else await create.mutateAsync(payload)
-    onClose()
+    try {
+      if (editing) await update.mutateAsync({ id: editing.id, ...payload })
+      else await create.mutateAsync(payload)
+      onClose()
+    } catch (e) {
+      // Tampilkan error asli (mis. kolom DB belum ada) agar tak gagal diam-diam
+      setSaveError(errMsg(e, 'Gagal menyimpan transaksi.'))
+    }
   }
 
   async function handleDelete() {
     if (!editing) return
     if (!confirm('Hapus transaksi ini?')) return
-    await remove.mutateAsync(editing.id)
-    onClose()
+    try {
+      await remove.mutateAsync(editing.id)
+      onClose()
+    } catch (e) {
+      setSaveError(errMsg(e, 'Gagal menghapus transaksi.'))
+    }
   }
 
   return (
@@ -366,8 +382,15 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       {/* Numpad */}
       <Numpad onInput={handleDigit} onBackspace={handleBackspace} />
 
+      {/* Pesan error simpan (mis. kolom DB belum ada) */}
+      {saveError && (
+        <p className="mt-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">
+          {saveError}
+        </p>
+      )}
+
       {/* Aksi */}
-      <div className="mt-4 flex gap-2">
+      <div className="mt-3 flex gap-2">
         {editing && (
           <button
             onClick={handleDelete}
