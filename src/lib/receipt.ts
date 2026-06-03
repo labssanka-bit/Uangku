@@ -31,7 +31,20 @@ export async function parseReceipt(file: File, categories: string[]): Promise<Re
   const { data, error } = await supabase.functions.invoke('parse-receipt', {
     body: { imageBase64, mimeType: file.type || 'image/jpeg', categories },
   })
-  if (error) throw new Error(error.message || 'Gagal membaca struk.')
+  if (error) {
+    // Ambil pesan error asli dari body function (FunctionsHttpError menyimpan Response di .context)
+    let detail = error.message || 'Gagal membaca struk.'
+    try {
+      const ctx = (error as { context?: Response }).context
+      if (ctx && typeof ctx.json === 'function') {
+        const body = await ctx.json()
+        if (body?.error) detail = String(body.error)
+      }
+    } catch {
+      /* abaikan */
+    }
+    throw new Error(detail)
+  }
   const d = data as Partial<ReceiptParse> & { error?: string }
   if (d.error) throw new Error(d.error)
 
