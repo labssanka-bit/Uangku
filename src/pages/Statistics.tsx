@@ -15,6 +15,7 @@ import { TrendingDown, TrendingUp, Wallet, PiggyBank, Calendar } from 'lucide-re
 import { Card } from '@/components/ui/Card'
 import { Amount } from '@/components/ui/Amount'
 import { MonthSelector } from '@/components/MonthSelector'
+import { CalendarHeatmap } from '@/components/CalendarHeatmap'
 import { useUIStore } from '@/store/uiStore'
 import { useTransactions, useTransactionsBetween } from '@/hooks/useTransactions'
 import { buildPeriode } from '@/lib/dateRange'
@@ -106,6 +107,9 @@ export function Statistics() {
         <CashFlowBar income={summary.income} expense={summary.expense} />
         <Amount value={net} className="mt-2 block text-lg font-extrabold" />
       </Card>
+
+      {/* Kalender heatmap pengeluaran */}
+      <CalendarHeatmap refDate={ref} transactions={txs} />
 
       {/* Tren 6 bulan */}
       <Card className="mb-3">

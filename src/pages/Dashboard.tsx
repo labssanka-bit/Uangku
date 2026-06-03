@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Sparkles, Eye, EyeOff, Wallet, PiggyBank, Repeat, Tags, Settings as Cog, ArrowDownLeft, ArrowUpRight, Zap, Plus } from 'lucide-react'
+import { Sparkles, Eye, EyeOff, Wallet, PiggyBank, Repeat, Tags, Settings as Cog, ArrowDownLeft, ArrowUpRight, Zap, Plus, Flame, Landmark, HandCoins, Gem, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
@@ -10,11 +10,13 @@ import { ThemeToggles } from '@/components/layout/ThemeToggles'
 import { TransactionItem } from '@/components/TransactionItem'
 import { useUIStore } from '@/store/uiStore'
 import { useProfile } from '@/hooks/useProfile'
-import { useTransactions, useRecentTransactions, useTotalBalance } from '@/hooks/useTransactions'
+import { useTransactions, useRecentTransactions, useTotalBalance, useTransactionDates } from '@/hooks/useTransactions'
 import { useBudgets } from '@/hooks/useBudgets'
+import { useWalletBalances } from '@/hooks/useWallets'
 import { buildPeriode, bulanSebelum } from '@/lib/dateRange'
 import { summarize, buildInsight, buildComparison } from '@/lib/summary'
 import { buildQuickChips } from '@/lib/quickadd'
+import { computeStreak } from '@/lib/streak'
 import { formatRupiah } from '@/lib/format'
 
 export function Dashboard() {
@@ -33,6 +35,10 @@ export function Dashboard() {
   const { data: recentMany = [] } = useRecentTransactions(50)
   const { data: txBalance = 0 } = useTotalBalance()
   const { data: budgets = [] } = useBudgets(periode)
+  const { data: txDates = [] } = useTransactionDates()
+  const { cashflowTotal, savingTotal } = useWalletBalances()
+
+  const streak = useMemo(() => computeStreak(txDates), [txDates])
 
   // Saldo total = transaksi + saldo awal yang diset user
   const balance = txBalance + (profile?.opening_balance ?? 0)
@@ -67,7 +73,14 @@ export function Dashboard() {
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h1 className="text-xl font-extrabold">Hai{firstName ? `, ${firstName}` : ''}! 👋</h1>
-          <p className="text-sm capitalize text-gray-400">{new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(ref)}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm capitalize text-gray-400">{new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(ref)}</p>
+            {streak > 0 && (
+              <span className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-600 dark:bg-orange-500/15">
+                <Flame size={12} /> {streak} hari
+              </span>
+            )}
+          </div>
         </div>
         <ThemeToggles />
       </div>
@@ -102,6 +115,18 @@ export function Dashboard() {
           </div>
         </div>
       </motion.div>
+
+      {/* Ringkasan dompet per grup */}
+      <Link to="/dompet" className="mt-3 grid grid-cols-2 gap-3">
+        <div className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900">
+          <span className="flex items-center gap-1 text-xs font-medium text-maroon-700"><Landmark size={13} /> Cashflow</span>
+          <p className={`nums mt-0.5 font-bold ${privacy ? 'privacy-blur' : ''}`}>{formatRupiah(cashflowTotal)}</p>
+        </div>
+        <div className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900">
+          <span className="flex items-center gap-1 text-xs font-medium text-sage-700"><PiggyBank size={13} /> Saving</span>
+          <p className={`nums mt-0.5 font-bold ${privacy ? 'privacy-blur' : ''}`}>{formatRupiah(savingTotal)}</p>
+        </div>
+      </Link>
 
       {/* Selector bulan */}
       <MonthSelector className="my-4" />
@@ -148,10 +173,14 @@ export function Dashboard() {
       )}
 
       {/* Menu cepat */}
-      <div className="mb-4 grid grid-cols-4 gap-2">
+      <div className="mb-4 grid grid-cols-4 gap-y-3 gap-x-2">
+        <QuickMenu to="/dompet" icon={Landmark} label="Dompet" />
+        <QuickMenu to="/hutang" icon={HandCoins} label="Hutang" />
+        <QuickMenu to="/aset" icon={Gem} label="Aset" />
         <QuickMenu to="/anggaran" icon={PiggyBank} label="Anggaran" />
         <QuickMenu to="/berulang" icon={Repeat} label="Berulang" />
         <QuickMenu to="/kategori" icon={Tags} label="Kategori" />
+        <QuickMenu to="/statistik" icon={BarChart3} label="Statistik" />
         <QuickMenu to="/setting" icon={Cog} label="Setting" />
       </div>
 

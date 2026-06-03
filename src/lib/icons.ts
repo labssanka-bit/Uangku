@@ -25,6 +25,13 @@ import {
   PawPrint,
   Dumbbell,
   Fuel,
+  Landmark,
+  Gem,
+  Coins,
+  Banknote,
+  CreditCard,
+  Building2,
+  TrendingDown,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -51,6 +58,13 @@ export const ICONS: Record<string, LucideIcon> = {
   'paw-print': PawPrint,
   dumbbell: Dumbbell,
   fuel: Fuel,
+  landmark: Landmark,
+  gem: Gem,
+  coins: Coins,
+  banknote: Banknote,
+  'credit-card': CreditCard,
+  'building-2': Building2,
+  'trending-down': TrendingDown,
 }
 
 /** Daftar nama ikon untuk picker saat buat kategori custom. */

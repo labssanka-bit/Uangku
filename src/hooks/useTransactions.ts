@@ -15,7 +15,7 @@ export function useTransactions(periode: Periode) {
     queryFn: async (): Promise<Transaction[]> => {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, category:categories(*)')
+        .select('*, category:categories(*), wallet:wallets(*)')
         .gte('date', periode.start)
         .lte('date', periode.end)
         .order('date', { ascending: false })
@@ -35,7 +35,7 @@ export function useRecentTransactions(limit = 5) {
     queryFn: async (): Promise<Transaction[]> => {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, category:categories(*)')
+        .select('*, category:categories(*), wallet:wallets(*)')
         .order('date', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(limit)
@@ -88,12 +88,26 @@ export function useTransactionsBetween(startISO: string, endISO: string) {
     queryFn: async (): Promise<Transaction[]> => {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, category:categories(*)')
+        .select('*, category:categories(*), wallet:wallets(*)')
         .gte('date', startISO)
         .lte('date', endISO)
         .order('date', { ascending: true })
       if (error) throw error
       return data as Transaction[]
+    },
+  })
+}
+
+/** Semua tanggal transaksi (untuk hitung streak). */
+export function useTransactionDates() {
+  const { user } = useAuth()
+  return useQuery({
+    queryKey: [KEY, 'dates', user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<string[]> => {
+      const { data, error } = await supabase.from('transactions').select('date')
+      if (error) throw error
+      return (data as { date: string }[]).map((r) => r.date)
     },
   })
 }

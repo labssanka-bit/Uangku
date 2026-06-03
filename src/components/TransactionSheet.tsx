@@ -1,11 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Trash2, Repeat } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Trash2, Repeat, Camera, Mic, Loader2 } from 'lucide-react'
 import { Sheet } from './ui/Sheet'
 import { Numpad } from './ui/Numpad'
 import { CategoryIcon } from './ui/CategoryIcon'
 import { useCategories } from '@/hooks/useCategories'
 import { useTransactionMutations } from '@/hooks/useTransactions'
+import { useWallets } from '@/hooks/useWallets'
+import { useAuth } from '@/hooks/useAuth'
 import { formatRupiah, toISODate } from '@/lib/format'
+import { ocrReceipt, uploadReceipt } from '@/lib/ocr'
+import { listenOnce, isVoiceSupported } from '@/lib/voice'
+import { extractAmount, guessCategoryName } from '@/lib/parseAmount'
 import { clsx } from '@/lib/clsx'
 import type { Transaction, TxType } from '@/types'
 
@@ -25,31 +30,43 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [type, setType] = useState<TxType>('expense')
   const [amount, setAmount] = useState(0)
   const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [walletId, setWalletId] = useState<string | null>(null)
   const [date, setDate] = useState(toISODate(new Date()))
   const [note, setNote] = useState('')
   const [recurring, setRecurring] = useState(false)
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null)
+  const [busy, setBusy] = useState<null | 'ocr' | 'voice'>(null)
+  const [hint, setHint] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
+  const { user } = useAuth()
   const { data: categories = [] } = useCategories(type)
+  const { data: wallets = [] } = useWallets()
   const { create, update, remove } = useTransactionMutations()
 
   // Isi form saat membuka untuk edit / reset saat tambah baru
   useEffect(() => {
     if (!open) return
+    setHint(null)
     if (editing) {
       setType(editing.type)
       setAmount(editing.amount)
       setCategoryId(editing.category_id)
+      setWalletId(editing.wallet_id)
       setDate(editing.date)
       setNote(editing.note ?? '')
       setRecurring(editing.is_recurring)
+      setReceiptUrl(editing.receipt_url)
     } else {
       // Tambah baru — pakai preset bila ada (quick-add)
       setType(preset?.type ?? 'expense')
       setAmount(0)
       setCategoryId(preset?.category_id ?? null)
+      setWalletId(null)
       setDate(toISODate(new Date()))
       setNote(preset?.note ?? '')
       setRecurring(false)
+      setReceiptUrl(null)
     }
   }, [open, editing, preset])
 
@@ -58,6 +75,64 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
     if (categoryId && categories.some((c) => c.id === categoryId)) return categoryId
     return categories[0]?.id ?? null
   }, [categoryId, categories])
+
+  // Default dompet: pilihan user → default cashflow → dompet pertama
+  const resolvedWalletId = useMemo(() => {
+    if (walletId && wallets.some((w) => w.id === walletId)) return walletId
+    const def = wallets.find((w) => w.is_default && w.group === 'cashflow')
+    return def?.id ?? wallets[0]?.id ?? null
+  }, [walletId, wallets])
+
+  // Set kategori dari nama hasil tebakan OCR/VN
+  function applyGuessedCategory(name: string | null) {
+    if (!name) return
+    const cat = categories.find((c) => c.name.toLowerCase() === name.toLowerCase())
+    if (cat) setCategoryId(cat.id)
+  }
+
+  // === Foto struk (OCR) ===
+  async function handleReceipt(file: File) {
+    setBusy('ocr')
+    setHint('Membaca struk…')
+    try {
+      const res = await ocrReceipt(file)
+      if (res.amount > 0) setAmount(res.amount)
+      if (res.date) setDate(res.date)
+      applyGuessedCategory(guessCategoryName(res.text))
+      // Unggah foto (best-effort)
+      if (user) {
+        const url = await uploadReceipt(file, user.id)
+        if (url) setReceiptUrl(url)
+      }
+      setHint(res.amount > 0 ? `Terbaca: ${formatRupiah(res.amount)}. Cek & simpan.` : 'Nominal tak terbaca, isi manual.')
+    } catch (e) {
+      setHint(e instanceof Error ? e.message : 'OCR gagal.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  // === Voice note (VN) ===
+  async function handleVoice() {
+    if (!isVoiceSupported()) {
+      setHint('Browser tidak mendukung input suara.')
+      return
+    }
+    setBusy('voice')
+    setHint('Mendengarkan… ucapkan, mis. "kopi tiga puluh ribu"')
+    try {
+      const text = await listenOnce()
+      const amt = extractAmount(text)
+      if (amt > 0) setAmount(amt)
+      if (text) setNote((n) => n || text)
+      applyGuessedCategory(guessCategoryName(text))
+      setHint(amt > 0 ? `"${text}" → ${formatRupiah(amt)}` : `"${text}". Nominal tak terbaca, isi manual.`)
+    } catch (e) {
+      setHint(e instanceof Error ? e.message : 'Gagal merekam.')
+    } finally {
+      setBusy(null)
+    }
+  }
 
   const handleDigit = (d: string) => setAmount((a) => Number(`${a}${d}`.slice(0, 13)))
   const handleBackspace = () => setAmount((a) => Math.floor(a / 10))
@@ -74,6 +149,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       note: note.trim() || null,
       date,
       is_recurring: recurring,
+      wallet_id: resolvedWalletId,
+      receipt_url: receiptUrl,
     }
     if (editing) await update.mutateAsync({ id: editing.id, ...payload })
     else await create.mutateAsync(payload)
@@ -122,6 +199,37 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </p>
       </div>
 
+      {/* Catat cepat: Foto struk (OCR) & Suara (VN) */}
+      <div className="mb-2 flex gap-2">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) handleReceipt(f)
+            e.target.value = ''
+          }}
+        />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={busy !== null}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 disabled:opacity-50 dark:bg-dusty-500/10 dark:text-dusty-300"
+        >
+          {busy === 'ocr' ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />} Foto Struk
+        </button>
+        <button
+          onClick={handleVoice}
+          disabled={busy !== null}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 disabled:opacity-50 dark:bg-dusty-500/10 dark:text-dusty-300"
+        >
+          {busy === 'voice' ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />} Suara
+        </button>
+      </div>
+      {hint && <p className="mb-3 text-center text-xs text-gray-500">{hint}</p>}
+
       {/* Kategori grid */}
       <p className="mb-2 text-xs font-medium text-gray-400">Kategori</p>
       <div className="mb-4 grid grid-cols-4 gap-2">
@@ -141,6 +249,30 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
           </button>
         ))}
       </div>
+
+      {/* Dompet */}
+      {wallets.length > 0 && (
+        <>
+          <p className="mb-2 text-xs font-medium text-gray-400">Dompet</p>
+          <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1">
+            {wallets.map((w) => (
+              <button
+                key={w.id}
+                onClick={() => setWalletId(w.id)}
+                className={clsx(
+                  'flex shrink-0 items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 transition',
+                  resolvedWalletId === w.id
+                    ? 'bg-maroon-700 text-white'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                )}
+              >
+                <CategoryIcon icon={w.icon} color={resolvedWalletId === w.id ? '#ffffff' : w.color} size="sm" />
+                <span className="text-xs font-medium">{w.name}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Tanggal & catatan */}
       <div className="mb-3 grid grid-cols-2 gap-3">

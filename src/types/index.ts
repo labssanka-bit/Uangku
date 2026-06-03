@@ -2,6 +2,50 @@
 
 export type TxType = 'income' | 'expense'
 export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly' | 'yearly'
+export type WalletGroup = 'cashflow' | 'saving'
+export type DebtType = 'hutang' | 'piutang' // hutang=aku pinjam, piutang=aku beri pinjam
+export type DebtStatus = 'belum' | 'lunas'
+export type AssetType = 'emas' | 'properti' | 'saham' | 'reksadana' | 'lainnya'
+
+export interface Wallet {
+  id: string
+  user_id: string
+  group: WalletGroup
+  name: string
+  icon: string
+  color: string
+  opening_balance: number
+  is_default: boolean
+  sort_order: number
+  created_at: string
+}
+
+export interface Debt {
+  id: string
+  user_id: string
+  person: string
+  amount: number
+  paid_amount: number
+  type: DebtType
+  due_date: string | null
+  status: DebtStatus
+  note: string | null
+  wallet_id: string | null
+  created_at: string
+}
+
+export interface Asset {
+  id: string
+  user_id: string
+  name: string
+  type: AssetType
+  quantity: number
+  buy_price: number
+  current_value: number
+  date: string
+  note: string | null
+  created_at: string
+}
 
 export interface Profile {
   id: string
@@ -31,9 +75,13 @@ export interface Transaction {
   note: string | null
   date: string // yyyy-MM-dd
   is_recurring: boolean
+  wallet_id: string | null
+  receipt_url: string | null
   created_at: string
   /** Hasil join kategori (opsional) */
   category?: Category | null
+  /** Hasil join dompet (opsional) */
+  wallet?: Wallet | null
 }
 
 export interface Budget {
@@ -69,4 +117,6 @@ export interface TransactionInput {
   note: string | null
   date: string
   is_recurring?: boolean
+  wallet_id?: string | null
+  receipt_url?: string | null
 }

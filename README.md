@@ -19,6 +19,13 @@ Rupiah (Rp 212.048.000), dan tanggal lokal (Sen, 25 Mei 2026).
 - **Catat Cepat (quick-add)** — chip 1-tap di Dashboard dari transaksi yang paling sering kamu catat.
 - **Saldo Awal** — set saldo saat ini sekali di Setting → Total Saldo langsung akurat tanpa input histori lama.
 - **Insight banding bulan lalu** — "Pengeluaran naik/turun X% dari bulan lalu".
+- **Dompet 2-tingkat** — grup Cashflow & Saving, tiap grup punya dompet/rekening custom (BCA, Cash, GoPay, dll) dgn saldo sendiri. Tiap transaksi pilih dompet.
+- **Hutang & Piutang** — catat, cicil/lunasi, auto jadi transaksi di dompet.
+- **Aset / Emas** — catat emas (gram × harga), properti, saham; lihat Total Kekayaan (dompet + aset).
+- **Foto Struk (OCR)** — foto struk → nominal+tanggal+kategori auto terisi (Google Vision via Edge Function).
+- **Voice Note (VN)** — ucapkan "kopi tiga puluh ribu" → nominal+kategori auto (Web Speech API id-ID).
+- **Kalender Heatmap** — di Statistik, tiap tanggal diwarnai sesuai pengeluaran; tanggal tertinggi ditandai; tap → lihat transaksi hari itu.
+- **Streak pencatatan** — "🔥 N hari beruntun" di Dashboard.
 
 ## 🧱 Tech Stack
 
@@ -72,6 +79,24 @@ npm install
 3. Buka **Project Settings → API**, salin **Project URL** dan **anon public key**.
 4. (Update Tier 1) Jalankan juga [`supabase/migrations/2026_tier1.sql`](supabase/migrations/2026_tier1.sql)
    untuk menambah kolom **saldo awal**. Aman dijalankan berulang.
+5. (Update Batch 2) Jalankan [`supabase/migrations/2026_batch2.sql`](supabase/migrations/2026_batch2.sql)
+   untuk dompet, hutang-piutang, aset, kolom struk, + bucket Storage `receipts`.
+
+### Setup OCR Struk (Google Vision) — opsional, untuk fitur Foto Struk
+Key Vision TIDAK boleh di client. Pakai Edge Function sebagai proxy:
+```bash
+# 1. Login & link project (sekali)
+supabase login
+supabase link --project-ref <PROJECT_REF>
+
+# 2. Set secret key Vision
+supabase secrets set GOOGLE_VISION_API_KEY=AIza...
+
+# 3. Deploy function
+supabase functions deploy ocr-receipt --no-verify-jwt
+```
+Aktifkan **Cloud Vision API** di Google Cloud Console dan buat API key di sana.
+Tanpa setup ini, fitur lain tetap jalan; tombol Foto Struk akan menampilkan pesan error.
 
 ### 3. Konfigurasi environment
 
