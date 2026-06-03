@@ -17,7 +17,7 @@ const cors = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const MODEL = 'gemini-2.0-flash'
+const MODEL = 'gemini-2.5-flash'
 
 // Skema output agar Gemini balikin JSON konsisten
 const responseSchema = {
