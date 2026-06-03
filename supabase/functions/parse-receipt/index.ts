@@ -67,10 +67,11 @@ serve(async (req) => {
       `Pilih satu kategori paling cocok dari: ${catList.join(', ')}.`
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // Key format baru (AQ.) wajib via header, bukan query ?key=
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
         body: JSON.stringify({
           contents: [
             {
