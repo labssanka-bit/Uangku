@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Trash2, Repeat, Camera, Mic, Loader2 } from 'lucide-react'
+import { Trash2, Repeat, Camera, Mic, Loader2, ImageIcon } from 'lucide-react'
 import { Sheet } from './ui/Sheet'
 import { Numpad } from './ui/Numpad'
 import { CategoryIcon } from './ui/CategoryIcon'
@@ -19,13 +19,10 @@ import type { AddPreset } from '@/store/uiStore'
 interface Props {
   open: boolean
   onClose: () => void
-  /** Jika diisi → mode edit */
   editing?: Transaction | null
-  /** Prefill saat tambah baru (quick-add) */
   preset?: AddPreset | null
 }
 
-/** Sheet tambah/edit transaksi: toggle tipe, nominal+numpad, kategori, tanggal, catatan. */
 export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [type, setType] = useState<TxType>('expense')
   const [amount, setAmount] = useState(0)
@@ -40,14 +37,14 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [busy, setBusy] = useState<null | 'ocr' | 'voice'>(null)
   const [hint, setHint] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
 
   const { user } = useAuth()
   const { data: categories = [] } = useCategories(type)
   const { data: wallets = [] } = useWallets()
   const { create, update, remove } = useTransactionMutations()
 
-  // Isi form saat membuka untuk edit / reset saat tambah baru
   useEffect(() => {
     if (!open) return
     setHint(null)
@@ -64,7 +61,6 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setMerchant(editing.merchant)
       setItems(editing.items)
     } else {
-      // Tambah baru — pakai preset bila ada (quick-add)
       setType(preset?.type ?? 'expense')
       setAmount(0)
       setCategoryId(preset?.category_id ?? null)
@@ -78,27 +74,23 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
     }
   }, [open, editing, preset])
 
-  // Default kategori pertama bila belum dipilih
   const resolvedCategoryId = useMemo(() => {
     if (categoryId && categories.some((c) => c.id === categoryId)) return categoryId
     return categories[0]?.id ?? null
   }, [categoryId, categories])
 
-  // Default dompet: pilihan user → default cashflow → dompet pertama
   const resolvedWalletId = useMemo(() => {
     if (walletId && wallets.some((w) => w.id === walletId)) return walletId
     const def = wallets.find((w) => w.is_default && w.group === 'cashflow')
     return def?.id ?? wallets[0]?.id ?? null
   }, [walletId, wallets])
 
-  // Set kategori dari nama hasil tebakan OCR/VN
   function applyGuessedCategory(name: string | null) {
     if (!name) return
     const cat = categories.find((c) => c.name.toLowerCase() === name.toLowerCase())
     if (cat) setCategoryId(cat.id)
   }
 
-  // === Foto struk → Gemini (merchant, total, item) ===
   async function handleReceipt(file: File) {
     setBusy('ocr')
     setHint('Membaca struk dengan AI…')
@@ -112,9 +104,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         setNote((n) => n || res.merchant)
       }
       if (res.items.length) setItems(res.items)
-      // Kategori: pakai saran Gemini, fallback tebakan kata kunci dari merchant
       applyGuessedCategory(res.category ?? guessCategoryName(res.merchant))
-      // Unggah foto (best-effort)
       if (user) {
         const url = await uploadReceipt(file, user.id)
         if (url) setReceiptUrl(url)
@@ -131,10 +121,9 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
     }
   }
 
-  // === Voice note (VN) ===
   async function handleVoice() {
     if (!isVoiceSupported()) {
-      setHint('Browser tidak mendukung input suara.')
+      setHint('Browser tidak mendukung input suara. Gunakan Chrome di Android.')
       return
     }
     setBusy('voice')
@@ -153,7 +142,6 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
     }
   }
 
-  // Ambil pesan dari Error atau objek error Supabase (PostgrestError: {message})
   const errMsg = (e: unknown, fallback: string) =>
     e instanceof Error ? e.message : (e as { message?: string })?.message || fallback
 
@@ -183,7 +171,6 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       else await create.mutateAsync(payload)
       onClose()
     } catch (e) {
-      // Tampilkan error asli (mis. kolom DB belum ada) agar tak gagal diam-diam
       setSaveError(errMsg(e, 'Gagal menyimpan transaksi.'))
     }
   }
@@ -201,32 +188,29 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
 
   return (
     <Sheet open={open} onClose={onClose} title={editing ? 'Edit Transaksi' : 'Tambah Transaksi'}>
-      {/* Toggle tipe */}
-      <div className="mb-4 flex rounded-2xl bg-gray-100 p-1 dark:bg-gray-800">
-        {(['expense', 'income'] as TxType[]).map((t) => (
-          <button
-            key={t}
-            onClick={() => setType(t)}
-            className={clsx(
-              'flex-1 rounded-xl py-2 text-sm font-semibold transition',
-              type === t
-                ? t === 'income'
-                  ? 'bg-sage-600 text-white shadow'
-                  : 'bg-wine-500 text-white shadow'
-                : 'text-gray-500'
-            )}
-          >
-            {t === 'income' ? 'Pemasukan' : 'Pengeluaran'}
-          </button>
-        ))}
-      </div>
-
-      {/* Nominal besar */}
-      <div className="mb-4 text-center">
-        <p className="text-xs text-gray-400">Nominal</p>
+      {/* Sticky: type toggle + nominal — tetap terlihat saat scroll ke bawah */}
+      <div className="sticky top-0 z-10 -mx-5 border-b border-gray-100 bg-white px-5 pb-3 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex rounded-2xl bg-gray-100 p-1 dark:bg-gray-800">
+          {(['expense', 'income'] as TxType[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setType(t)}
+              className={clsx(
+                'flex-1 rounded-xl py-2 text-sm font-semibold transition',
+                type === t
+                  ? t === 'income'
+                    ? 'bg-sage-600 text-white shadow'
+                    : 'bg-wine-500 text-white shadow'
+                  : 'text-gray-500'
+              )}
+            >
+              {t === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+            </button>
+          ))}
+        </div>
         <p
           className={clsx(
-            'nums text-4xl font-extrabold',
+            'nums mt-3 text-center text-4xl font-extrabold',
             type === 'income' ? 'text-sage-600' : 'text-wine-500'
           )}
         >
@@ -234,10 +218,11 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </p>
       </div>
 
-      {/* Catat cepat: Foto struk (OCR) & Suara (VN) */}
-      <div className="mb-2 flex gap-2">
+      {/* Foto struk & Suara */}
+      <div className="mt-4 mb-2 flex gap-2">
+        {/* Kamera (ambil foto langsung) */}
         <input
-          ref={fileRef}
+          ref={cameraRef}
           type="file"
           accept="image/*"
           capture="environment"
@@ -248,12 +233,31 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
             e.target.value = ''
           }}
         />
+        {/* Galeri (pilih dari galeri) */}
+        <input
+          ref={galleryRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) handleReceipt(f)
+            e.target.value = ''
+          }}
+        />
         <button
-          onClick={() => fileRef.current?.click()}
+          onClick={() => cameraRef.current?.click()}
           disabled={busy !== null}
           className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 disabled:opacity-50 dark:bg-dusty-500/10 dark:text-dusty-300"
         >
-          {busy === 'ocr' ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />} Foto Struk
+          {busy === 'ocr' ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />} Kamera
+        </button>
+        <button
+          onClick={() => galleryRef.current?.click()}
+          disabled={busy !== null}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 disabled:opacity-50 dark:bg-dusty-500/10 dark:text-dusty-300"
+        >
+          <ImageIcon size={16} /> Galeri
         </button>
         <button
           onClick={handleVoice}
@@ -265,7 +269,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       </div>
       {hint && <p className="mb-3 text-center text-xs text-gray-500">{hint}</p>}
 
-      {/* Rincian item hasil struk (Gemini) */}
+      {/* Rincian item hasil struk */}
       {items && items.length > 0 && (
         <div className="mb-4 rounded-2xl bg-dusty-50 p-3 dark:bg-gray-800">
           <div className="mb-1 flex items-center justify-between">
@@ -294,7 +298,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </div>
       )}
 
-      {/* Kategori grid */}
+      {/* Kategori */}
       <p className="mb-2 text-xs font-medium text-gray-400">Kategori</p>
       <div className="mb-4 grid grid-cols-4 gap-2">
         {categories.map((c) => (
@@ -361,7 +365,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </label>
       </div>
 
-      {/* Opsi berulang */}
+      {/* Berulang */}
       <button
         onClick={() => setRecurring((r) => !r)}
         className={clsx(
@@ -382,14 +386,12 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       {/* Numpad */}
       <Numpad onInput={handleDigit} onBackspace={handleBackspace} />
 
-      {/* Pesan error simpan (mis. kolom DB belum ada) */}
       {saveError && (
         <p className="mt-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">
           {saveError}
         </p>
       )}
 
-      {/* Aksi */}
       <div className="mt-3 flex gap-2">
         {editing && (
           <button

@@ -35,7 +35,7 @@ export function useWalletMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: KEY })
-    qc.invalidateQueries({ queryKey: ['transactions'] }) // saldo ikut berubah
+    qc.invalidateQueries({ queryKey: ['transactions'] })
   }
 
   const create = useMutation({
@@ -62,17 +62,49 @@ export function useWalletMutations() {
     onSuccess: invalidate,
   })
 
-  return { create, update, remove }
+  /** Pindah uang antar dompet: buat 2 transaksi (expense dari sumber, income ke tujuan). */
+  const transfer = useMutation({
+    mutationFn: async ({
+      fromId, fromName, toId, toName, amount, note, date,
+    }: {
+      fromId: string; fromName: string
+      toId: string; toName: string
+      amount: number; note: string; date: string
+    }) => {
+      const { error } = await supabase.from('transactions').insert([
+        {
+          user_id: user!.id,
+          amount,
+          type: 'expense',
+          wallet_id: fromId,
+          note: note || `⇄ Transfer ke ${toName}`,
+          date,
+          category_id: null,
+          is_recurring: false,
+        },
+        {
+          user_id: user!.id,
+          amount,
+          type: 'income',
+          wallet_id: toId,
+          note: note || `⇄ Transfer dari ${fromName}`,
+          date,
+          category_id: null,
+          is_recurring: false,
+        },
+      ])
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+
+  return { create, update, remove, transfer }
 }
 
 export interface WalletBalance extends Wallet {
-  balance: number // opening_balance + (income - expense) pada dompet ini
+  balance: number
 }
 
-/**
- * Saldo tiap dompet = opening_balance + arus transaksi pada dompet tsb.
- * Mengambil seluruh transaksi (ringan: amount,type,wallet_id) sekali.
- */
 export function useWalletBalances() {
   const { user } = useAuth()
   const wallets = useWallets()
@@ -100,7 +132,6 @@ export function useWalletBalances() {
     balance: w.opening_balance + (flow.get(w.id) ?? 0),
   }))
 
-  // Total transaksi tanpa dompet (legacy) — tetap dihitung di total saldo
   const unassigned = (tx.data ?? [])
     .filter((t) => !t.wallet_id)
     .reduce((a, t) => a + (t.type === 'income' ? t.amount : -t.amount), 0)
@@ -117,3 +148,5 @@ export function useWalletBalances() {
     total: balances.reduce((a, w) => a + w.balance, 0) + unassigned,
   }
 }
+
+

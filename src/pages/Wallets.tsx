@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Wallet as WalletIcon } from 'lucide-react'
+import { Plus, Wallet as WalletIcon, ArrowRightLeft } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
@@ -7,7 +7,7 @@ import { Amount } from '@/components/ui/Amount'
 import { Sheet } from '@/components/ui/Sheet'
 import { useWalletBalances, useWalletMutations } from '@/hooks/useWallets'
 import { ICON_NAMES, COLOR_OPTIONS } from '@/lib/icons'
-import { formatRupiah, parseRupiah } from '@/lib/format'
+import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 import type { WalletGroup, Wallet } from '@/types'
 
@@ -20,8 +20,9 @@ const WALLET_ICONS = ['wallet', 'landmark', 'credit-card', 'piggy-bank', 'bankno
 
 export function Wallets() {
   const { wallets, cashflowTotal, savingTotal } = useWalletBalances()
-  const { create, update, remove } = useWalletMutations()
+  const { create, update, remove, transfer } = useWalletMutations()
 
+  // Sheet dompet baru/edit
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Wallet | null>(null)
   const [group, setGroup] = useState<WalletGroup>('cashflow')
@@ -29,6 +30,15 @@ export function Wallets() {
   const [icon, setIcon] = useState('wallet')
   const [color, setColor] = useState(COLOR_OPTIONS[0])
   const [opening, setOpening] = useState('')
+
+  // Sheet transfer
+  const [transferOpen, setTransferOpen] = useState(false)
+  const [fromId, setFromId] = useState('')
+  const [toId, setToId] = useState('')
+  const [transferAmount, setTransferAmount] = useState('')
+  const [transferNote, setTransferNote] = useState('')
+  const [transferDate, setTransferDate] = useState(toISODate(new Date()))
+  const [transferError, setTransferError] = useState<string | null>(null)
 
   function openNew(g: WalletGroup) {
     setEditing(null)
@@ -57,11 +67,63 @@ export function Wallets() {
     setOpen(false)
   }
 
+  function openTransfer() {
+    const cashflow = wallets.filter((w) => w.group === 'cashflow')
+    const first = cashflow[0]
+    const second = cashflow[1] ?? wallets.find((w) => w.group === 'saving')
+    setFromId(first?.id ?? wallets[0]?.id ?? '')
+    setToId(second?.id ?? '')
+    setTransferAmount('')
+    setTransferNote('')
+    setTransferDate(toISODate(new Date()))
+    setTransferError(null)
+    setTransferOpen(true)
+  }
+
+  async function handleTransfer() {
+    const amt = parseRupiah(transferAmount)
+    if (!fromId || !toId || amt <= 0) {
+      setTransferError('Isi semua field dan nominal > 0.')
+      return
+    }
+    if (fromId === toId) {
+      setTransferError('Dompet asal dan tujuan tidak boleh sama.')
+      return
+    }
+    setTransferError(null)
+    const fromWallet = wallets.find((w) => w.id === fromId)
+    const toWallet = wallets.find((w) => w.id === toId)
+    try {
+      await transfer.mutateAsync({
+        fromId,
+        fromName: fromWallet?.name ?? 'Dompet',
+        toId,
+        toName: toWallet?.name ?? 'Dompet',
+        amount: amt,
+        note: transferNote.trim(),
+        date: transferDate,
+      })
+      setTransferOpen(false)
+    } catch (e) {
+      setTransferError(e instanceof Error ? e.message : 'Gagal melakukan transfer.')
+    }
+  }
+
   const groups: WalletGroup[] = ['cashflow', 'saving']
 
   return (
     <div className="px-4 pt-5">
-      <PageHeader title="Dompet" />
+      <PageHeader
+        title="Dompet"
+        action={
+          <button
+            onClick={openTransfer}
+            className="flex items-center gap-1.5 rounded-full bg-maroon-700 px-3 py-2 text-sm font-semibold text-white shadow-card"
+          >
+            <ArrowRightLeft size={16} /> Transfer
+          </button>
+        }
+      />
 
       {/* Ringkasan grup */}
       <div className="mb-4 grid grid-cols-2 gap-3">
@@ -98,13 +160,95 @@ export function Wallets() {
         </div>
       ))}
 
+      {/* Sheet transfer */}
+      <Sheet open={transferOpen} onClose={() => setTransferOpen(false)} title="Transfer Dompet">
+        <p className="mb-4 text-center text-xs text-gray-400">
+          Pindah uang antar dompet. Saldo dompet asal berkurang, tujuan bertambah.
+        </p>
+
+        <label className="mb-3 block">
+          <span className="text-xs text-gray-400">Dari dompet</span>
+          <select
+            value={fromId}
+            onChange={(e) => setFromId(e.target.value)}
+            className="mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800"
+          >
+            {wallets.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name} ({GROUP_LABEL[w.group]}) — {formatRupiah(w.balance)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="mb-3 block">
+          <span className="text-xs text-gray-400">Ke dompet</span>
+          <select
+            value={toId}
+            onChange={(e) => setToId(e.target.value)}
+            className="mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800"
+          >
+            {wallets.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name} ({GROUP_LABEL[w.group]}) — {formatRupiah(w.balance)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="mb-3 block">
+          <span className="text-xs text-gray-400">Nominal</span>
+          <input
+            inputMode="numeric"
+            value={transferAmount ? formatRupiah(parseRupiah(transferAmount), false) : ''}
+            onChange={(e) => setTransferAmount(e.target.value)}
+            placeholder="0"
+            className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-center text-2xl font-bold outline-none dark:bg-gray-800"
+          />
+        </label>
+
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-gray-400">Tanggal</span>
+            <input
+              type="date"
+              value={transferDate}
+              onChange={(e) => setTransferDate(e.target.value)}
+              className="rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-gray-400">Catatan (opsional)</span>
+            <input
+              value={transferNote}
+              onChange={(e) => setTransferNote(e.target.value)}
+              placeholder="mis. Nabung"
+              className="rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+            />
+          </label>
+        </div>
+
+        {transferError && (
+          <p className="mb-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">
+            {transferError}
+          </p>
+        )}
+
+        <button
+          onClick={handleTransfer}
+          disabled={transfer.isPending}
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
+        >
+          {transfer.isPending ? 'Memproses…' : 'Transfer'}
+        </button>
+      </Sheet>
+
       {/* Sheet tambah/edit dompet */}
       <Sheet open={open} onClose={() => setOpen(false)} title={editing ? 'Edit Dompet' : 'Dompet Baru'}>
         <div className="mb-4 flex justify-center">
           <CategoryIcon icon={icon} color={color} size="lg" />
         </div>
 
-        {/* Grup */}
         <div className="mb-3 flex rounded-2xl bg-gray-100 p-1 dark:bg-gray-800">
           {groups.map((g) => (
             <button
@@ -135,7 +279,6 @@ export function Wallets() {
           />
         </label>
 
-        {/* Ikon */}
         <p className="mb-2 text-xs font-medium text-gray-400">Ikon</p>
         <div className="mb-3 flex flex-wrap gap-2">
           {WALLET_ICONS.filter((n) => ICON_NAMES.includes(n)).map((n) => (
@@ -145,7 +288,6 @@ export function Wallets() {
           ))}
         </div>
 
-        {/* Warna */}
         <div className="mb-5 grid grid-cols-8 gap-2">
           {COLOR_OPTIONS.map((c) => (
             <button key={c} onClick={() => setColor(c)} style={{ backgroundColor: c }} className={clsx('h-8 w-8 rounded-full', color === c && 'ring-2 ring-offset-2 ring-gray-400 dark:ring-offset-gray-900')} />

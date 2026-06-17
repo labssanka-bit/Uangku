@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, Gem, TrendingUp, TrendingDown } from 'lucide-react'
+import { Plus, Gem, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
@@ -7,6 +7,9 @@ import { Amount } from '@/components/ui/Amount'
 import { Sheet } from '@/components/ui/Sheet'
 import { useAssets, useAssetMutations } from '@/hooks/useAssets'
 import { useWalletBalances } from '@/hooks/useWallets'
+import { useAuth } from '@/hooks/useAuth'
+import { useQueryClient } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
 import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 import type { Asset, AssetType } from '@/types'
@@ -22,62 +25,113 @@ const TYPE_META: Record<AssetType, { label: string; icon: string; color: string 
 export function Assets() {
   const { data: assets = [] } = useAssets()
   const { create, update, remove } = useAssetMutations()
-  const { total: walletTotal } = useWalletBalances()
+  const { wallets, total: walletTotal } = useWalletBalances()
+  const { user } = useAuth()
+  const qc = useQueryClient()
 
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Asset | null>(null)
   const [name, setName] = useState('')
   const [type, setType] = useState<AssetType>('emas')
   const [quantity, setQuantity] = useState('1')
-  const [pricePerUnit, setPricePerUnit] = useState('') // utk emas: harga/gram
+  // Emas: harga/gram saat beli & harga/gram sekarang
+  const [buyPricePerGram, setBuyPricePerGram] = useState('')
+  const [currentPricePerGram, setCurrentPricePerGram] = useState('')
+  // Non-emas: total buy & current
   const [buyPrice, setBuyPrice] = useState('')
   const [currentValue, setCurrentValue] = useState('')
   const [date, setDate] = useState(toISODate(new Date()))
+  // Deduct from wallet
+  const [deductFromWallet, setDeductFromWallet] = useState(false)
+  const [deductWalletId, setDeductWalletId] = useState<string>('')
 
   const totalAsset = useMemo(() => assets.reduce((a, x) => a + x.current_value, 0), [assets])
   const netWorth = walletTotal + totalAsset
+
+  // Rekap emas
+  const goldAssets = useMemo(() => assets.filter((a) => a.type === 'emas'), [assets])
+  const goldTotalGrams = useMemo(() => goldAssets.reduce((s, a) => s + a.quantity, 0), [goldAssets])
+  const goldTotalBuy = useMemo(() => goldAssets.reduce((s, a) => s + a.buy_price, 0), [goldAssets])
+  const goldTotalNow = useMemo(() => goldAssets.reduce((s, a) => s + a.current_value, 0), [goldAssets])
+  const goldProfit = goldTotalNow - goldTotalBuy
+
+  const isGold = type === 'emas'
+  const isSaham = type === 'saham'
+  const qtyNum = parseFloat(quantity.replace(',', '.')) || 0
+
+  const buyPricePerGramNum = parseRupiah(buyPricePerGram)
+  const currentPricePerGramNum = parseRupiah(currentPricePerGram)
+
+  const computedBuyTotal = isGold ? qtyNum * buyPricePerGramNum : parseRupiah(buyPrice)
+  const computedCurrentTotal = isGold
+    ? qtyNum * (currentPricePerGramNum || buyPricePerGramNum)
+    : parseRupiah(currentValue)
 
   function openNew() {
     setEditing(null)
     setName('')
     setType('emas')
     setQuantity('1')
-    setPricePerUnit('')
+    setBuyPricePerGram('')
+    setCurrentPricePerGram('')
     setBuyPrice('')
     setCurrentValue('')
     setDate(toISODate(new Date()))
+    setDeductFromWallet(false)
+    setDeductWalletId(wallets[0]?.id ?? '')
     setOpen(true)
   }
+
   function openEdit(a: Asset) {
     setEditing(a)
     setName(a.name)
     setType(a.type)
     setQuantity(String(a.quantity))
-    setPricePerUnit('')
+    if (a.type === 'emas' && a.quantity > 0) {
+      setBuyPricePerGram(String(Math.round(a.buy_price / a.quantity)))
+      setCurrentPricePerGram(String(Math.round(a.current_value / a.quantity)))
+    } else {
+      setBuyPricePerGram('')
+      setCurrentPricePerGram('')
+    }
     setBuyPrice(String(a.buy_price))
     setCurrentValue(String(a.current_value))
     setDate(a.date)
+    setDeductFromWallet(false)
+    setDeductWalletId(wallets[0]?.id ?? '')
     setOpen(true)
   }
-
-  // Emas: nilai sekarang auto = gram × harga/gram
-  const isGold = type === 'emas'
-  const qtyNum = parseFloat(quantity.replace(',', '.')) || 0
-  const computedCurrent = isGold && pricePerUnit ? qtyNum * parseRupiah(pricePerUnit) : parseRupiah(currentValue)
 
   async function handleSave() {
     if (!name.trim()) return
     const payload = {
       name: name.trim(),
       type,
-      quantity: qtyNum || 1,
-      buy_price: parseRupiah(buyPrice),
-      current_value: computedCurrent,
+      quantity: isGold ? qtyNum || 1 : (isSaham ? qtyNum || 1 : 1),
+      buy_price: computedBuyTotal,
+      current_value: computedCurrentTotal,
       date,
       note: null as string | null,
     }
-    if (editing) await update.mutateAsync({ id: editing.id, ...payload })
-    else await create.mutateAsync(payload)
+    if (editing) {
+      await update.mutateAsync({ id: editing.id, ...payload })
+    } else {
+      await create.mutateAsync(payload)
+      // Opsional: kurangi dari dompet saat beli aset
+      if (deductFromWallet && deductWalletId && computedBuyTotal > 0 && user) {
+        await supabase.from('transactions').insert({
+          user_id: user.id,
+          amount: computedBuyTotal,
+          type: 'expense',
+          wallet_id: deductWalletId,
+          note: `Beli aset: ${payload.name}`,
+          date: payload.date,
+          category_id: null,
+          is_recurring: false,
+        })
+        qc.invalidateQueries({ queryKey: ['transactions'] })
+      }
+    }
     setOpen(false)
   }
 
@@ -108,6 +162,38 @@ export function Assets() {
         </div>
       </div>
 
+      {/* Rekap emas (hanya tampil jika ada) */}
+      {goldAssets.length > 0 && (
+        <div className="mb-4 rounded-2xl bg-amber-50 p-4 dark:bg-amber-500/10">
+          <div className="mb-2 flex items-center gap-2">
+            <Gem size={16} className="text-amber-500" />
+            <span className="text-sm font-bold text-amber-700 dark:text-amber-400">Rekap Emas</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div>
+              <p className="text-gray-400">Total Gram</p>
+              <p className="nums font-bold text-amber-700 dark:text-amber-400">{goldTotalGrams.toFixed(2)} g</p>
+            </div>
+            <div>
+              <p className="text-gray-400">Nilai Beli</p>
+              <p className="nums font-bold">{formatRupiah(goldTotalBuy)}</p>
+            </div>
+            <div>
+              <p className="text-gray-400">Nilai Sekarang</p>
+              <p className="nums font-bold">{formatRupiah(goldTotalNow)}</p>
+            </div>
+          </div>
+          <div className={clsx('mt-2 text-center text-xs font-semibold', goldProfit >= 0 ? 'text-sage-600' : 'text-wine-500')}>
+            {goldProfit >= 0 ? '▲' : '▼'} {goldProfit >= 0 ? 'Untung' : 'Rugi'} {formatRupiah(Math.abs(goldProfit))}
+            {goldTotalBuy > 0 && (
+              <span className="ml-1 font-normal text-gray-400">
+                ({((goldProfit / goldTotalBuy) * 100).toFixed(1)}%)
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {assets.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-12 text-center text-gray-400">
           <Gem size={32} />
@@ -119,14 +205,22 @@ export function Assets() {
             const meta = TYPE_META[a.type]
             const gain = a.current_value - a.buy_price
             const up = gain >= 0
+            const buyPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.buy_price / a.quantity) : 0
+            const curPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.current_value / a.quantity) : 0
             return (
               <Card key={a.id} onClick={() => openEdit(a)} className="flex items-center gap-3">
                 <CategoryIcon icon={meta.icon} color={meta.color} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{a.name}</p>
                   <p className="text-xs text-gray-400">
-                    {meta.label}{a.type === 'emas' ? ` · ${a.quantity} gram` : ''}
+                    {meta.label}
+                    {a.type === 'emas' && ` · ${a.quantity} g · beli ${formatRupiah(buyPPG)}/g`}
+                    {a.type === 'saham' && ` · ${a.quantity} lot`}
+                    {a.type !== 'emas' && a.type !== 'saham' && a.quantity > 1 && ` · ${a.quantity}`}
                   </p>
+                  {a.type === 'emas' && curPPG > 0 && (
+                    <p className="text-xs text-amber-600">sekarang {formatRupiah(curPPG)}/g</p>
+                  )}
                 </div>
                 <div className="text-right">
                   <Amount value={a.current_value} className="block text-sm font-bold" />
@@ -155,42 +249,188 @@ export function Assets() {
           ))}
         </div>
 
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder={isGold ? 'mis. Emas Antam' : 'Nama aset'} className="mb-3 w-full rounded-2xl bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800" />
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={isGold ? 'mis. Emas Antam' : isSaham ? 'mis. BBCA' : 'Nama aset'}
+          className="mb-3 w-full rounded-2xl bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800"
+        />
 
         {isGold ? (
-          <div className="mb-3 grid grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-gray-400">Berat (gram)</span>
-              <input inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800" />
+          <>
+            {/* Emas: gram + harga/gram beli + harga/gram sekarang */}
+            <div className="mb-3 grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Berat (gram)</span>
+                <input
+                  inputMode="decimal"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Tanggal beli</span>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+            </div>
+            <label className="mb-3 block">
+              <span className="text-xs text-gray-400">Harga beli / gram (Rp)</span>
+              <input
+                inputMode="numeric"
+                value={buyPricePerGram ? formatRupiah(parseRupiah(buyPricePerGram), false) : ''}
+                onChange={(e) => setBuyPricePerGram(e.target.value)}
+                placeholder="mis. 1.500.000"
+                className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
+              />
             </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-gray-400">Harga / gram</span>
-              <input inputMode="numeric" value={pricePerUnit ? formatRupiah(parseRupiah(pricePerUnit), false) : ''} onChange={(e) => setPricePerUnit(e.target.value)} className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800" />
+            <label className="mb-3 block">
+              <span className="text-xs text-gray-400">Harga sekarang / gram (Rp) — opsional, default = harga beli</span>
+              <input
+                inputMode="numeric"
+                value={currentPricePerGram ? formatRupiah(parseRupiah(currentPricePerGram), false) : ''}
+                onChange={(e) => setCurrentPricePerGram(e.target.value)}
+                placeholder={buyPricePerGram ? formatRupiah(parseRupiah(buyPricePerGram), false) : 'sama dgn harga beli'}
+                className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
+              />
             </label>
-          </div>
+            <p className="mb-1 text-center text-[11px] text-gray-400">
+              Harga emas Antam hari ini: cek antam.com atau Google "harga emas hari ini"
+            </p>
+          </>
+        ) : isSaham ? (
+          <>
+            <div className="mb-3 grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Jumlah (Lot)</span>
+                <input
+                  inputMode="decimal"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder="0"
+                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Tanggal beli</span>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+            </div>
+            <div className="mb-3 grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Harga beli (total)</span>
+                <input
+                  inputMode="numeric"
+                  value={buyPrice ? formatRupiah(parseRupiah(buyPrice), false) : ''}
+                  onChange={(e) => setBuyPrice(e.target.value)}
+                  placeholder="0"
+                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Nilai sekarang</span>
+                <input
+                  inputMode="numeric"
+                  value={currentValue ? formatRupiah(parseRupiah(currentValue), false) : ''}
+                  onChange={(e) => setCurrentValue(e.target.value)}
+                  placeholder="0"
+                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+            </div>
+          </>
         ) : (
-          <label className="mb-3 block">
-            <span className="text-xs text-gray-400">Nilai sekarang</span>
-            <input inputMode="numeric" value={currentValue ? formatRupiah(parseRupiah(currentValue), false) : ''} onChange={(e) => setCurrentValue(e.target.value)} placeholder="0" className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-lg font-bold outline-none dark:bg-gray-800" />
-          </label>
+          <>
+            <div className="mb-3 grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Harga beli (total)</span>
+                <input
+                  inputMode="numeric"
+                  value={buyPrice ? formatRupiah(parseRupiah(buyPrice), false) : ''}
+                  onChange={(e) => setBuyPrice(e.target.value)}
+                  placeholder="0"
+                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-gray-400">Tanggal</span>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+                />
+              </label>
+            </div>
+            <label className="mb-3 block">
+              <span className="text-xs text-gray-400">Nilai sekarang</span>
+              <input
+                inputMode="numeric"
+                value={currentValue ? formatRupiah(parseRupiah(currentValue), false) : ''}
+                onChange={(e) => setCurrentValue(e.target.value)}
+                placeholder="0"
+                className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-lg font-bold outline-none dark:bg-gray-800"
+              />
+            </label>
+          </>
         )}
 
-        <div className="mb-3 grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs text-gray-400">Harga beli (total)</span>
-            <input inputMode="numeric" value={buyPrice ? formatRupiah(parseRupiah(buyPrice), false) : ''} onChange={(e) => setBuyPrice(e.target.value)} placeholder="0" className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800" />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-xs text-gray-400">Tanggal</span>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800" />
-          </label>
+        {/* Preview nilai */}
+        <div className="mb-3 rounded-2xl bg-dusty-100 p-3 dark:bg-dusty-500/10">
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-400">Total beli</span>
+            <span className="nums font-semibold">{formatRupiah(computedBuyTotal)}</span>
+          </div>
+          <div className="mt-1 flex justify-between text-xs">
+            <span className="text-gray-400">Nilai sekarang</span>
+            <span className="nums font-bold text-maroon-800 dark:text-dusty-200">{formatRupiah(computedCurrentTotal)}</span>
+          </div>
+          {computedBuyTotal > 0 && (
+            <div className={clsx('mt-1 flex justify-between text-xs font-semibold', computedCurrentTotal >= computedBuyTotal ? 'text-sage-600' : 'text-wine-500')}>
+              <span>{computedCurrentTotal >= computedBuyTotal ? '▲ Untung' : '▼ Rugi'}</span>
+              <span className="nums">{formatRupiah(Math.abs(computedCurrentTotal - computedBuyTotal))}</span>
+            </div>
+          )}
         </div>
 
-        {/* Preview nilai */}
-        <div className="mb-4 rounded-2xl bg-dusty-100 p-3 text-center dark:bg-dusty-500/10">
-          <span className="text-xs text-maroon-700 dark:text-dusty-300">Nilai sekarang</span>
-          <p className="nums text-xl font-extrabold text-maroon-800 dark:text-dusty-200">{formatRupiah(computedCurrent)}</p>
-        </div>
+        {/* Deduct from wallet (hanya saat tambah baru) */}
+        {!editing && wallets.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={() => setDeductFromWallet((v) => !v)}
+              className={clsx(
+                'mb-2 flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm',
+                deductFromWallet ? 'bg-dusty-100 text-maroon-700 dark:bg-dusty-500/10' : 'bg-gray-100 text-gray-500 dark:bg-gray-800'
+              )}
+            >
+              <span className="flex items-center gap-2"><Wallet size={14} /> Kurangi dari dompet saat beli</span>
+              <span className={clsx('h-5 w-9 rounded-full p-0.5 transition', deductFromWallet ? 'bg-dusty-500' : 'bg-gray-300 dark:bg-gray-600')}>
+                <span className={clsx('block h-4 w-4 rounded-full bg-white transition', deductFromWallet && 'translate-x-4')} />
+              </span>
+            </button>
+            {deductFromWallet && (
+              <select
+                value={deductWalletId}
+                onChange={(e) => setDeductWalletId(e.target.value)}
+                className="w-full rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
+              >
+                {wallets.map((w) => (
+                  <option key={w.id} value={w.id}>{w.name} — {formatRupiah(w.balance)}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-2">
           {editing && (
