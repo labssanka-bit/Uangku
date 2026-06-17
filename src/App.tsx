@@ -41,7 +41,7 @@ export default function App() {
   if (!session) return <Login />
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-dusty-50 pb-28 dark:bg-gray-950">
+    <div className="mx-auto min-h-screen max-w-md pb-32" style={{ background: 'inherit' }}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/transaksi" element={<Transactions />} />

@@ -3,7 +3,6 @@ import { Home, ListChecks, BarChart3, Settings, Plus } from 'lucide-react'
 import { clsx } from '@/lib/clsx'
 
 interface BottomNavProps {
-  /** Buka sheet tambah transaksi cepat */
   onAdd: () => void
 }
 
@@ -14,24 +13,29 @@ const items = [
   { to: '/setting', icon: Settings, label: 'Setting' },
 ]
 
-/** Bottom navigation mobile dengan tombol "+" besar di tengah. */
+/** Floating pill nav — melayang di atas konten. */
 export function BottomNav({ onAdd }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md">
-      <div className="safe-bottom relative flex items-center justify-around border-t border-gray-200/70 bg-white/90 px-2 pt-2 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
+    <nav
+      className="fixed inset-x-0 bottom-0 z-30 flex justify-center"
+      style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+    >
+      <div className="flex items-center gap-0 rounded-full bg-maroon-700 px-3 py-2.5 shadow-nm dark:bg-maroon-900">
+        {/* 2 item kiri */}
         {items.slice(0, 2).map((it) => (
           <NavItem key={it.to} {...it} />
         ))}
 
-        {/* Tombol tambah cepat */}
+        {/* Tombol "+" di tengah — teal bercahaya */}
         <button
           onClick={onAdd}
           aria-label="Tambah transaksi"
-          className="relative -mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-maroon-600 to-maroon-800 text-white shadow-soft ring-4 ring-dusty-50 active:scale-95 dark:ring-gray-950"
+          className="relative mx-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-sage-500 shadow-[0_0_20px_rgba(20,184,166,0.6)] active:scale-90 transition-transform"
         >
-          <Plus size={30} strokeWidth={2.6} />
+          <Plus size={26} strokeWidth={2.8} className="text-white" />
         </button>
 
+        {/* 2 item kanan */}
         {items.slice(2).map((it) => (
           <NavItem key={it.to} {...it} />
         ))}
@@ -52,23 +56,20 @@ function NavItem({
   end?: boolean
 }) {
   return (
-    <NavLink
-      to={to}
-      end={end}
-      className="flex w-16 flex-col items-center gap-0.5 py-1"
-    >
+    <NavLink to={to} end={end} className="flex w-14 flex-col items-center gap-0.5 py-1">
       {({ isActive }) => (
         <>
           <Icon
-            size={22}
+            size={21}
             className={clsx(
-              isActive ? 'text-maroon-700 dark:text-maroon-300' : 'text-gray-400'
+              'transition-colors',
+              isActive ? 'text-sage-400' : 'text-white/50'
             )}
           />
           <span
             className={clsx(
-              'text-[10px] font-medium',
-              isActive ? 'text-maroon-700 dark:text-maroon-300' : 'text-gray-400'
+              'text-[9px] font-semibold tracking-wide transition-colors',
+              isActive ? 'text-sage-400' : 'text-white/40'
             )}
           >
             {label}

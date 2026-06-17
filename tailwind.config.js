@@ -5,51 +5,50 @@ export default {
   theme: {
     extend: {
       colors: {
-        // === Palet UangKu: Maroon + Dusty Pink (profesional & hangat) ===
-        // Maroon — brand utama (saldo, tombol, navigasi)
+        // === Palet UangKu v2: Vibrant Violet + Teal + Coral ===
+        // maroon alias tetap dipakai di kode — sekarang = vibrant violet
         maroon: {
-          50: '#FBF1F3',
-          100: '#F6E0E5',
-          200: '#EAC0CB',
-          300: '#D998A8',
-          400: '#C06B80',
-          500: '#A14559',
-          600: '#8A3447',
-          700: '#72283A',
-          800: '#5A1E2E',
-          900: '#4A1924',
+          50:  '#F5F3FF',
+          100: '#EDE9FE',
+          200: '#DDD6FE',
+          300: '#C4B5FD',
+          400: '#A78BFA',
+          500: '#8B5CF6',
+          600: '#7C3AED',
+          700: '#6D28D9',
+          800: '#5B21B6',
+          900: '#4C1D95',
         },
-        // Dusty pink — aksen lembut (insight, highlight, background hangat)
+        // dusty alias = soft lavender/lilac
         dusty: {
-          50: '#FCF4F6',
-          100: '#F8E8ED',
-          200: '#F0D2DB',
-          300: '#E4B3C1',
-          400: '#D592A4',
-          500: '#C57489',
-          600: '#B05A72',
+          50:  '#F5F3FF',
+          100: '#EDE9FE',
+          200: '#DDD6FE',
+          300: '#D8B4FE',
+          400: '#C084FC',
+          500: '#A855F7',
+          600: '#9333EA',
         },
-        // Sage — pemasukan (+) : hijau muted yang serasi dengan maroon
+        // sage = bright teal — pemasukan (+)
         sage: {
-          50: '#F0F7F4',
-          100: '#DCEDE5',
-          500: '#4E9079',
-          600: '#3E7A66',
-          700: '#335F50',
+          50:  '#F0FDFA',
+          100: '#CCFBF1',
+          500: '#14B8A6',
+          600: '#0D9488',
+          700: '#0F766E',
         },
-        // Wine — pengeluaran (−) : maroon-rose, beda dari brand
+        // wine = coral/rose — pengeluaran (−)
         wine: {
-          50: '#FBEFF1',
-          100: '#F6DBDF',
-          500: '#C04A5E',
-          600: '#A93B50',
-          700: '#8E3043',
+          50:  '#FFF1F2',
+          100: '#FFE4E6',
+          500: '#F43F5E',
+          600: '#E11D48',
+          700: '#BE123C',
         },
-        // Alias semantik
         brand: {
-          income: '#3E7A66', // sage
-          expense: '#C04A5E', // wine
-          accent: '#B05A72', // dusty
+          income:  '#0D9488',
+          expense: '#F43F5E',
+          accent:  '#9333EA',
         },
       },
       borderRadius: {
@@ -57,8 +56,13 @@ export default {
         '3xl': '1.5rem',
       },
       boxShadow: {
-        soft: '0 4px 24px -8px rgba(0,0,0,0.12)',
-        card: '0 2px 16px -6px rgba(0,0,0,0.08)',
+        // Neumorphic — nilai diambil dari CSS variable (adaptive light/dark)
+        nm:       'var(--nm-shadow)',
+        'nm-sm':  'var(--nm-shadow-sm)',
+        'nm-inset': 'var(--nm-shadow-inset)',
+        // Legacy
+        soft:  '0 4px 24px -8px rgba(109, 40, 217, 0.28)',
+        card:  'var(--nm-shadow-sm)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
