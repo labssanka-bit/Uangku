@@ -22,8 +22,8 @@ export function Sheet({ open, onClose, children, title }: SheetProps) {
             onClick={onClose}
           />
           <motion.div
-            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[92vh] max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 no-scrollbar dark:bg-[#1C1735]"
-            style={{ boxShadow: '0 -8px 40px rgba(109,40,217,0.18)' }}
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[92vh] max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 no-scrollbar dark:bg-[#221519]"
+            style={{ boxShadow: '0 -8px 40px rgba(114,40,58,0.18)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}

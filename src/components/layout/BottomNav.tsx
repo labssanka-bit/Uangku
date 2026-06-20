@@ -26,11 +26,11 @@ export function BottomNav({ onAdd }: BottomNavProps) {
           <NavItem key={it.to} {...it} />
         ))}
 
-        {/* Tombol "+" di tengah — teal bercahaya */}
+        {/* Tombol "+" di tengah — dusty pink bercahaya */}
         <button
           onClick={onAdd}
           aria-label="Tambah transaksi"
-          className="relative mx-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-sage-500 shadow-[0_0_20px_rgba(20,184,166,0.6)] active:scale-90 transition-transform"
+          className="relative mx-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dusty-400 shadow-[0_0_20px_rgba(213,146,164,0.7)] active:scale-90 transition-transform"
         >
           <Plus size={26} strokeWidth={2.8} className="text-white" />
         </button>
@@ -63,13 +63,13 @@ function NavItem({
             size={21}
             className={clsx(
               'transition-colors',
-              isActive ? 'text-sage-400' : 'text-white/50'
+              isActive ? 'text-dusty-300' : 'text-white/50'
             )}
           />
           <span
             className={clsx(
               'text-[9px] font-semibold tracking-wide transition-colors',
-              isActive ? 'text-sage-400' : 'text-white/40'
+              isActive ? 'text-dusty-300' : 'text-white/40'
             )}
           >
             {label}
