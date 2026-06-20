@@ -48,10 +48,24 @@ function getRecognition(): SpeechRecognitionLike | null {
   return Ctor ? new Ctor() : null
 }
 
-/** Cek apakah fitur suara kemungkinan bisa berjalan (bukan jaminan). */
-export function isVoiceSupported(): boolean {
-  if (isIOS() || isSafari()) return false // tidak stabil
+/** Web Speech API stabil (Chrome Android/Desktop). */
+export function isWebSpeechSupported(): boolean {
+  if (isIOS() || isSafari()) return false
   return getRecognition() !== null
+}
+
+/** MediaRecorder tersedia (untuk fallback Gemini di iOS/Safari). */
+export function isRecordingSupported(): boolean {
+  return (
+    typeof navigator !== 'undefined' &&
+    !!navigator.mediaDevices?.getUserMedia &&
+    typeof MediaRecorder !== 'undefined'
+  )
+}
+
+/** Voice note bisa dipakai dgn metode APA PUN (Web Speech atau rekam→Gemini). */
+export function isVoiceSupported(): boolean {
+  return isWebSpeechSupported() || isRecordingSupported()
 }
 
 /** Rekam sekali ucapan, kembalikan transkrip. Timeout 12 detik. */
@@ -105,10 +119,81 @@ export function listenOnce(): Promise<string> {
 
     try {
       rec.start()
-    } catch (err) {
+    } catch {
       clearTimeout(timer)
       settled = true
       reject(new Error('Gagal memulai rekaman. Pastikan izin mikrofon diaktifkan di browser.'))
     }
+  })
+}
+
+/** MIME audio yang didukung browser (iOS = mp4/aac, lainnya = webm). */
+function pickAudioMime(): string {
+  if (typeof MediaRecorder === 'undefined') return 'audio/webm'
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac', 'audio/ogg']
+  for (const m of candidates) {
+    if (MediaRecorder.isTypeSupported?.(m)) return m
+  }
+  return ''
+}
+
+export interface RecordedAudio {
+  blob: Blob
+  mimeType: string
+}
+
+/**
+ * Rekam audio sekali (otomatis berhenti setelah `maxMs` atau saat stop()).
+ * Mengembalikan fungsi stop() yang resolve ke Blob audio.
+ * Dipakai di iOS/Safari → dikirim ke Gemini untuk transkrip.
+ */
+export async function recordAudio(maxMs = 12_000): Promise<{ stop: () => Promise<RecordedAudio> }> {
+  if (!isRecordingSupported()) {
+    throw new Error('Perangkat tidak mendukung perekaman audio.')
+  }
+  let stream: MediaStream
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  } catch {
+    throw new Error('Izin mikrofon ditolak. Aktifkan akses mikrofon di pengaturan browser.')
+  }
+
+  const mimeType = pickAudioMime()
+  const rec = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+  const chunks: BlobPart[] = []
+  rec.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data)
+  }
+  rec.start()
+
+  let autoStop: ReturnType<typeof setTimeout> | null = setTimeout(() => {
+    if (rec.state !== 'inactive') rec.stop()
+  }, maxMs)
+
+  const stop = (): Promise<RecordedAudio> =>
+    new Promise((resolve) => {
+      rec.onstop = () => {
+        if (autoStop) { clearTimeout(autoStop); autoStop = null }
+        stream.getTracks().forEach((t) => t.stop())
+        const type = rec.mimeType || mimeType || 'audio/webm'
+        resolve({ blob: new Blob(chunks, { type }), mimeType: type })
+      }
+      if (rec.state !== 'inactive') rec.stop()
+      else stream.getTracks().forEach((t) => t.stop())
+    })
+
+  return { stop }
+}
+
+/** Blob → base64 (tanpa prefix data URL). */
+export function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => {
+      const s = String(r.result)
+      resolve(s.includes(',') ? s.split(',')[1] : s)
+    }
+    r.onerror = reject
+    r.readAsDataURL(blob)
   })
 }

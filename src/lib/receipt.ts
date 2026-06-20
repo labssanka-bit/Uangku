@@ -62,6 +62,49 @@ export async function parseReceipt(file: File, categories: string[]): Promise<Re
   }
 }
 
+export interface VoiceParse {
+  text: string
+  amount: number
+  type: 'income' | 'expense'
+  category: string | null
+}
+
+/**
+ * Kirim audio voice-note ke Gemini (Edge Function 'parse-voice') untuk
+ * transkrip + ekstraksi nominal/kategori. Dipakai di iOS/Safari yang tak
+ * mendukung Web Speech API.
+ */
+export async function parseVoiceAudio(
+  audioBase64: string,
+  mimeType: string,
+  categories: string[]
+): Promise<VoiceParse> {
+  const { data, error } = await supabase.functions.invoke('parse-voice', {
+    body: { audioBase64, mimeType, categories },
+  })
+  if (error) {
+    let detail = error.message || 'Gagal memproses suara.'
+    try {
+      const ctx = (error as { context?: Response }).context
+      if (ctx && typeof ctx.json === 'function') {
+        const body = await ctx.json()
+        if (body?.error) detail = String(body.error)
+      }
+    } catch {
+      /* abaikan */
+    }
+    throw new Error(detail)
+  }
+  const d = data as Partial<VoiceParse> & { error?: string }
+  if (d.error) throw new Error(d.error)
+  return {
+    text: d.text ?? '',
+    amount: Number(d.amount ?? 0),
+    type: d.type === 'income' ? 'income' : 'expense',
+    category: d.category ?? null,
+  }
+}
+
 /** Unggah foto struk ke Storage (bucket 'receipts'), kembalikan URL publik. */
 export async function uploadReceipt(file: File, userId: string): Promise<string | null> {
   const ext = file.name.split('.').pop() || 'jpg'

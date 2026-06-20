@@ -8,8 +8,15 @@ import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { useAuth } from '@/hooks/useAuth'
 import { formatRupiah, toISODate } from '@/lib/format'
-import { parseReceipt, uploadReceipt } from '@/lib/receipt'
-import { listenOnce, isVoiceSupported } from '@/lib/voice'
+import { parseReceipt, uploadReceipt, parseVoiceAudio } from '@/lib/receipt'
+import {
+  listenOnce,
+  isWebSpeechSupported,
+  isRecordingSupported,
+  recordAudio,
+  blobToBase64,
+  type RecordedAudio,
+} from '@/lib/voice'
 import { extractAmount, guessCategoryName } from '@/lib/parseAmount'
 import { clsx } from '@/lib/clsx'
 import type { Transaction, TxType, ReceiptItem } from '@/types'
@@ -34,11 +41,12 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null)
   const [merchant, setMerchant] = useState<string | null>(null)
   const [items, setItems] = useState<ReceiptItem[] | null>(null)
-  const [busy, setBusy] = useState<null | 'ocr' | 'voice'>(null)
+  const [busy, setBusy] = useState<null | 'ocr' | 'voice' | 'recording'>(null)
   const [hint, setHint] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
+  const recorderRef = useRef<{ stop: () => Promise<RecordedAudio> } | null>(null)
 
   const { user } = useAuth()
   const { data: categories = [] } = useCategories(type)
@@ -122,21 +130,76 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   }
 
   async function handleVoice() {
-    if (!isVoiceSupported()) {
-      setHint('⚠️ Input suara hanya jalan di Chrome (Android/Desktop). iOS & Safari tidak didukung.')
+    // Sedang merekam (mode iOS/Gemini) → tap kedua = berhenti & proses
+    if (busy === 'recording' && recorderRef.current) {
+      await finishRecording()
       return
     }
+    if (busy !== null) return
+
+    // Metode 1 — Chrome: Web Speech API (instan, gratis, on-device)
+    if (isWebSpeechSupported()) {
+      setBusy('voice')
+      setHint('Mendengarkan… ucapkan, mis. "kopi tiga puluh ribu"')
+      try {
+        const text = await listenOnce()
+        applyVoiceText(text)
+      } catch (e) {
+        setHint(e instanceof Error ? e.message : 'Gagal merekam.')
+      } finally {
+        setBusy(null)
+      }
+      return
+    }
+
+    // Metode 2 — iOS/Safari: rekam audio → kirim ke Gemini
+    if (isRecordingSupported()) {
+      try {
+        recorderRef.current = await recordAudio(12_000)
+        setBusy('recording')
+        setHint('🔴 Merekam… ketuk lagi untuk berhenti (maks 12 detik)')
+      } catch (e) {
+        setHint(e instanceof Error ? e.message : 'Gagal mengakses mikrofon.')
+        setBusy(null)
+      }
+      return
+    }
+
+    setHint('Perangkat tidak mendukung input suara.')
+  }
+
+  // Set teks dari Web Speech ke form
+  function applyVoiceText(text: string) {
+    const amt = extractAmount(text)
+    if (amt > 0) setAmount(amt)
+    if (text) setNote((n) => n || text)
+    applyGuessedCategory(guessCategoryName(text))
+    setHint(amt > 0 ? `"${text}" → ${formatRupiah(amt)}` : `"${text}". Nominal tak terbaca, isi manual.`)
+  }
+
+  // Berhenti merekam → kirim audio ke Gemini
+  async function finishRecording() {
+    const recorder = recorderRef.current
+    recorderRef.current = null
+    if (!recorder) return
     setBusy('voice')
-    setHint('Mendengarkan… ucapkan, mis. "kopi tiga puluh ribu"')
+    setHint('Memproses suara dengan AI…')
     try {
-      const text = await listenOnce()
-      const amt = extractAmount(text)
-      if (amt > 0) setAmount(amt)
-      if (text) setNote((n) => n || text)
-      applyGuessedCategory(guessCategoryName(text))
-      setHint(amt > 0 ? `"${text}" → ${formatRupiah(amt)}` : `"${text}". Nominal tak terbaca, isi manual.`)
+      const { blob, mimeType } = await recorder.stop()
+      const audioBase64 = await blobToBase64(blob)
+      const catNames = categories.map((c) => c.name)
+      const res = await parseVoiceAudio(audioBase64, mimeType, catNames)
+      if (res.type) setType(res.type)
+      if (res.amount > 0) setAmount(res.amount)
+      if (res.text) setNote((n) => n || res.text)
+      applyGuessedCategory(res.category ?? guessCategoryName(res.text))
+      setHint(
+        res.amount > 0
+          ? `"${res.text}" → ${formatRupiah(res.amount)}. Cek & simpan.`
+          : `"${res.text || 'Tak terdengar'}". Nominal tak terbaca, isi manual.`
+      )
     } catch (e) {
-      setHint(e instanceof Error ? e.message : 'Gagal merekam.')
+      setHint(e instanceof Error ? e.message : 'Gagal memproses suara.')
     } finally {
       setBusy(null)
     }
@@ -261,10 +324,20 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </button>
         <button
           onClick={handleVoice}
-          disabled={busy !== null}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 disabled:opacity-50 dark:bg-dusty-500/10 dark:text-dusty-300"
+          disabled={busy === 'ocr' || busy === 'voice'}
+          className={clsx(
+            'flex flex-1 items-center justify-center gap-2 rounded-2xl py-2.5 text-sm font-semibold disabled:opacity-50',
+            busy === 'recording'
+              ? 'animate-pulse bg-wine-500 text-white'
+              : 'bg-dusty-100 text-maroon-700 dark:bg-dusty-500/10 dark:text-dusty-300'
+          )}
         >
-          {busy === 'voice' ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />} Suara
+          {busy === 'voice' ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Mic size={16} />
+          )}{' '}
+          {busy === 'recording' ? 'Berhenti' : 'Suara'}
         </button>
       </div>
       {hint && <p className="mb-3 text-center text-xs text-gray-500">{hint}</p>}
