@@ -123,7 +123,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
 
   async function handleVoice() {
     if (!isVoiceSupported()) {
-      setHint('Browser tidak mendukung input suara. Gunakan Chrome di Android.')
+      setHint('⚠️ Input suara hanya jalan di Chrome (Android/Desktop). iOS & Safari tidak didukung.')
       return
     }
     setBusy('voice')
