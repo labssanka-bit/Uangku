@@ -27,9 +27,15 @@ export function useUpdateProfile() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (patch: Partial<Pick<Profile, 'full_name' | 'currency' | 'opening_balance'>>) => {
-      const { error } = await supabase.from('profiles').update(patch).eq('id', user!.id)
+      // Upsert agar baris profil dibuat bila belum ada (mis. trigger tak jalan)
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: user!.id, ...patch }, { onConflict: 'id' })
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY })
+      qc.invalidateQueries({ queryKey: ['transactions'] }) // saldo ikut berubah
+    },
   })
 }

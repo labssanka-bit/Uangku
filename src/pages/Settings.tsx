@@ -21,6 +21,10 @@ export function Settings() {
   const [editOpening, setEditOpening] = useState(false)
   const [opening, setOpening] = useState('')
   const [busy, setBusy] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const errMsg = (e: unknown, fallback: string) =>
+    e instanceof Error ? e.message : (e as { message?: string })?.message || fallback
 
   async function handleExport() {
     setBusy(true)
@@ -56,6 +60,7 @@ export function Settings() {
           </div>
           <button
             onClick={() => {
+              setSaveError(null)
               setName(profile?.full_name ?? '')
               setEditName(true)
             }}
@@ -77,6 +82,7 @@ export function Settings() {
           icon={Wallet}
           label="Saldo Awal"
           onClick={() => {
+            setSaveError(null)
             setOpening(profile?.opening_balance ? String(profile.opening_balance) : '')
             setEditOpening(true)
           }}
@@ -106,13 +112,24 @@ export function Settings() {
         />
         <button
           onClick={async () => {
-            await updateProfile.mutateAsync({ full_name: name.trim() })
-            setEditName(false)
+            setSaveError(null)
+            try {
+              await updateProfile.mutateAsync({ full_name: name.trim() })
+              setEditName(false)
+            } catch (e) {
+              setSaveError(errMsg(e, 'Gagal menyimpan nama.'))
+            }
           }}
-          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
+          disabled={updateProfile.isPending}
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
         >
-          Simpan
+          {updateProfile.isPending ? 'Menyimpan…' : 'Simpan'}
         </button>
+        {saveError && (
+          <p className="mt-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">
+            {saveError}
+          </p>
+        )}
       </Sheet>
 
       {/* Saldo awal */}
@@ -131,13 +148,24 @@ export function Settings() {
         />
         <button
           onClick={async () => {
-            await updateProfile.mutateAsync({ opening_balance: parseRupiah(opening) })
-            setEditOpening(false)
+            setSaveError(null)
+            try {
+              await updateProfile.mutateAsync({ opening_balance: parseRupiah(opening) })
+              setEditOpening(false)
+            } catch (e) {
+              setSaveError(errMsg(e, 'Gagal menyimpan saldo awal.'))
+            }
           }}
-          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
+          disabled={updateProfile.isPending}
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
         >
-          Simpan
+          {updateProfile.isPending ? 'Menyimpan…' : 'Simpan'}
         </button>
+        {saveError && (
+          <p className="mt-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">
+            {saveError}
+          </p>
+        )}
       </Sheet>
     </div>
   )
