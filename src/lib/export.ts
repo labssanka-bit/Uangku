@@ -28,7 +28,7 @@ export async function exportTransactionsCSV() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `uangku-transaksi-${new Date().toISOString().slice(0, 10)}.csv`
+  a.download = `finplan-sanka-transaksi-${new Date().toISOString().slice(0, 10)}.csv`
   a.click()
   URL.revokeObjectURL(url)
 }

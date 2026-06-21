@@ -100,7 +100,7 @@ export function Settings() {
         <Row icon={LogOut} label="Keluar" onClick={signOut} danger />
       </Card>
 
-      <p className="text-center text-xs text-gray-400">UangKu v1.0 — dibuat untuk mempermudah catatan keuanganmu.</p>
+      <p className="text-center text-xs text-gray-400">Finplan Sanka v1.0 — dibuat untuk mempermudah catatan keuanganmu.</p>
 
       {/* Edit nama */}
       <Sheet open={editName} onClose={() => setEditName(false)} title="Edit Nama">
