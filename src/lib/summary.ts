@@ -3,6 +3,14 @@ import type { Transaction } from '@/types'
 import { formatRupiahRingkas } from './format'
 import { sisaHari, hariBerlalu } from './dateRange'
 
+/**
+ * Transfer antar dompet (note diawali "⇄") = pindah uang internal, BUKAN
+ * pemasukan/pengeluaran nyata. Dikecualikan dari semua statistik income/expense
+ * tapi TETAP dihitung di saldo tiap dompet (useWalletBalances).
+ */
+export const isTransfer = (t: Pick<Transaction, 'note'>): boolean =>
+  (t.note ?? '').startsWith('⇄')
+
 export interface MonthSummary {
   income: number
   expense: number
@@ -22,6 +30,7 @@ export function summarize(transactions: Transaction[], ref: Date): MonthSummary 
   const catMap = new Map<string, { name: string; color: string; icon: string; total: number }>()
 
   for (const t of transactions) {
+    if (isTransfer(t)) continue // transfer internal, jangan dihitung
     if (t.type === 'income') income += t.amount
     else {
       expense += t.amount

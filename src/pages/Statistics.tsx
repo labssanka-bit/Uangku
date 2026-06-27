@@ -19,7 +19,7 @@ import { CalendarHeatmap } from '@/components/CalendarHeatmap'
 import { useUIStore } from '@/store/uiStore'
 import { useTransactions, useTransactionsBetween } from '@/hooks/useTransactions'
 import { buildPeriode } from '@/lib/dateRange'
-import { summarize } from '@/lib/summary'
+import { summarize, isTransfer } from '@/lib/summary'
 import { formatRupiah, formatRupiahRingkas } from '@/lib/format'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
@@ -52,6 +52,7 @@ export function Statistics() {
       buckets[key] = { label: format(d, 'MMM', { locale: localeId }), masuk: 0, keluar: 0 }
     }
     for (const t of rangeTxs) {
+      if (isTransfer(t)) continue
       const key = t.date.slice(0, 7)
       if (!buckets[key]) continue
       if (t.type === 'income') buckets[key].masuk += t.amount
@@ -78,14 +79,14 @@ export function Statistics() {
             <TrendingDown size={14} /> Pengeluaran
           </span>
           <Amount value={summary.expense} className="mt-1 block text-lg font-extrabold text-wine-600" />
-          <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'expense').length} transaksi</span>
+          <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'expense' && !isTransfer(t)).length} transaksi</span>
         </Card>
         <Card className="bg-sage-50 dark:bg-sage-500/10">
           <span className="flex items-center gap-1 text-xs font-medium text-sage-600">
             <TrendingUp size={14} /> Pemasukan
           </span>
           <Amount value={summary.income} className="mt-1 block text-lg font-extrabold text-sage-600" />
-          <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'income').length} transaksi</span>
+          <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'income' && !isTransfer(t)).length} transaksi</span>
         </Card>
       </div>
 
@@ -182,7 +183,7 @@ function CashFlowBar({ income, expense }: { income: number; expense: number }) {
 
 /** Susun data line chart: top-4 kategori pengeluaran per bucket waktu. */
 function buildCategoryTrend(txs: import('@/types').Transaction[], gran: Granularity) {
-  const expense = txs.filter((t) => t.type === 'expense')
+  const expense = txs.filter((t) => t.type === 'expense' && !isTransfer(t))
 
   // Tentukan kunci bucket per transaksi
   const bucketKey = (dateStr: string) => {

@@ -71,13 +71,15 @@ export function useWalletMutations() {
       toId: string; toName: string
       amount: number; note: string; date: string
     }) => {
+      // Note SELALU diawali "⇄" agar terdeteksi sebagai transfer (lib/summary isTransfer)
+      const tail = note ? ` (${note})` : ''
       const { error } = await supabase.from('transactions').insert([
         {
           user_id: user!.id,
           amount,
           type: 'expense',
           wallet_id: fromId,
-          note: note || `⇄ Transfer ke ${toName}`,
+          note: `⇄ Transfer ke ${toName}${tail}`,
           date,
           category_id: null,
           is_recurring: false,
@@ -87,7 +89,7 @@ export function useWalletMutations() {
           amount,
           type: 'income',
           wallet_id: toId,
-          note: note || `⇄ Transfer dari ${fromName}`,
+          note: `⇄ Transfer dari ${fromName}${tail}`,
           date,
           category_id: null,
           is_recurring: false,

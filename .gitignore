@@ -24,3 +24,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Kampanye medsos (folder kerja terpisah, bukan bagian app)
+content-plan

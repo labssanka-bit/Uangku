@@ -20,6 +20,7 @@ export function buildQuickChips(transactions: Transaction[], limit = 4): QuickCh
   for (const t of transactions) {
     const note = t.note?.trim()
     if (!note) continue // hanya yang punya nama jelas
+    if (note.startsWith('⇄')) continue // transfer internal, bukan transaksi rutin
     const key = `${t.type}|${t.category_id ?? ''}|${note.toLowerCase()}`
     const prev = map.get(key)
     if (prev) prev.count++

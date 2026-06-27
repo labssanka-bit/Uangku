@@ -14,7 +14,7 @@ import { useTransactions, useRecentTransactions, useTotalBalance, useTransaction
 import { useBudgets } from '@/hooks/useBudgets'
 import { useWalletBalances } from '@/hooks/useWallets'
 import { buildPeriode, bulanSebelum } from '@/lib/dateRange'
-import { summarize, buildInsight, buildComparison } from '@/lib/summary'
+import { summarize, buildInsight, buildComparison, isTransfer } from '@/lib/summary'
 import { buildQuickChips } from '@/lib/quickadd'
 import { computeStreak } from '@/lib/streak'
 import { formatRupiah } from '@/lib/format'
@@ -48,7 +48,7 @@ export function Dashboard() {
 
   // Banding pengeluaran vs bulan lalu
   const comparison = useMemo(() => {
-    const prevExpense = prevTxs.filter((t) => t.type === 'expense').reduce((a, t) => a + t.amount, 0)
+    const prevExpense = prevTxs.filter((t) => t.type === 'expense' && !isTransfer(t)).reduce((a, t) => a + t.amount, 0)
     return buildComparison(summary.expense, prevExpense)
   }, [prevTxs, summary.expense])
 
