@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Plus, Wallet as WalletIcon, ArrowRightLeft } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
@@ -67,18 +68,33 @@ export function Wallets() {
     setOpen(false)
   }
 
-  function openTransfer() {
+  function openTransfer(opts?: { nabung?: boolean }) {
     const cashflow = wallets.filter((w) => w.group === 'cashflow')
-    const first = cashflow[0]
-    const second = cashflow[1] ?? wallets.find((w) => w.group === 'saving')
-    setFromId(first?.id ?? wallets[0]?.id ?? '')
-    setToId(second?.id ?? '')
+    const saving = wallets.filter((w) => w.group === 'saving')
+    const from = cashflow.find((w) => w.is_default) ?? cashflow[0]
+    // Mode "nabung": tujuan = dompet Saving; selain itu tujuan = dompet kedua
+    const to = opts?.nabung
+      ? (saving.find((w) => w.is_default) ?? saving[0])
+      : (cashflow[1] ?? saving[0])
+    setFromId(from?.id ?? wallets[0]?.id ?? '')
+    setToId(to?.id ?? '')
     setTransferAmount('')
-    setTransferNote('')
+    setTransferNote(opts?.nabung ? 'Menabung' : '')
     setTransferDate(toISODate(new Date()))
     setTransferError(null)
     setTransferOpen(true)
   }
+
+  // Auto-buka transfer mode "nabung" bila datang dari Dashboard (?aksi=nabung)
+  const [params, setParams] = useSearchParams()
+  useEffect(() => {
+    if (params.get('aksi') === 'nabung' && wallets.length > 0) {
+      openTransfer({ nabung: true })
+      params.delete('aksi')
+      setParams(params, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, wallets.length])
 
   async function handleTransfer() {
     const amt = parseRupiah(transferAmount)
@@ -117,7 +133,7 @@ export function Wallets() {
         title="Dompet"
         action={
           <button
-            onClick={openTransfer}
+            onClick={() => openTransfer()}
             className="flex items-center gap-1.5 rounded-full bg-maroon-700 px-3 py-2 text-sm font-semibold text-white shadow-card"
           >
             <ArrowRightLeft size={16} /> Transfer

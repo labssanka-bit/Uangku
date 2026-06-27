@@ -10,7 +10,7 @@ import { ThemeToggles } from '@/components/layout/ThemeToggles'
 import { TransactionItem } from '@/components/TransactionItem'
 import { useUIStore } from '@/store/uiStore'
 import { useProfile } from '@/hooks/useProfile'
-import { useTransactions, useRecentTransactions, useTotalBalance, useTransactionDates } from '@/hooks/useTransactions'
+import { useTransactions, useRecentTransactions, useTransactionDates } from '@/hooks/useTransactions'
 import { useBudgets } from '@/hooks/useBudgets'
 import { useWalletBalances } from '@/hooks/useWallets'
 import { buildPeriode, bulanSebelum } from '@/lib/dateRange'
@@ -33,15 +33,15 @@ export function Dashboard() {
   const { data: prevTxs = [] } = useTransactions(prevPeriode)
   const { data: recent = [] } = useRecentTransactions(5)
   const { data: recentMany = [] } = useRecentTransactions(50)
-  const { data: txBalance = 0 } = useTotalBalance()
   const { data: budgets = [] } = useBudgets(periode)
   const { data: txDates = [] } = useTransactionDates()
-  const { cashflowTotal, savingTotal } = useWalletBalances()
+  const { cashflowTotal, savingTotal, total: walletTotal } = useWalletBalances()
 
   const streak = useMemo(() => computeStreak(txDates), [txDates])
 
-  // Saldo total = transaksi + saldo awal yang diset user
-  const balance = txBalance + (profile?.opening_balance ?? 0)
+  // Total Saldo = jumlah seluruh dompet (Cashflow + Saving + transaksi tanpa dompet).
+  // Satu sumber kebenaran → konsisten dengan kartu Cashflow & Saving di bawah.
+  const balance = walletTotal
 
   const summary = useMemo(() => summarize(txs, ref), [txs]) // eslint-disable-line react-hooks/exhaustive-deps
   const insight = useMemo(() => buildInsight(summary, balance, ref), [summary, balance]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -117,16 +117,20 @@ export function Dashboard() {
       </motion.div>
 
       {/* Ringkasan dompet per grup */}
-      <Link to="/dompet" className="mt-3 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900">
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <Link to="/dompet" className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900">
           <span className="flex items-center gap-1 text-xs font-medium text-maroon-700"><Landmark size={13} /> Cashflow</span>
           <p className={`nums mt-0.5 font-bold ${privacy ? 'privacy-blur' : ''}`}>{formatRupiah(cashflowTotal)}</p>
-        </div>
-        <div className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900">
-          <span className="flex items-center gap-1 text-xs font-medium text-sage-700"><PiggyBank size={13} /> Saving</span>
+        </Link>
+        {/* Tap Saving → langsung buka transfer "Nabung" (Cashflow → Saving) */}
+        <Link to="/dompet?aksi=nabung" className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900">
+          <span className="flex items-center justify-between text-xs font-medium text-sage-700">
+            <span className="flex items-center gap-1"><PiggyBank size={13} /> Saving</span>
+            <span className="flex items-center gap-0.5 rounded-full bg-sage-100 px-1.5 py-0.5 text-[10px] font-semibold text-sage-700 dark:bg-sage-500/20"><Plus size={10} /> Nabung</span>
+          </span>
           <p className={`nums mt-0.5 font-bold ${privacy ? 'privacy-blur' : ''}`}>{formatRupiah(savingTotal)}</p>
-        </div>
-      </Link>
+        </Link>
+      </div>
 
       {/* Selector bulan */}
       <MonthSelector className="my-4" />

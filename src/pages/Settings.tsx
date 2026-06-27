@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile'
+import { useWalletBalances, useWalletMutations } from '@/hooks/useWallets'
 import { useUIStore } from '@/store/uiStore'
 import { exportTransactionsCSV } from '@/lib/export'
 import { formatRupiah, parseRupiah } from '@/lib/format'
@@ -14,7 +15,12 @@ export function Settings() {
   const { user, signOut } = useAuth()
   const { data: profile } = useProfile()
   const updateProfile = useUpdateProfile()
+  const { wallets } = useWalletBalances()
+  const { update: updateWallet } = useWalletMutations()
   const { dark, toggleDark } = useUIStore()
+
+  // Dompet utama (Cash default) — tempat "Saldo Awal" disimpan
+  const mainWallet = wallets.find((w) => w.is_default && w.group === 'cashflow') ?? wallets[0] ?? null
 
   const [editName, setEditName] = useState(false)
   const [name, setName] = useState('')
@@ -80,14 +86,14 @@ export function Settings() {
         } />
         <Row
           icon={Wallet}
-          label="Saldo Awal"
+          label={`Saldo Awal ${mainWallet ? `(${mainWallet.name})` : ''}`}
           onClick={() => {
             setSaveError(null)
-            setOpening(profile?.opening_balance ? String(profile.opening_balance) : '')
+            setOpening(mainWallet?.opening_balance ? String(mainWallet.opening_balance) : '')
             setEditOpening(true)
           }}
           right={
-            <span className="nums text-sm text-gray-400">{formatRupiah(profile?.opening_balance ?? 0)}</span>
+            <span className="nums text-sm text-gray-400">{formatRupiah(mainWallet?.opening_balance ?? 0)}</span>
           }
         />
         <Row icon={Coins} label="Mata Uang" right={<span className="text-sm text-gray-400">{profile?.currency ?? 'IDR'}</span>} />
@@ -133,10 +139,10 @@ export function Settings() {
       </Sheet>
 
       {/* Saldo awal */}
-      <Sheet open={editOpening} onClose={() => setEditOpening(false)} title="Saldo Awal">
+      <Sheet open={editOpening} onClose={() => setEditOpening(false)} title={`Saldo Awal ${mainWallet ? mainWallet.name : ''}`}>
         <p className="mb-3 text-center text-xs text-gray-400">
-          Masukkan saldo uangmu saat ini (kas + rekening). Dipakai sebagai titik awal
-          perhitungan Total Saldo, tanpa perlu mencatat semua transaksi lama.
+          Saldo awal dompet utama <b>{mainWallet?.name ?? ''}</b> (kas saat ini). Jadi titik awal
+          perhitungan Total Saldo. Dompet lain atur saldo awalnya masing-masing di menu Dompet.
         </p>
         <input
           autoFocus
@@ -149,17 +155,18 @@ export function Settings() {
         <button
           onClick={async () => {
             setSaveError(null)
+            if (!mainWallet) { setSaveError('Belum ada dompet. Buat dompet dulu di menu Dompet.'); return }
             try {
-              await updateProfile.mutateAsync({ opening_balance: parseRupiah(opening) })
+              await updateWallet.mutateAsync({ id: mainWallet.id, opening_balance: parseRupiah(opening) })
               setEditOpening(false)
             } catch (e) {
               setSaveError(errMsg(e, 'Gagal menyimpan saldo awal.'))
             }
           }}
-          disabled={updateProfile.isPending}
+          disabled={updateWallet.isPending}
           className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
         >
-          {updateProfile.isPending ? 'Menyimpan…' : 'Simpan'}
+          {updateWallet.isPending ? 'Menyimpan…' : 'Simpan'}
         </button>
         {saveError && (
           <p className="mt-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">

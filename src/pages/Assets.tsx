@@ -57,14 +57,17 @@ export function Assets() {
 
   const isGold = type === 'emas'
   const isSaham = type === 'saham'
+  const isPerUnit = isGold || isSaham // input pakai harga per-unit (gram / lembar)
+  const LOT_SIZE = 100 // 1 lot saham = 100 lembar (BEI)
+  const unitMult = isSaham ? LOT_SIZE : 1 // emas ×1 gram, saham ×100 lembar
   const qtyNum = parseFloat(quantity.replace(',', '.')) || 0
 
   const buyPricePerGramNum = parseRupiah(buyPricePerGram)
   const currentPricePerGramNum = parseRupiah(currentPricePerGram)
 
-  const computedBuyTotal = isGold ? qtyNum * buyPricePerGramNum : parseRupiah(buyPrice)
-  const computedCurrentTotal = isGold
-    ? qtyNum * (currentPricePerGramNum || buyPricePerGramNum)
+  const computedBuyTotal = isPerUnit ? qtyNum * unitMult * buyPricePerGramNum : parseRupiah(buyPrice)
+  const computedCurrentTotal = isPerUnit
+    ? qtyNum * unitMult * (currentPricePerGramNum || buyPricePerGramNum)
     : parseRupiah(currentValue)
 
   function openNew() {
@@ -87,9 +90,11 @@ export function Assets() {
     setName(a.name)
     setType(a.type)
     setQuantity(String(a.quantity))
-    if (a.type === 'emas' && a.quantity > 0) {
-      setBuyPricePerGram(String(Math.round(a.buy_price / a.quantity)))
-      setCurrentPricePerGram(String(Math.round(a.current_value / a.quantity)))
+    if ((a.type === 'emas' || a.type === 'saham') && a.quantity > 0) {
+      const mult = a.type === 'saham' ? 100 : 1
+      const denom = a.quantity * mult
+      setBuyPricePerGram(String(Math.round(a.buy_price / denom)))
+      setCurrentPricePerGram(String(Math.round(a.current_value / denom)))
     } else {
       setBuyPricePerGram('')
       setCurrentPricePerGram('')
@@ -107,7 +112,7 @@ export function Assets() {
     const payload = {
       name: name.trim(),
       type,
-      quantity: isGold ? qtyNum || 1 : (isSaham ? qtyNum || 1 : 1),
+      quantity: isPerUnit ? qtyNum || 1 : 1,
       buy_price: computedBuyTotal,
       current_value: computedCurrentTotal,
       date,
@@ -205,8 +210,10 @@ export function Assets() {
             const meta = TYPE_META[a.type]
             const gain = a.current_value - a.buy_price
             const up = gain >= 0
-            const buyPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.buy_price / a.quantity) : 0
-            const curPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.current_value / a.quantity) : 0
+            const goldBuyPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.buy_price / a.quantity) : 0
+            const goldCurPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.current_value / a.quantity) : 0
+            const shareBuyPL = a.type === 'saham' && a.quantity > 0 ? Math.round(a.buy_price / (a.quantity * 100)) : 0
+            const shareCurPL = a.type === 'saham' && a.quantity > 0 ? Math.round(a.current_value / (a.quantity * 100)) : 0
             return (
               <Card key={a.id} onClick={() => openEdit(a)} className="flex items-center gap-3">
                 <CategoryIcon icon={meta.icon} color={meta.color} />
@@ -214,12 +221,15 @@ export function Assets() {
                   <p className="truncate font-semibold">{a.name}</p>
                   <p className="text-xs text-gray-400">
                     {meta.label}
-                    {a.type === 'emas' && ` · ${a.quantity} g · beli ${formatRupiah(buyPPG)}/g`}
-                    {a.type === 'saham' && ` · ${a.quantity} lot`}
+                    {a.type === 'emas' && ` · ${a.quantity} g · beli ${formatRupiah(goldBuyPPG)}/g`}
+                    {a.type === 'saham' && ` · ${a.quantity} lot · beli ${formatRupiah(shareBuyPL)}/lembar`}
                     {a.type !== 'emas' && a.type !== 'saham' && a.quantity > 1 && ` · ${a.quantity}`}
                   </p>
-                  {a.type === 'emas' && curPPG > 0 && (
-                    <p className="text-xs text-amber-600">sekarang {formatRupiah(curPPG)}/g</p>
+                  {a.type === 'emas' && goldCurPPG > 0 && (
+                    <p className="text-xs text-amber-600">sekarang {formatRupiah(goldCurPPG)}/g</p>
+                  )}
+                  {a.type === 'saham' && shareCurPL > 0 && (
+                    <p className="text-xs text-sage-600">sekarang {formatRupiah(shareCurPL)}/lembar</p>
                   )}
                 </div>
                 <div className="text-right">
@@ -305,6 +315,7 @@ export function Assets() {
           </>
         ) : isSaham ? (
           <>
+            {/* Saham: lot + harga/lembar beli + harga/lembar sekarang (1 lot = 100 lembar) */}
             <div className="mb-3 grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-1">
                 <span className="text-xs text-gray-400">Jumlah (Lot)</span>
@@ -326,28 +337,31 @@ export function Assets() {
                 />
               </label>
             </div>
-            <div className="mb-3 grid grid-cols-2 gap-3">
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-gray-400">Harga beli (total)</span>
-                <input
-                  inputMode="numeric"
-                  value={buyPrice ? formatRupiah(parseRupiah(buyPrice), false) : ''}
-                  onChange={(e) => setBuyPrice(e.target.value)}
-                  placeholder="0"
-                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs text-gray-400">Nilai sekarang</span>
-                <input
-                  inputMode="numeric"
-                  value={currentValue ? formatRupiah(parseRupiah(currentValue), false) : ''}
-                  onChange={(e) => setCurrentValue(e.target.value)}
-                  placeholder="0"
-                  className="nums rounded-xl bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800"
-                />
-              </label>
-            </div>
+            <label className="mb-3 block">
+              <span className="text-xs text-gray-400">Harga beli / lembar (Rp)</span>
+              <input
+                inputMode="numeric"
+                value={buyPricePerGram ? formatRupiah(parseRupiah(buyPricePerGram), false) : ''}
+                onChange={(e) => setBuyPricePerGram(e.target.value)}
+                placeholder="mis. 9.000"
+                className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
+              />
+            </label>
+            <label className="mb-3 block">
+              <span className="text-xs text-gray-400">Harga sekarang / lembar (Rp) — opsional, default = harga beli</span>
+              <input
+                inputMode="numeric"
+                value={currentPricePerGram ? formatRupiah(parseRupiah(currentPricePerGram), false) : ''}
+                onChange={(e) => setCurrentPricePerGram(e.target.value)}
+                placeholder={buyPricePerGram ? formatRupiah(parseRupiah(buyPricePerGram), false) : 'sama dgn harga beli'}
+                className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
+              />
+            </label>
+            <p className="mb-1 text-center text-[11px] text-gray-400">
+              {qtyNum > 0 && buyPricePerGramNum > 0
+                ? `${qtyNum} lot × 100 lembar × ${formatRupiah(buyPricePerGramNum, false)} = ${formatRupiah(qtyNum * 100 * buyPricePerGramNum)}`
+                : '1 lot = 100 lembar (standar BEI)'}
+            </p>
           </>
         ) : (
           <>
