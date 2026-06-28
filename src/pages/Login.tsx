@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 /** Halaman login / daftar sederhana via email + password (Supabase Auth). */
@@ -39,11 +38,7 @@ export function Login() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center bg-gray-100 px-6 dark:bg-gray-950">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-maroon-600 to-maroon-800 text-white shadow-soft">
-          <Wallet size={32} />
-        </div>
-        <h1 className="text-2xl font-extrabold">Finplan Sanka</h1>
-        <p className="text-sm text-gray-400">Catatan keuangan pribadi yang simpel</p>
+        <img src="/logo.png" alt="Finplan Sanka" className="mx-auto w-56" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">

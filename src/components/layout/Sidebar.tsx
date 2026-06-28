@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   Home, ListChecks, BarChart3, PiggyBank, Repeat, Tags,
-  Landmark, HandCoins, Gem, Settings as Cog, Plus, Wallet,
+  Landmark, HandCoins, Gem, Settings as Cog, Plus,
 } from 'lucide-react'
 import { clsx } from '@/lib/clsx'
 
@@ -27,11 +27,8 @@ export function Sidebar({ onAdd }: Props) {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-maroon-100/60 bg-white/70 px-4 py-6 backdrop-blur lg:flex dark:border-maroon-900/40 dark:bg-[#1C1418]/80">
       {/* Logo */}
-      <div className="mb-8 flex items-center gap-2 px-2">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-maroon-600 to-maroon-800 text-white shadow-soft">
-          <Wallet size={20} />
-        </span>
-        <span className="text-lg font-extrabold text-maroon-800 dark:text-dusty-200">Finplan Sanka</span>
+      <div className="mb-6 px-2">
+        <img src="/logo.png" alt="Finplan Sanka" className="w-40" />
       </div>
 
       {/* Tombol tambah */}
