@@ -83,9 +83,9 @@
   .ph-chip .ic{width:13px;height:13px;stroke-width:2;color:var(--dusty)}
   .float-tag{position:absolute;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 16px 36px -12px rgba(114,40,58,.35);display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--maroon)}
   .float-tag .ic{width:18px;height:18px}
-  .float-1{top:30px;left:-26px;color:var(--sage)} .float-1 b{color:var(--sage)}
-  .float-2{bottom:60px;right:-24px;color:var(--wine)}
-  @media(max-width:880px){.float-tag{display:none}}
+  .float-1{top:24px;left:2px;color:var(--sage)} .float-1 b{color:var(--sage)}
+  .float-2{bottom:66px;right:2px;color:var(--wine)}
+  @media(max-width:1040px){.float-tag{display:none}}
 
   /* PAIN */
   .pain{background:#fff}
@@ -266,6 +266,41 @@
   .step-card h4{font-size:18px;color:var(--maroon);margin-bottom:6px}
   .step-card p{font-size:14px;color:var(--muted)}
   @media(max-width:880px){.prod-grid,.steps-grid{grid-template-columns:1fr}}
+
+  /* HERO PRICE */
+  .hprice{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;color:var(--muted)}
+  .hprice s{color:var(--muted);opacity:.8}
+  .hprice b{font-family:'Instrument Serif',serif;font-size:24px;color:var(--maroon);font-weight:400}
+  .hprice .off{background:var(--wine);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
+
+  /* UNTUK SIAPA */
+  .who{background:#fff}
+  .who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+  .who-card{display:flex;gap:13px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:20px;text-align:left;transition:transform .15s}
+  .who-card:hover{transform:translateY(-3px)}
+  .who-card .iw{width:42px;height:42px;border-radius:12px;background:#ECE6DA;color:var(--maroon);display:grid;place-items:center;flex-shrink:0}
+  .who-card .iw .ic{width:21px;height:21px}
+  .who-card h4{font-size:15.5px;color:var(--maroon);margin-bottom:3px}
+  .who-card p{font-size:13px;color:var(--muted)}
+  .who-note{margin-top:30px;font-size:16px;color:var(--maroon);font-style:italic}
+
+  /* URGENSI (dark) */
+  .urgent{background:var(--maroon-d);color:#fff;position:relative;overflow:hidden}
+  .urgent::after{content:"";position:absolute;inset:0;background:radial-gradient(640px 320px at 85% 8%,rgba(176,137,104,.26),transparent)}
+  .urgent .wrap{position:relative;z-index:1}
+  .urgent .stitle{color:#fff;margin:0 auto}
+  .urgent .slead{color:rgba(255,255,255,.78);margin:14px auto 0}
+  .urgent .eyebrow{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:var(--gold-l)}
+  .urg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:880px;margin:44px auto 0}
+  .urg-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:20px;padding:24px;text-align:left;display:flex;gap:15px}
+  .urg-card .iw{width:46px;height:46px;border-radius:13px;background:rgba(176,137,104,.22);color:var(--gold-l);display:grid;place-items:center;flex-shrink:0}
+  .urg-card .iw .ic{width:23px;height:23px}
+  .urg-card .big{font-family:'Instrument Serif',serif;font-size:26px;color:var(--gold-l);line-height:1.1;margin-bottom:4px}
+  .urg-card h4{font-size:15px;color:#fff;margin-bottom:5px}
+  .urg-card p{font-size:13.5px;color:rgba(255,255,255,.8)}
+  .urg-hook{max-width:680px;margin:34px auto 0;font-size:20px;color:#fff;line-height:1.5}
+  .urg-hook b{color:var(--gold-l)}
+  @media(max-width:880px){.who-grid,.urg-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -280,6 +315,10 @@
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></symbol>
   <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></symbol>
   <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.2a1 1 0 0 0 1 .8h8.4a1 1 0 0 0 1-.8L20 7H6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></symbol>
+  <symbol id="i-dollar" viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><path d="M16 7.5C16 5.6 14.2 4.5 12 4.5S8 5.6 8 7.5 9.8 10 12 10.5s4 1 4 3-1.8 3-4 3-4-1.1-4-3"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M12 4 2 9l10 5 10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 6"/><path d="M17.5 14.4a5.5 5.5 0 0 1 3 5.6"/></symbol>
   <symbol id="i-piggy" viewBox="0 0 24 24"><path d="M19 11a6 5 0 0 0-6-5h-2a6 5 0 0 0-6 5 5 5 0 0 0 3 4.6V19h3l.5-1.2h1L16 19h2v-3a3 3 0 0 0 1-2z"/><path d="M19 11h1.5"/><line x1="9" y1="9.5" x2="13" y2="9.5"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 4h12l3 5-9 11L3 9z"/><path d="M3 9h18"/><path d="M9 4l-3 5 6 11 6-11-3-5"/></symbol>
   <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 1 4 10.4c-.8.7-1 1.3-1 2.6H9c0-1.3-.2-1.9-1-2.6A6 6 0 0 1 12 3z"/></symbol>
@@ -317,6 +356,12 @@
         <div class="hero-cta">
           <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn">Mulai — Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a>
           <a href="https://finplansanka.com/?demo=1" class="btn btn-ghost" target="_blank"><svg class="ic" style="width:18px;height:18px"><use href="#i-phone"/></svg> Coba Demo</a>
+        </div>
+        <div class="hprice">
+          <span class="off">HEMAT 70%</span>
+          <s>Rp169.000</s>
+          <b>Rp49.900</b>
+          <span>sekali bayar, selamanya</span>
         </div>
         <div class="trust">
           <span><svg class="ic"><use href="#i-infinity"/></svg> <b>Sekali bayar</b>, selamanya</span>
@@ -431,6 +476,53 @@
   </div>
 </section>
 
+<!-- UNTUK SIAPA -->
+<section class="who">
+  <div class="wrap center">
+    <span class="eyebrow"><svg class="ic"><use href="#i-users"/></svg> Untuk siapa</span>
+    <h2 class="stitle" style="margin:0 auto">Buat semua kalangan — makin <span class="grad-text">awal</span>, makin untung.</h2>
+    <p class="slead" style="margin:14px auto 0">Bukan cuma buat yang gajinya besar. Justru paling berdampak kalau dimulai sekarang — dari siapa pun kamu, berapa pun uangmu.</p>
+    <div class="who-grid">
+      <div class="who-card reveal"><span class="iw"><svg class="ic"><use href="#i-cap"/></svg></span><div><h4>Pelajar SMP &amp; SMA</h4><p>Belajar pegang uang jajan &amp; nabung target kecil sejak dini. Kebiasaan emas seumur hidup.</p></div></div>
+      <div class="who-card reveal"><span class="iw"><svg class="ic"><use href="#i-coffee"/></svg></span><div><h4>Mahasiswa</h4><p>Atur uang bulanan, kos, &amp; jajan biar gak akhir bulan puasa. Anti kaget.</p></div></div>
+      <div class="who-card reveal"><span class="iw"><svg class="ic"><use href="#i-wallet"/></svg></span><div><h4>Karyawan</h4><p>Gaji gak numpang lewat. Tahu sisa aman tiap hari &amp; mulai bangun aset.</p></div></div>
+      <div class="who-card reveal"><span class="iw"><svg class="ic"><use href="#i-piggy"/></svg></span><div><h4>Ibu Rumah Tangga</h4><p>Pegang kendali belanja rumah &amp; tabungan keluarga. Setiap rupiah jelas ke mana.</p></div></div>
+      <div class="who-card reveal"><span class="iw"><svg class="ic"><use href="#i-chart"/></svg></span><div><h4>Freelancer &amp; UMKM</h4><p>Pisahkan uang pribadi &amp; usaha. Arus kas rapi tanpa pusing akuntansi.</p></div></div>
+      <div class="who-card reveal"><span class="iw"><svg class="ic"><use href="#i-target"/></svg></span><div><h4>Siapa pun, mulai dari nol</h4><p>Belum punya tabungan? Justru ini titik awal terbaik. Gak ada kata terlambat.</p></div></div>
+    </div>
+    <p class="who-note reveal">"Makin muda kamu mulai, makin besar bunga waktu bekerja untukmu."</p>
+  </div>
+</section>
+
+<!-- URGENSI -->
+<section class="urgent">
+  <div class="wrap center">
+    <span class="eyebrow"><svg class="ic"><use href="#i-trend-down"/></svg> Kenapa harus sekarang</span>
+    <h2 class="stitle">Uang yang didiamkan, diam-diam menyusut.</h2>
+    <p class="slead">Tiap tahun harga naik. Yang gak ikut naik cuma kebiasaan menunda. Ini kenyataannya:</p>
+    <div class="urg-grid">
+      <div class="urg-card reveal">
+        <span class="iw"><svg class="ic"><use href="#i-trend-down"/></svg></span>
+        <div><div class="big">~Rp30rb hilang</div><h4>Inflasi ±3-4% / tahun</h4><p>Rp100rb hari ini cuma terasa seperti ~Rp70rb dalam 10 tahun. Uang nganggur = rugi pelan-pelan tanpa kamu sadari.</p></div>
+      </div>
+      <div class="urg-card reveal">
+        <span class="iw"><svg class="ic"><use href="#i-home"/></svg></span>
+        <div><div class="big">Naik dobel digit</div><h4>Harga rumah terus memanjat</h4><p>Properti di kota besar naik belasan persen tiap tahun. Makin ditunda, rumah sendiri makin jauh dari jangkauan.</p></div>
+      </div>
+      <div class="urg-card reveal">
+        <span class="iw"><svg class="ic"><use href="#i-dollar"/></svg></span>
+        <div><div class="big">Tembus Rp16.000+</div><h4>Dolar makin perkasa</h4><p>Kurs naik = gadget, barang impor, sampai biaya sekolah ikut mahal. Daya beli rupiah pelan-pelan tergerus.</p></div>
+      </div>
+      <div class="urg-card reveal">
+        <span class="iw"><svg class="ic"><use href="#i-shield"/></svg></span>
+        <div><div class="big">PHK &amp; resesi</div><h4>Ekonomi makin tak pasti</h4><p>Badai bisa datang kapan saja. Yang punya dana darurat &amp; kontrol keuangan tidur jauh lebih nyenyak.</p></div>
+      </div>
+    </div>
+    <p class="urg-hook reveal">Kamu nggak bisa kendaliin harga, dolar, atau ekonomi. Tapi kamu <b>100% bisa kendaliin ke mana uangmu pergi</b> — mulai hari ini.</p>
+    <div style="margin-top:30px"><a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn btn-gold">Ambil Kendali Sekarang <svg class="ic"><use href="#i-arrow"/></svg></a></div>
+  </div>
+</section>
+
 <!-- COMPARE -->
 <section class="cmp">
   <div class="wrap center">
@@ -499,6 +591,29 @@
       <div class="step-card reveal"><span class="step-num">3</span><div class="si"><svg class="ic"><use href="#i-bulb"/></svg></div><h4>Lihat pola &amp; insight</h4><p>Grafik, rekap kategori, &amp; saran otomatis. Tahu persis uang lari ke mana.</p></div>
     </div>
     <div style="margin-top:38px"><a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn">Mulai Sekarang — Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a></div>
+  </div>
+</section>
+
+<!-- HARGA -->
+<section class="price" id="harga">
+  <div class="wrap center">
+    <span class="eyebrow"><svg class="ic"><use href="#i-target"/></svg> Harga peluncuran</span>
+    <h2 class="stitle" style="margin:0 auto">Investasi terkecil, dampak seumur hidup.</h2>
+    <div class="pcard reveal">
+      <div class="badge-disc">HEMAT 70% — TERBATAS</div>
+      <div class="old">Rp 169.000</div>
+      <div class="new">Rp 49.900<small> /selamanya</small></div>
+      <ul class="plist">
+        <li><svg class="ic"><use href="#i-check"/></svg> Akses penuh semua fitur, selamanya</li>
+        <li><svg class="ic"><use href="#i-check"/></svg> HP &amp; laptop, sinkron otomatis</li>
+        <li><svg class="ic"><use href="#i-check"/></svg> Foto struk AI &amp; input suara</li>
+        <li><svg class="ic"><use href="#i-check"/></svg> Dompet, tabungan, hutang, aset, emas, saham</li>
+        <li><svg class="ic"><use href="#i-check"/></svg> Update fitur berikutnya — GRATIS</li>
+      </ul>
+      <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn" style="width:100%;justify-content:center;font-size:18px">Beli Sekarang — Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a>
+      <p class="guarantee"><span><svg class="ic"><use href="#i-shield"/></svg> Pembayaran aman</span><span><svg class="ic"><use href="#i-check"/></svg> Akses langsung</span></p>
+    </div>
+    <p class="cmp-note" style="color:var(--muted);margin-top:24px">Harga 1×, lebih murah dari sekali makan di luar — tapi nemenin keuanganmu bertahun-tahun.</p>
   </div>
 </section>
 
