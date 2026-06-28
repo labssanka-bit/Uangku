@@ -69,7 +69,7 @@ function html(ad, b64) {
 .ad{position:relative;width:1080px;height:1350px;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;
   background:#251014 url('data:image/png;base64,${b64}') center/cover no-repeat}
 .ad::before{content:'';position:absolute;inset:0;background:
-  linear-gradient(180deg,rgba(37,16,20,.86) 0%,rgba(37,16,20,.30) 26%,rgba(37,16,20,.05) 42%,rgba(37,16,20,.45) 60%,rgba(37,16,20,.93) 82%,rgba(37,16,20,.99) 100%)}
+  linear-gradient(180deg,rgba(37,16,20,.72) 0%,rgba(37,16,20,.18) 24%,rgba(37,16,20,0) 40%,rgba(37,16,20,.42) 58%,rgba(37,16,20,.92) 80%,rgba(37,16,20,.99) 100%)}
 .wrap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:56px 58px 52px;z-index:2}
 .brand{display:inline-flex;align-items:center;gap:13px;align-self:flex-start;background:rgba(244,241,235,.14);backdrop-filter:blur(6px);
   border:1.5px solid rgba(244,241,235,.34);border-radius:999px;padding:10px 22px 10px 11px}
