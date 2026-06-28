@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
@@ -19,6 +20,7 @@ export function Settings() {
   const { wallets } = useWalletBalances()
   const { update: updateWallet } = useWalletMutations()
   const { dark, toggleDark } = useUIStore()
+  const qc = useQueryClient()
 
   // Dompet utama (Cash default) — tempat "Saldo Awal" disimpan
   const mainWallet = wallets.find((w) => w.is_default && w.group === 'cashflow') ?? wallets[0] ?? null
@@ -48,9 +50,19 @@ export function Settings() {
   async function handleReset() {
     if (isDemo()) { demoBlock(); return }
     if (!confirm('Hapus SEMUA transaksi? Tindakan ini tidak bisa dibatalkan.')) return
-    const { error } = await supabase.from('transactions').delete().eq('user_id', user!.id)
-    if (error) alert('Gagal mereset data.')
-    else alert('Semua transaksi dihapus.')
+    // .select() → tahu berapa baris benar-benar terhapus (deteksi kalau 0)
+    const { data, error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('user_id', user!.id)
+      .select('id')
+    if (error) {
+      alert('Gagal mereset: ' + error.message)
+      return
+    }
+    // Segarkan semua data terkait agar saldo & list langsung kosong
+    await qc.invalidateQueries()
+    alert(`${data?.length ?? 0} transaksi dihapus.`)
   }
 
   return (
