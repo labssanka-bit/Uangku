@@ -26,14 +26,19 @@ export function initDemoFromUrl() {
   if (p.get('demo') === '1') enterDemo()
 }
 
-let warned = false
-/** Blok aksi simpan saat demo + ajak daftar (sekali per sesi klik). */
+export const CHECKOUT_URL = 'https://digital-store-27.myscalev.com/landing-page-baru-8'
+
+/** Blok aksi simpan saat demo + arahkan beli akses (bukan daftar gratis). */
 export function demoBlock() {
   if (typeof window !== 'undefined') {
-    alert('🔒 Ini mode demo.\n\nDaftar gratis dulu untuk mulai menyimpan keuanganmu sendiri di Finplan Sanka 😊')
-    warned = true
+    const ok = confirm(
+      '🔒 Ini cuma MODE DEMO untuk coba fitur.\n\n' +
+      'Datamu di sini TIDAK akan tersimpan. Untuk mulai catat keuanganmu sendiri & disimpan beneran, kamu perlu akses Finplan Sanka.\n\n' +
+      'Buka halaman beli akses sekarang?'
+    )
+    if (ok) window.open(CHECKOUT_URL, '_blank')
   }
-  return warned
+  return true
 }
 
 // ── Fake auth ───────────────────────────────────────────────────────────────

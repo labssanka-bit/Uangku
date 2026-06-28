@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useUIStore } from '@/store/uiStore'
 import { useAuth } from '@/hooks/useAuth'
-import { isDemo, exitDemo } from '@/lib/demo'
+import { isDemo } from '@/lib/demo'
 import { useAutoPostRecurring } from '@/hooks/useAutoPostRecurring'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -47,14 +47,16 @@ export default function App() {
   return (
     <div className="min-h-screen lg:pl-60" style={{ background: 'inherit' }}>
       {demo && (
-        <div className="fixed inset-x-0 top-0 z-[60] flex items-center justify-center gap-3 bg-gradient-to-r from-maroon-700 to-maroon-900 px-4 py-2 text-center text-xs font-semibold text-white lg:pl-60">
-          <span>👀 Kamu sedang melihat MODE DEMO — data ini cuma contoh.</span>
-          <button
-            onClick={() => { exitDemo(); window.location.href = '/' }}
+        <div className="fixed inset-x-0 top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-gradient-to-r from-maroon-700 to-maroon-900 px-4 py-2 text-center text-xs font-semibold text-white lg:pl-60">
+          <span>👀 MODE DEMO — cuma contoh untuk coba fitur. Data yang kamu isi <u>TIDAK tersimpan</u>.</span>
+          <a
+            href="https://digital-store-27.myscalev.com/landing-page-baru-8"
+            target="_blank"
+            rel="noreferrer"
             className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-maroon-800"
           >
-            Daftar / Masuk
-          </button>
+            Beli Akses →
+          </a>
         </div>
       )}
       <Sidebar onAdd={() => openAdd()} />
