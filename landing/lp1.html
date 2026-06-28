@@ -194,7 +194,45 @@
   .sticky .p s{color:var(--muted);font-weight:500;font-size:13px;margin-right:7px;font-family:'Plus Jakarta Sans'}
   .sticky .btn{padding:13px 22px;font-size:15px}
 
+  /* EMOTIONAL SECTION */
+  .emo{background:linear-gradient(180deg,#fff,var(--dusty-l))}
+  .journey{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:760px;margin:38px auto 0}
+  .journey::before{content:"";position:absolute;top:26px;left:13%;right:13%;height:2px;background:var(--line);z-index:0}
+  .jstep{position:relative;z-index:1;text-align:center}
+  .jstep .iw{width:54px;height:54px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 12px;box-shadow:0 4px 14px -8px rgba(114,40,58,.25)}
+  .jstep .iw .ic{width:24px;height:24px}
+  .jstep h4{font-size:14px;color:var(--maroon);margin-bottom:2px}
+  .jstep p{font-size:12px;color:var(--muted)}
+  .emo-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:46px;align-items:start}
+  .emo-left{border-radius:26px;padding:30px;background:linear-gradient(150deg,var(--maroon),var(--maroon-d));color:#fff;min-height:380px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .emo-left::after{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(226,190,120,.16);top:-70px;right:-60px}
+  .emo-left .brandtag{position:absolute;top:20px;right:24px;font-family:'Bricolage Grotesque';font-weight:700;opacity:.6;font-size:14px;z-index:1}
+  .emo-mock{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:16px;position:relative;z-index:1}
+  .emo-mock .mt{font-size:12px;opacity:.85;margin-bottom:10px;font-weight:600}
+  .emo-row{margin-bottom:10px}
+  .emo-row .lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+  .emo-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}
+  .emo-bar span{display:block;height:100%;border-radius:99px;background:var(--gold-l)}
+  .emo-left h3{font-size:26px;color:#fff;margin-top:auto;position:relative;z-index:1}
+  .emo-left p{color:rgba(255,255,255,.85);margin-top:10px;font-size:14.5px;position:relative;z-index:1}
+  .quote{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 10px 30px -20px rgba(114,40,58,.25)}
+  .quote .qm{font-family:'Bricolage Grotesque';font-size:40px;color:var(--gold-l);line-height:.6}
+  .quote p{font-style:italic;color:var(--ink);margin:8px 0 14px;font-size:15px;line-height:1.6}
+  .quote .who{font-size:13px;color:var(--muted);font-weight:600}
+  .emo-cards{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+  .emo-card{display:flex;gap:13px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;transition:transform .15s}
+  .emo-card:hover{transform:translateX(3px)}
+  .emo-card .iw{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex-shrink:0}
+  .emo-card .iw .ic{width:21px;height:21px}
+  .emo-card h4{font-size:15px;color:var(--maroon);margin-bottom:3px}
+  .emo-card p{font-size:13px;color:var(--muted)}
+
   @media(max-width:880px){
+    .emo-grid,.journey{grid-template-columns:1fr}
+    .journey::before{display:none}
+    .journey{gap:18px;max-width:340px}
+    .jstep{display:flex;align-items:center;gap:14px;text-align:left}
+    .jstep .iw{margin:0}
     .hero-grid,.calc-box,.ba-grid,.cmp-grid{grid-template-columns:1fr}
     .ben-grid,.pain-grid{grid-template-columns:1fr 1fr}
     section{padding:60px 0}
@@ -217,6 +255,7 @@
   <symbol id="i-trend-down" viewBox="0 0 24 24"><polyline points="3 7 9 13 13 9 21 17"/><polyline points="21 11 21 17 15 17"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></symbol>
   <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.2a1 1 0 0 0 1 .8h8.4a1 1 0 0 0 1-.8L20 7H6"/></symbol>
   <symbol id="i-piggy" viewBox="0 0 24 24"><path d="M19 11a6 5 0 0 0-6-5h-2a6 5 0 0 0-6 5 5 5 0 0 0 3 4.6V19h3l.5-1.2h1L16 19h2v-3a3 3 0 0 0 1-2z"/><path d="M19 11h1.5"/><line x1="9" y1="9.5" x2="13" y2="9.5"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 4h12l3 5-9 11L3 9z"/><path d="M3 9h18"/><path d="M9 4l-3 5 6 11 6-11-3-5"/></symbol>
   <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 1 4 10.4c-.8.7-1 1.3-1 2.6H9c0-1.3-.2-1.9-1-2.6A6 6 0 0 1 12 3z"/></symbol>
@@ -252,7 +291,7 @@
         <h1>Gaji <span class="grad-text">numpang lewat?</span><br>Saatnya tahu uangmu lari ke mana.</h1>
         <p class="sub">Tiap akhir bulan bingung "kok habis ya?". Finplan Sanka bantu kamu catat, atur, dan <b>tumbuhkan</b> uang — simpel, di HP &amp; laptop, full Bahasa Indonesia.</p>
         <div class="hero-cta">
-          <a href="URL_CHECKOUT_SCALEV" class="btn">Mulai — Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a>
+          <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn">Mulai — Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a>
           <a href="https://finplansanka.com/?demo=1" class="btn btn-ghost" target="_blank"><svg class="ic" style="width:18px;height:18px"><use href="#i-phone"/></svg> Coba Demo</a>
         </div>
         <div class="trust">
@@ -322,6 +361,52 @@
   </div>
 </section>
 
+<!-- EMOTIONAL SPENDING -->
+<section class="emo">
+  <div class="wrap center">
+    <span class="eyebrow"><svg class="ic"><use href="#i-sad"/></svg> Bukan cuma soal angka</span>
+    <h2 class="stitle" style="margin:0 auto">Pernah belanja pas lagi <span class="grad-text">bad mood</span>?</h2>
+    <p class="slead" style="margin:14px auto 0">Kamu nggak sendirian. Ini pola yang paling sering disadari pengguna setelah rajin nyatat di Finplan Sanka.</p>
+
+    <!-- Journey 4 langkah -->
+    <div class="journey">
+      <div class="jstep"><div class="iw" style="color:var(--wine)"><svg class="ic"><use href="#i-sad"/></svg></div><h4>Bad Mood</h4><p>Stres, capek, bosan</p></div>
+      <div class="jstep"><div class="iw" style="color:var(--dusty)"><svg class="ic"><use href="#i-cart"/></svg></div><h4>Checkout Impulsif</h4><p>Scroll, lihat, beli</p></div>
+      <div class="jstep"><div class="iw" style="color:var(--maroon)"><svg class="ic"><use href="#i-trend-down"/></svg></div><h4>Saldo Bocor</h4><p>Tanpa sadar kenapa</p></div>
+      <div class="jstep"><div class="iw" style="color:var(--sage)"><svg class="ic"><use href="#i-bulb"/></svg></div><h4>Sadar Polanya</h4><p>Insight Finplan Sanka</p></div>
+    </div>
+
+    <div class="emo-grid">
+      <!-- Kiri: kartu visual -->
+      <div class="emo-left">
+        <span class="brandtag">Finplan Sanka</span>
+        <div class="emo-mock">
+          <div class="mt">📊 Pengeluaran per Kategori bulan ini</div>
+          <div class="emo-row"><div class="lbl"><span>Belanja</span><span>Rp 5,2jt</span></div><div class="emo-bar"><span style="width:90%"></span></div></div>
+          <div class="emo-row"><div class="lbl"><span>Makanan</span><span>Rp 1,5jt</span></div><div class="emo-bar"><span style="width:42%"></span></div></div>
+          <div class="emo-row"><div class="lbl"><span>Hiburan</span><span>Rp 600rb</span></div><div class="emo-bar"><span style="width:22%"></span></div></div>
+        </div>
+        <h3>Lihat lebih dari sekadar angka.</h3>
+        <p>Rekap kategori, kalender pengeluaran, &amp; insight otomatis bantu kamu sadar belanja impulsif — sebelum saldo telanjur bocor.</p>
+      </div>
+
+      <!-- Kanan: testimoni + 3 kartu -->
+      <div style="text-align:left">
+        <div class="quote">
+          <div class="qm">&ldquo;</div>
+          <p>Baru sadar pengeluaran "receh" tiap hari kalau dikumpulin ternyata lumayan gede. Sekarang lebih mikir sebelum checkout.</p>
+          <div class="who">— Pengguna Finplan Sanka, setelah 3 minggu pakai</div>
+        </div>
+        <div class="emo-cards">
+          <div class="emo-card"><div class="iw" style="background:#fbe9ee;color:var(--wine)"><svg class="ic"><use href="#i-cart"/></svg></div><div><h4>Belanja Impulsif</h4><p>Scroll TikTok, tiba-tiba checkout. Rekap kategori bikin polanya kelihatan nyata.</p></div></div>
+          <div class="emo-card"><div class="iw" style="background:#f4eaf0;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><div><h4>Insight Otomatis</h4><p>"Pengeluaran naik 20% dari bulan lalu" — app yang ingatkan, kamu tinggal sadar.</p></div></div>
+          <div class="emo-card"><div class="iw" style="background:#e6f2ee;color:var(--sage)"><svg class="ic"><use href="#i-spark"/></svg></div><div><h4>Paham KENAPA</h4><p>Bukan sekadar catat angka — pahami ke mana &amp; kenapa uang pergi. Itu yang bikin beda.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- COMPARE -->
 <section class="cmp">
   <div class="wrap center">
@@ -361,7 +446,7 @@
   <div class="wrap">
     <h2>Mulai hari ini. Dirimu 1 tahun lagi akan berterima kasih.</h2>
     <p>Berhenti bingung uang lari ke mana. Ambil kendali sekarang — cuma Rp49.900, selamanya.</p>
-    <a href="URL_CHECKOUT_SCALEV" class="btn btn-gold" style="font-size:18px">Klaim Harga Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a>
+    <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn btn-gold" style="font-size:18px">Klaim Harga Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a>
   </div>
 </section>
 
@@ -369,7 +454,7 @@
 
 <div class="sticky">
   <div class="p"><s>Rp169.000</s>Rp49.900</div>
-  <a href="URL_CHECKOUT_SCALEV" class="btn">Beli Sekarang</a>
+  <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn">Beli Sekarang</a>
 </div>
 
 <script>
