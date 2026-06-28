@@ -35,13 +35,13 @@ export function Dashboard() {
   const { data: recentMany = [] } = useRecentTransactions(50)
   const { data: budgets = [] } = useBudgets(periode)
   const { data: txDates = [] } = useTransactionDates()
-  const { cashflowTotal, savingTotal, total: walletTotal } = useWalletBalances()
+  const { cashflowTotal, savingTotal } = useWalletBalances()
 
   const streak = useMemo(() => computeStreak(txDates), [txDates])
 
-  // Total Saldo = jumlah seluruh dompet (Cashflow + Saving + transaksi tanpa dompet).
-  // Satu sumber kebenaran → konsisten dengan kartu Cashflow & Saving di bawah.
-  const balance = walletTotal
+  // Total Saldo = uang yang bisa dipakai = Cashflow (TIDAK termasuk Saving).
+  // cashflowTotal sudah termasuk transaksi tanpa dompet → Total Saldo == kartu Cashflow.
+  const balance = cashflowTotal
 
   const summary = useMemo(() => summarize(txs, ref), [txs]) // eslint-disable-line react-hooks/exhaustive-deps
   const insight = useMemo(() => buildInsight(summary, balance, ref), [summary, balance]) // eslint-disable-line react-hooks/exhaustive-deps

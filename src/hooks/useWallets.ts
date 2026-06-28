@@ -145,8 +145,11 @@ export function useWalletBalances() {
     isLoading: wallets.isLoading || tx.isLoading,
     wallets: balances,
     unassigned,
-    cashflowTotal: byGroup('cashflow'),
+    // Transaksi tanpa dompet (legacy) dianggap bagian Cashflow (uang utama).
+    // → Total Saldo = Cashflow card = byGroup('cashflow') + unassigned.
+    cashflowTotal: byGroup('cashflow') + unassigned,
     savingTotal: byGroup('saving'),
+    // Total kekayaan dompet = semua (cashflow + saving), utk Net Worth di Aset.
     total: balances.reduce((a, w) => a + w.balance, 0) + unassigned,
   }
 }
