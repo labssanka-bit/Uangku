@@ -11,17 +11,17 @@
 <link rel="icon" type="image/png" href="https://finplansanka.com/logo.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --maroon:#72283A; --maroon-d:#4A1924; --dusty:#B05A72; --dusty-l:#FBF1F4;
-    --sage:#3E7A66; --wine:#C04A5E; --gold:#B8893B; --gold-l:#E2BE78;
-    --ink:#241319; --muted:#8d7a81; --cream:#FFFAFB; --line:#f1e3e8;
+    --maroon:#33181C; --maroon-d:#251014; --dusty:#6F5F4D; --dusty-l:#EFEBE3;
+    --sage:#6F5F4D; --wine:#9C5B4E; --gold:#B08968; --gold-l:#C9A98A;
+    --ink:#2A1B20; --muted:#8a7d72; --cream:#F4F1EB; --line:#DDD9C9;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--cream);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-  h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;line-height:1.08;font-weight:700;letter-spacing:-.02em}
+  h1,h2,h3,h4{font-family:'Instrument Serif',Georgia,serif;line-height:1.04;font-weight:400;letter-spacing:0}
   .wrap{max-width:1100px;margin:0 auto;padding:0 22px}
   .grad-text{background:linear-gradient(100deg,var(--maroon),var(--dusty));-webkit-background-clip:text;background-clip:text;color:transparent}
   section{padding:84px 0}
@@ -46,11 +46,11 @@
   .reveal.in{opacity:1;transform:none}
 
   /* HERO */
-  .hero{background:radial-gradient(1100px 480px at 75% -8%,rgba(176,90,114,.16),transparent),linear-gradient(180deg,var(--dusty-l),var(--cream));padding:34px 0 70px;position:relative}
+  .hero{background:radial-gradient(1100px 480px at 75% -8%,rgba(111,95,77,.18),transparent),linear-gradient(180deg,var(--dusty-l),var(--cream));padding:34px 0 70px;position:relative}
   .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:54px}
   .nav .brand{display:flex;align-items:center;gap:11px}
   .nav .brand img{width:42px;height:42px;border-radius:11px}
-  .nav .brand b{font-family:'Bricolage Grotesque';font-size:19px;color:var(--maroon);font-weight:800}
+  .nav .brand b{font-family:'Plus Jakarta Sans';font-size:19px;color:var(--maroon);font-weight:800}
   .nav a.login{color:var(--maroon);font-weight:600;text-decoration:none;font-size:15px}
   .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:46px;align-items:center}
   .hero h1{font-size:clamp(34px,5.4vw,60px);font-weight:800}
@@ -69,15 +69,15 @@
   .ph-flame{display:inline-flex;align-items:center;gap:4px;background:#fff;border-radius:99px;padding:3px 9px;font-size:11px;color:var(--gold)}
   .ph-flame .ic{width:13px;height:13px;stroke-width:2}
   .balcard{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));border-radius:22px;padding:18px;color:#fff;margin-top:12px;position:relative;overflow:hidden}
-  .balcard::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(226,190,120,.18);top:-50px;right:-30px}
+  .balcard::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(176,137,104,.22);top:-50px;right:-30px}
   .balcard small{opacity:.85;font-size:11.5px}
   .balcard .big{font-size:25px;font-weight:800;margin-top:3px}
   .balcard .row{display:flex;gap:9px;margin-top:14px;position:relative;z-index:1}
   .balcard .row div{flex:1;background:rgba(255,255,255,.16);border-radius:13px;padding:9px 10px}
   .balcard .row b{font-size:13px}
   .mini{display:flex;align-items:flex-end;gap:6px;height:66px;margin-top:14px;padding:0 2px}
-  .mini span{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(var(--sage),#8fcdba)}
-  .mini span:nth-child(even){background:linear-gradient(var(--wine),#e79aa7)}
+  .mini span{flex:1;border-radius:5px 5px 0 0;background:var(--sage)}
+  .mini span:nth-child(even){background:var(--wine)}
   .ph-chips{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
   .ph-chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border-radius:99px;padding:6px 11px;font-size:11px;font-weight:600;color:var(--maroon);box-shadow:0 2px 8px rgba(114,40,58,.08)}
   .ph-chip .ic{width:13px;height:13px;stroke-width:2;color:var(--dusty)}
@@ -92,7 +92,7 @@
   .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
   .pain-card{background:var(--cream);border:1px solid var(--line);border-radius:22px;padding:26px;text-align:left;transition:transform .15s,box-shadow .15s}
   .pain-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px -22px rgba(114,40,58,.25)}
-  .pain-card .badge-ic{background:#fbe9ee;color:var(--wine)}
+  .pain-card .badge-ic{background:#ECE6DA;color:var(--wine)}
   .pain-card h3{font-size:18px;margin-bottom:7px;color:var(--maroon)}
   .pain-card p{font-size:14.5px;color:var(--muted)}
 
@@ -119,7 +119,7 @@
   .cmp-head{display:flex;align-items:center;gap:11px;margin-bottom:4px}
   .cmp-head .badge-ic{margin:0;width:44px;height:44px;border-radius:13px}
   .cmp-card h3{font-size:21px}
-  .cmp-price{font-size:32px;font-weight:800;margin:10px 0;font-family:'Bricolage Grotesque'}
+  .cmp-price{font-size:32px;font-weight:800;margin:10px 0;font-family:'Plus Jakarta Sans'}
   .cmp-card ul{list-style:none;margin-top:14px}
   .cmp-card li{padding:8px 0;font-size:14.5px;opacity:.94;display:flex;gap:10px;align-items:flex-start}
   .cmp-card li .ic{width:18px;height:18px;flex-shrink:0;margin-top:2px}
@@ -130,7 +130,7 @@
   .calc{background:#fff}
   .calc-box{background:linear-gradient(140deg,var(--dusty-l),#fff);border:1px solid var(--line);border-radius:30px;padding:38px;margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
   .calc-controls label{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:var(--muted)}
-  .calc-controls .val{font-family:'Bricolage Grotesque';font-weight:800;font-size:32px;color:var(--maroon);margin-bottom:10px}
+  .calc-controls .val{font-family:'Plus Jakarta Sans';font-weight:800;font-size:32px;color:var(--maroon);margin-bottom:10px}
   input[type=range]{width:100%;accent-color:var(--maroon);height:6px}
   .calc-quick{display:flex;gap:8px;margin:16px 0 4px;flex-wrap:wrap}
   .calc-quick button{border:1px solid var(--dusty);background:#fff;color:var(--maroon);border-radius:99px;padding:7px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .12s}
@@ -138,7 +138,7 @@
   .calc-results{display:flex;flex-direction:column;gap:13px}
   .res{background:#fff;border-radius:18px;padding:17px 20px;box-shadow:0 8px 24px -16px rgba(114,40,58,.25);display:flex;justify-content:space-between;align-items:center}
   .res small{color:var(--muted);font-size:13px}
-  .res .amt{font-family:'Bricolage Grotesque';font-weight:800;font-size:23px;color:var(--sage)}
+  .res .amt{font-family:'Plus Jakarta Sans';font-weight:800;font-size:23px;color:var(--sage)}
   .res.hl{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff}
   .res.hl small{color:rgba(255,255,255,.82)} .res.hl .amt{color:var(--gold-l)}
 
@@ -150,7 +150,7 @@
   .ba-good{background:linear-gradient(140deg,var(--maroon),var(--maroon-d));color:#fff;box-shadow:0 30px 60px -28px rgba(74,25,36,.6)}
   .ba-card h3{font-size:22px;margin-bottom:20px;display:flex;align-items:center;gap:11px}
   .ba-card h3 .badge-ic{margin:0;width:42px;height:42px;border-radius:12px}
-  .ba-bad h3 .badge-ic{background:#fbe9ee;color:var(--wine)}
+  .ba-bad h3 .badge-ic{background:#ECE6DA;color:var(--wine)}
   .ba-good h3 .badge-ic{background:rgba(226,190,120,.2);color:var(--gold-l)}
   .ba-card li{list-style:none;padding:11px 0;font-size:15px;display:flex;gap:11px;align-items:flex-start;border-bottom:1px solid rgba(0,0,0,.06)}
   .ba-card li .ic{width:19px;height:19px;flex-shrink:0;margin-top:1px}
@@ -162,7 +162,7 @@
   .pcard{max-width:540px;margin:44px auto 0;background:linear-gradient(160deg,#fff,var(--dusty-l));border:2px solid var(--gold-l);border-radius:32px;padding:46px 36px;text-align:center;box-shadow:0 40px 80px -28px rgba(114,40,58,.4);position:relative}
   .badge-disc{position:absolute;top:-17px;left:50%;transform:translateX(-50%);background:var(--wine);color:#fff;font-weight:800;padding:9px 22px;border-radius:99px;font-size:13.5px;box-shadow:0 10px 24px -8px rgba(192,74,94,.55)}
   .old{color:var(--muted);text-decoration:line-through;font-size:22px;font-weight:600}
-  .new{font-family:'Bricolage Grotesque';font-weight:800;font-size:60px;color:var(--maroon);line-height:1;margin-top:4px}
+  .new{font-family:'Plus Jakarta Sans';font-weight:800;font-size:60px;color:var(--maroon);line-height:1;margin-top:4px}
   .new small{font-size:19px;font-weight:600;color:var(--muted)}
   .plist{text-align:left;max-width:350px;margin:26px auto;display:flex;flex-direction:column;gap:12px}
   .plist li{list-style:none;display:flex;gap:11px;font-size:15px;align-items:flex-start}
@@ -190,7 +190,7 @@
 
   /* STICKY */
   .sticky{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 -6px 24px rgba(114,40,58,.15);padding:12px 16px;display:none;justify-content:space-between;align-items:center;z-index:50;gap:12px}
-  .sticky .p{font-weight:800;color:var(--maroon);font-family:'Bricolage Grotesque';font-size:20px}
+  .sticky .p{font-weight:800;color:var(--maroon);font-family:'Plus Jakarta Sans';font-size:20px}
   .sticky .p s{color:var(--muted);font-weight:500;font-size:13px;margin-right:7px;font-family:'Plus Jakarta Sans'}
   .sticky .btn{padding:13px 22px;font-size:15px}
 
@@ -312,12 +312,12 @@
     <h2 class="stitle" style="margin:0 auto">Satu app, semua keuanganmu rapi &amp; terkendali</h2>
     <p class="slead" style="margin:16px auto 0">Dibuat sesimpel mungkin — biar kamu beneran pakai tiap hari, bukan cuma instal lalu lupa.</p>
     <div class="ben-grid">
-      <div class="ben reveal"><div class="badge-ic" style="background:#f7e9ee;color:var(--maroon)"><svg class="ic"><use href="#i-receipt"/></svg></div><h3>Catat 3 detik</h3><p>Tambah transaksi kilat. Bahkan dari foto struk (AI) atau suara — tinggal ngomong.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#e6f2ee;color:var(--sage)"><svg class="ic"><use href="#i-piggy"/></svg></div><h3>Dompet &amp; Tabungan</h3><p>Pisahkan uang harian dan tabungan. Nabung 1 tap, saldo otomatis tersusun.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#fbe9ee;color:var(--wine)"><svg class="ic"><use href="#i-exchange"/></svg></div><h3>Hutang &amp; Piutang</h3><p>Catat pinjaman, cicilan, jatuh tempo. Gak ada lagi lupa nagih atau bayar.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#f6efe0;color:var(--gold)"><svg class="ic"><use href="#i-gem"/></svg></div><h3>Aset &amp; Emas</h3><p>Pantau emas (per gram) &amp; saham (per lot) — harga terkini otomatis, untung-rugi kelihatan.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#f4eaf0;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><h3>Insight Cerdas</h3><p>"Uang aman harianmu Rp X" · "Pengeluaran naik 20%". App-nya yang mikir.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#efe4e8;color:var(--maroon-d)"><svg class="ic"><use href="#i-chart"/></svg></div><h3>Grafik &amp; Laporan</h3><p>Tren 6 bulan, kalender pengeluaran, anggaran. Kondisi keuangan kelihatan sekejap.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--maroon)"><svg class="ic"><use href="#i-receipt"/></svg></div><h3>Catat 3 detik</h3><p>Tambah transaksi kilat. Bahkan dari foto struk (AI) atau suara — tinggal ngomong.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--sage)"><svg class="ic"><use href="#i-piggy"/></svg></div><h3>Dompet &amp; Tabungan</h3><p>Pisahkan uang harian dan tabungan. Nabung 1 tap, saldo otomatis tersusun.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--wine)"><svg class="ic"><use href="#i-exchange"/></svg></div><h3>Hutang &amp; Piutang</h3><p>Catat pinjaman, cicilan, jatuh tempo. Gak ada lagi lupa nagih atau bayar.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--gold)"><svg class="ic"><use href="#i-gem"/></svg></div><h3>Aset &amp; Emas</h3><p>Pantau emas (per gram) &amp; saham (per lot) — harga terkini otomatis, untung-rugi kelihatan.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><h3>Insight Cerdas</h3><p>"Uang aman harianmu Rp X" · "Pengeluaran naik 20%". App-nya yang mikir.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--maroon-d)"><svg class="ic"><use href="#i-chart"/></svg></div><h3>Grafik &amp; Laporan</h3><p>Tren 6 bulan, kalender pengeluaran, anggaran. Kondisi keuangan kelihatan sekejap.</p></div>
     </div>
   </div>
 </section>

@@ -11,17 +11,17 @@
 <link rel="icon" type="image/png" href="https://finplansanka.com/logo.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --maroon:#72283A; --maroon-d:#4A1924; --dusty:#B05A72; --dusty-l:#FBF1F4;
-    --sage:#3E7A66; --wine:#C04A5E; --gold:#B8893B; --gold-l:#E2BE78;
-    --ink:#241319; --muted:#8d7a81; --cream:#FFFAFB; --line:#f1e3e8;
+    --maroon:#33181C; --maroon-d:#251014; --dusty:#6F5F4D; --dusty-l:#EFEBE3;
+    --sage:#6F5F4D; --wine:#9C5B4E; --gold:#B08968; --gold-l:#C9A98A;
+    --ink:#2A1B20; --muted:#8a7d72; --cream:#F4F1EB; --line:#DDD9C9;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--cream);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-  h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;line-height:1.08;font-weight:700;letter-spacing:-.02em}
+  h1,h2,h3,h4{font-family:'Instrument Serif',Georgia,serif;line-height:1.04;font-weight:400;letter-spacing:0}
   .wrap{max-width:1100px;margin:0 auto;padding:0 22px}
   .grad-text{background:linear-gradient(100deg,var(--maroon),var(--dusty));-webkit-background-clip:text;background-clip:text;color:transparent}
   section{padding:84px 0}
@@ -46,11 +46,11 @@
   .reveal.in{opacity:1;transform:none}
 
   /* HERO */
-  .hero{background:radial-gradient(1100px 480px at 75% -8%,rgba(176,90,114,.16),transparent),linear-gradient(180deg,var(--dusty-l),var(--cream));padding:34px 0 70px;position:relative}
+  .hero{background:radial-gradient(1100px 480px at 75% -8%,rgba(111,95,77,.18),transparent),linear-gradient(180deg,var(--dusty-l),var(--cream));padding:34px 0 70px;position:relative}
   .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:54px}
   .nav .brand{display:flex;align-items:center;gap:11px}
   .nav .brand img{width:42px;height:42px;border-radius:11px}
-  .nav .brand b{font-family:'Bricolage Grotesque';font-size:19px;color:var(--maroon);font-weight:800}
+  .nav .brand b{font-family:'Plus Jakarta Sans';font-size:19px;color:var(--maroon);font-weight:800}
   .nav a.login{color:var(--maroon);font-weight:600;text-decoration:none;font-size:15px}
   .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:46px;align-items:center}
   .hero h1{font-size:clamp(34px,5.4vw,60px);font-weight:800}
@@ -69,15 +69,15 @@
   .ph-flame{display:inline-flex;align-items:center;gap:4px;background:#fff;border-radius:99px;padding:3px 9px;font-size:11px;color:var(--gold)}
   .ph-flame .ic{width:13px;height:13px;stroke-width:2}
   .balcard{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));border-radius:22px;padding:18px;color:#fff;margin-top:12px;position:relative;overflow:hidden}
-  .balcard::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(226,190,120,.18);top:-50px;right:-30px}
+  .balcard::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(176,137,104,.22);top:-50px;right:-30px}
   .balcard small{opacity:.85;font-size:11.5px}
   .balcard .big{font-size:25px;font-weight:800;margin-top:3px}
   .balcard .row{display:flex;gap:9px;margin-top:14px;position:relative;z-index:1}
   .balcard .row div{flex:1;background:rgba(255,255,255,.16);border-radius:13px;padding:9px 10px}
   .balcard .row b{font-size:13px}
   .mini{display:flex;align-items:flex-end;gap:6px;height:66px;margin-top:14px;padding:0 2px}
-  .mini span{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(var(--sage),#8fcdba)}
-  .mini span:nth-child(even){background:linear-gradient(var(--wine),#e79aa7)}
+  .mini span{flex:1;border-radius:5px 5px 0 0;background:var(--sage)}
+  .mini span:nth-child(even){background:var(--wine)}
   .ph-chips{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
   .ph-chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border-radius:99px;padding:6px 11px;font-size:11px;font-weight:600;color:var(--maroon);box-shadow:0 2px 8px rgba(114,40,58,.08)}
   .ph-chip .ic{width:13px;height:13px;stroke-width:2;color:var(--dusty)}
@@ -92,7 +92,7 @@
   .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
   .pain-card{background:var(--cream);border:1px solid var(--line);border-radius:22px;padding:26px;text-align:left;transition:transform .15s,box-shadow .15s}
   .pain-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px -22px rgba(114,40,58,.25)}
-  .pain-card .badge-ic{background:#fbe9ee;color:var(--wine)}
+  .pain-card .badge-ic{background:#ECE6DA;color:var(--wine)}
   .pain-card h3{font-size:18px;margin-bottom:7px;color:var(--maroon)}
   .pain-card p{font-size:14.5px;color:var(--muted)}
 
@@ -119,7 +119,7 @@
   .cmp-head{display:flex;align-items:center;gap:11px;margin-bottom:4px}
   .cmp-head .badge-ic{margin:0;width:44px;height:44px;border-radius:13px}
   .cmp-card h3{font-size:21px}
-  .cmp-price{font-size:32px;font-weight:800;margin:10px 0;font-family:'Bricolage Grotesque'}
+  .cmp-price{font-size:32px;font-weight:800;margin:10px 0;font-family:'Plus Jakarta Sans'}
   .cmp-card ul{list-style:none;margin-top:14px}
   .cmp-card li{padding:8px 0;font-size:14.5px;opacity:.94;display:flex;gap:10px;align-items:flex-start}
   .cmp-card li .ic{width:18px;height:18px;flex-shrink:0;margin-top:2px}
@@ -130,7 +130,7 @@
   .calc{background:#fff}
   .calc-box{background:linear-gradient(140deg,var(--dusty-l),#fff);border:1px solid var(--line);border-radius:30px;padding:38px;margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
   .calc-controls label{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:var(--muted)}
-  .calc-controls .val{font-family:'Bricolage Grotesque';font-weight:800;font-size:32px;color:var(--maroon);margin-bottom:10px}
+  .calc-controls .val{font-family:'Plus Jakarta Sans';font-weight:800;font-size:32px;color:var(--maroon);margin-bottom:10px}
   input[type=range]{width:100%;accent-color:var(--maroon);height:6px}
   .calc-quick{display:flex;gap:8px;margin:16px 0 4px;flex-wrap:wrap}
   .calc-quick button{border:1px solid var(--dusty);background:#fff;color:var(--maroon);border-radius:99px;padding:7px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .12s}
@@ -138,7 +138,7 @@
   .calc-results{display:flex;flex-direction:column;gap:13px}
   .res{background:#fff;border-radius:18px;padding:17px 20px;box-shadow:0 8px 24px -16px rgba(114,40,58,.25);display:flex;justify-content:space-between;align-items:center}
   .res small{color:var(--muted);font-size:13px}
-  .res .amt{font-family:'Bricolage Grotesque';font-weight:800;font-size:23px;color:var(--sage)}
+  .res .amt{font-family:'Plus Jakarta Sans';font-weight:800;font-size:23px;color:var(--sage)}
   .res.hl{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff}
   .res.hl small{color:rgba(255,255,255,.82)} .res.hl .amt{color:var(--gold-l)}
 
@@ -150,7 +150,7 @@
   .ba-good{background:linear-gradient(140deg,var(--maroon),var(--maroon-d));color:#fff;box-shadow:0 30px 60px -28px rgba(74,25,36,.6)}
   .ba-card h3{font-size:22px;margin-bottom:20px;display:flex;align-items:center;gap:11px}
   .ba-card h3 .badge-ic{margin:0;width:42px;height:42px;border-radius:12px}
-  .ba-bad h3 .badge-ic{background:#fbe9ee;color:var(--wine)}
+  .ba-bad h3 .badge-ic{background:#ECE6DA;color:var(--wine)}
   .ba-good h3 .badge-ic{background:rgba(226,190,120,.2);color:var(--gold-l)}
   .ba-card li{list-style:none;padding:11px 0;font-size:15px;display:flex;gap:11px;align-items:flex-start;border-bottom:1px solid rgba(0,0,0,.06)}
   .ba-card li .ic{width:19px;height:19px;flex-shrink:0;margin-top:1px}
@@ -162,7 +162,7 @@
   .pcard{max-width:540px;margin:44px auto 0;background:linear-gradient(160deg,#fff,var(--dusty-l));border:2px solid var(--gold-l);border-radius:32px;padding:46px 36px;text-align:center;box-shadow:0 40px 80px -28px rgba(114,40,58,.4);position:relative}
   .badge-disc{position:absolute;top:-17px;left:50%;transform:translateX(-50%);background:var(--wine);color:#fff;font-weight:800;padding:9px 22px;border-radius:99px;font-size:13.5px;box-shadow:0 10px 24px -8px rgba(192,74,94,.55)}
   .old{color:var(--muted);text-decoration:line-through;font-size:22px;font-weight:600}
-  .new{font-family:'Bricolage Grotesque';font-weight:800;font-size:60px;color:var(--maroon);line-height:1;margin-top:4px}
+  .new{font-family:'Plus Jakarta Sans';font-weight:800;font-size:60px;color:var(--maroon);line-height:1;margin-top:4px}
   .new small{font-size:19px;font-weight:600;color:var(--muted)}
   .plist{text-align:left;max-width:350px;margin:26px auto;display:flex;flex-direction:column;gap:12px}
   .plist li{list-style:none;display:flex;gap:11px;font-size:15px;align-items:flex-start}
@@ -190,7 +190,7 @@
 
   /* STICKY */
   .sticky{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 -6px 24px rgba(114,40,58,.15);padding:12px 16px;display:none;justify-content:space-between;align-items:center;z-index:50;gap:12px}
-  .sticky .p{font-weight:800;color:var(--maroon);font-family:'Bricolage Grotesque';font-size:20px}
+  .sticky .p{font-weight:800;color:var(--maroon);font-family:'Plus Jakarta Sans';font-size:20px}
   .sticky .p s{color:var(--muted);font-weight:500;font-size:13px;margin-right:7px;font-family:'Plus Jakarta Sans'}
   .sticky .btn{padding:13px 22px;font-size:15px}
 
@@ -205,8 +205,8 @@
   .jstep p{font-size:12px;color:var(--muted)}
   .emo-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:46px;align-items:start}
   .emo-left{border-radius:26px;padding:30px;background:linear-gradient(150deg,var(--maroon),var(--maroon-d));color:#fff;min-height:380px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-  .emo-left::after{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(226,190,120,.16);top:-70px;right:-60px}
-  .emo-left .brandtag{position:absolute;top:20px;right:24px;font-family:'Bricolage Grotesque';font-weight:700;opacity:.6;font-size:14px;z-index:1}
+  .emo-left::after{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(176,137,104,.20);top:-70px;right:-60px}
+  .emo-left .brandtag{position:absolute;top:20px;right:24px;font-family:'Plus Jakarta Sans';font-weight:700;opacity:.6;font-size:14px;z-index:1}
   .emo-mock{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:16px;position:relative;z-index:1}
   .emo-mock .mt{font-size:12px;opacity:.85;margin-bottom:10px;font-weight:600}
   .emo-row{margin-bottom:10px}
@@ -216,7 +216,7 @@
   .emo-left h3{font-size:26px;color:#fff;margin-top:auto;position:relative;z-index:1}
   .emo-left p{color:rgba(255,255,255,.85);margin-top:10px;font-size:14.5px;position:relative;z-index:1}
   .quote{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 10px 30px -20px rgba(114,40,58,.25)}
-  .quote .qm{font-family:'Bricolage Grotesque';font-size:40px;color:var(--gold-l);line-height:.6}
+  .quote .qm{font-family:'Plus Jakarta Sans';font-size:40px;color:var(--gold-l);line-height:.6}
   .quote p{font-style:italic;color:var(--ink);margin:8px 0 14px;font-size:15px;line-height:1.6}
   .quote .who{font-size:13px;color:var(--muted);font-weight:600}
   .emo-cards{display:flex;flex-direction:column;gap:12px;margin-top:14px}
@@ -242,6 +242,30 @@
     .nav{margin-bottom:34px}
   }
   @media(max-width:560px){.ben-grid,.pain-grid{grid-template-columns:1fr}}
+  /* PRODUCT FORM */
+  .prod{background:#fff}
+  .prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:40px auto 0}
+  .prod-card{display:flex;gap:13px;border-radius:20px;padding:22px;text-align:left;border:1px solid var(--line);background:var(--cream)}
+  .prod-card.yes{background:linear-gradient(150deg,#fff,var(--dusty-l));border-color:var(--gold-l)}
+  .prod-card .mk{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex-shrink:0}
+  .prod-card.no .mk{background:#e8dcd8;color:var(--wine)}
+  .prod-card.yes .mk{background:#e7dfce;color:var(--maroon)}
+  .prod-card .ic{width:18px;height:18px;stroke-width:2.2}
+  .prod-card h4{font-size:15.5px;color:var(--maroon);margin-bottom:4px}
+  .prod-card p{font-size:13.5px;color:var(--muted)}
+  .device-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;max-width:780px;margin:26px auto 0;background:var(--cream);border:1px solid var(--line);border-radius:99px;padding:14px 24px}
+  .device-strip span{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--maroon)}
+  .device-strip .ic{width:17px;height:17px;color:var(--dusty)}
+  /* STEPS */
+  .steps{background:linear-gradient(180deg,var(--dusty-l),var(--cream))}
+  .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+  .step-card{position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px 24px;text-align:left;overflow:hidden}
+  .step-num{font-family:'Instrument Serif',serif;font-size:66px;line-height:1;color:var(--gold-l);opacity:.55;position:absolute;top:8px;right:18px}
+  .step-card .si{width:46px;height:46px;border-radius:13px;background:var(--maroon);display:grid;place-items:center;margin-bottom:14px}
+  .step-card .si .ic{width:22px;height:22px;color:#fff}
+  .step-card h4{font-size:18px;color:var(--maroon);margin-bottom:6px}
+  .step-card p{font-size:14px;color:var(--muted)}
+  @media(max-width:880px){.prod-grid,.steps-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -351,12 +375,12 @@
     <h2 class="stitle" style="margin:0 auto">Satu app, semua keuanganmu rapi &amp; terkendali</h2>
     <p class="slead" style="margin:16px auto 0">Dibuat sesimpel mungkin — biar kamu beneran pakai tiap hari, bukan cuma instal lalu lupa.</p>
     <div class="ben-grid">
-      <div class="ben reveal"><div class="badge-ic" style="background:#f7e9ee;color:var(--maroon)"><svg class="ic"><use href="#i-receipt"/></svg></div><h3>Catat 3 detik</h3><p>Tambah transaksi kilat. Bahkan dari foto struk (AI) atau suara — tinggal ngomong.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#e6f2ee;color:var(--sage)"><svg class="ic"><use href="#i-piggy"/></svg></div><h3>Dompet &amp; Tabungan</h3><p>Pisahkan uang harian dan tabungan. Nabung 1 tap, saldo otomatis tersusun.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#fbe9ee;color:var(--wine)"><svg class="ic"><use href="#i-exchange"/></svg></div><h3>Hutang &amp; Piutang</h3><p>Catat pinjaman, cicilan, jatuh tempo. Gak ada lagi lupa nagih atau bayar.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#f6efe0;color:var(--gold)"><svg class="ic"><use href="#i-gem"/></svg></div><h3>Aset &amp; Emas</h3><p>Pantau emas (per gram) &amp; saham (per lot) — harga terkini otomatis, untung-rugi kelihatan.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#f4eaf0;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><h3>Insight Cerdas</h3><p>"Uang aman harianmu Rp X" · "Pengeluaran naik 20%". App-nya yang mikir.</p></div>
-      <div class="ben reveal"><div class="badge-ic" style="background:#efe4e8;color:var(--maroon-d)"><svg class="ic"><use href="#i-chart"/></svg></div><h3>Grafik &amp; Laporan</h3><p>Tren 6 bulan, kalender pengeluaran, anggaran. Kondisi keuangan kelihatan sekejap.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--maroon)"><svg class="ic"><use href="#i-receipt"/></svg></div><h3>Catat 3 detik</h3><p>Tambah transaksi kilat. Bahkan dari foto struk (AI) atau suara — tinggal ngomong.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--sage)"><svg class="ic"><use href="#i-piggy"/></svg></div><h3>Dompet &amp; Tabungan</h3><p>Pisahkan uang harian dan tabungan. Nabung 1 tap, saldo otomatis tersusun.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--wine)"><svg class="ic"><use href="#i-exchange"/></svg></div><h3>Hutang &amp; Piutang</h3><p>Catat pinjaman, cicilan, jatuh tempo. Gak ada lagi lupa nagih atau bayar.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--gold)"><svg class="ic"><use href="#i-gem"/></svg></div><h3>Aset &amp; Emas</h3><p>Pantau emas (per gram) &amp; saham (per lot) — harga terkini otomatis, untung-rugi kelihatan.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><h3>Insight Cerdas</h3><p>"Uang aman harianmu Rp X" · "Pengeluaran naik 20%". App-nya yang mikir.</p></div>
+      <div class="ben reveal"><div class="badge-ic" style="background:#ECE6DA;color:var(--maroon-d)"><svg class="ic"><use href="#i-chart"/></svg></div><h3>Grafik &amp; Laporan</h3><p>Tren 6 bulan, kalender pengeluaran, anggaran. Kondisi keuangan kelihatan sekejap.</p></div>
     </div>
   </div>
 </section>
@@ -398,9 +422,9 @@
           <div class="who">— Pengguna Finplan Sanka, setelah 3 minggu pakai</div>
         </div>
         <div class="emo-cards">
-          <div class="emo-card"><div class="iw" style="background:#fbe9ee;color:var(--wine)"><svg class="ic"><use href="#i-cart"/></svg></div><div><h4>Belanja Impulsif</h4><p>Scroll TikTok, tiba-tiba checkout. Rekap kategori bikin polanya kelihatan nyata.</p></div></div>
-          <div class="emo-card"><div class="iw" style="background:#f4eaf0;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><div><h4>Insight Otomatis</h4><p>"Pengeluaran naik 20% dari bulan lalu" — app yang ingatkan, kamu tinggal sadar.</p></div></div>
-          <div class="emo-card"><div class="iw" style="background:#e6f2ee;color:var(--sage)"><svg class="ic"><use href="#i-spark"/></svg></div><div><h4>Paham KENAPA</h4><p>Bukan sekadar catat angka — pahami ke mana &amp; kenapa uang pergi. Itu yang bikin beda.</p></div></div>
+          <div class="emo-card"><div class="iw" style="background:#ECE6DA;color:var(--wine)"><svg class="ic"><use href="#i-cart"/></svg></div><div><h4>Belanja Impulsif</h4><p>Scroll TikTok, tiba-tiba checkout. Rekap kategori bikin polanya kelihatan nyata.</p></div></div>
+          <div class="emo-card"><div class="iw" style="background:#ECE6DA;color:var(--dusty)"><svg class="ic"><use href="#i-bulb"/></svg></div><div><h4>Insight Otomatis</h4><p>"Pengeluaran naik 20% dari bulan lalu" — app yang ingatkan, kamu tinggal sadar.</p></div></div>
+          <div class="emo-card"><div class="iw" style="background:#ECE6DA;color:var(--sage)"><svg class="ic"><use href="#i-spark"/></svg></div><div><h4>Paham KENAPA</h4><p>Bukan sekadar catat angka — pahami ke mana &amp; kenapa uang pergi. Itu yang bikin beda.</p></div></div>
         </div>
       </div>
     </div>
@@ -438,6 +462,43 @@
       </div>
     </div>
     <p class="cmp-note reveal">Cuma <b>kurang dari 2 cangkir kopi</b> — tapi nemenin keuanganmu seumur hidup.</p>
+  </div>
+</section>
+
+<!-- PRODUCT FORM -->
+<section class="prod">
+  <div class="wrap center">
+    <span class="eyebrow"><svg class="ic"><use href="#i-phone"/></svg> Bentuk produk</span>
+    <h2 class="stitle" style="margin:0 auto">Bukan spreadsheet ribet. Bukan Excel.</h2>
+    <p class="slead" style="margin:14px auto 0">Finplan Sanka itu web-app — buka link, langsung pakai. Gak ada template di-duplicate, gak ada rumus yang harus dipelajari.</p>
+    <div class="prod-grid">
+      <div class="prod-card no reveal"><span class="mk"><svg class="ic"><use href="#i-x"/></svg></span><div><h4>Bukan Notion / Spreadsheet</h4><p>Gak perlu duplikat template, atur properti, atau hapal rumus Excel.</p></div></div>
+      <div class="prod-card no reveal"><span class="mk"><svg class="ic"><use href="#i-x"/></svg></span><div><h4>Tanpa install ribet</h4><p>Gak ada download dari Play Store / App Store. Langsung dari browser HP-mu.</p></div></div>
+      <div class="prod-card yes reveal"><span class="mk"><svg class="ic"><use href="#i-check"/></svg></span><div><h4>Buka link, langsung jalan</h4><p>Didesain sebagai aplikasi beneran. Daftar sekali, langsung catat hari itu juga.</p></div></div>
+      <div class="prod-card yes reveal"><span class="mk"><svg class="ic"><use href="#i-check"/></svg></span><div><h4>Pasang ke homescreen</h4><p>Add to homescreen 1 tap → terasa persis seperti app ter-install di HP-mu.</p></div></div>
+    </div>
+    <div class="device-strip reveal">
+      <span><svg class="ic"><use href="#i-phone"/></svg> HP Android</span>
+      <span><svg class="ic"><use href="#i-phone"/></svg> iPhone</span>
+      <span><svg class="ic"><use href="#i-devices"/></svg> Tablet</span>
+      <span><svg class="ic"><use href="#i-devices"/></svg> Laptop</span>
+      <span><svg class="ic"><use href="#i-infinity"/></svg> Akses selamanya</span>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps">
+  <div class="wrap center">
+    <span class="eyebrow"><svg class="ic"><use href="#i-spark"/></svg> Semudah itu</span>
+    <h2 class="stitle" style="margin:0 auto">Dari bingung ke terkendali — <span class="grad-text">3 langkah</span>.</h2>
+    <p class="slead" style="margin:14px auto 0">Tanpa kurva belajar. Hari ini daftar, hari ini juga keuanganmu mulai rapi.</p>
+    <div class="steps-grid">
+      <div class="step-card reveal"><span class="step-num">1</span><div class="si"><svg class="ic"><use href="#i-phone"/></svg></div><h4>Buka &amp; daftar</h4><p>30 detik, langsung dari browser. Gak perlu install apa-apa.</p></div>
+      <div class="step-card reveal"><span class="step-num">2</span><div class="si"><svg class="ic"><use href="#i-receipt"/></svg></div><h4>Catat transaksi</h4><p>3 detik per catatan — ketik, foto struk (AI), atau tinggal ngomong.</p></div>
+      <div class="step-card reveal"><span class="step-num">3</span><div class="si"><svg class="ic"><use href="#i-bulb"/></svg></div><h4>Lihat pola &amp; insight</h4><p>Grafik, rekap kategori, &amp; saran otomatis. Tahu persis uang lari ke mana.</p></div>
+    </div>
+    <div style="margin-top:38px"><a href="https://digital-store-27.myscalev.com/landing-page-baru-8" class="btn">Mulai Sekarang — Rp49.900 <svg class="ic"><use href="#i-arrow"/></svg></a></div>
   </div>
 </section>
 
