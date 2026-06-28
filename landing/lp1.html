@@ -267,6 +267,14 @@
   .step-card p{font-size:14px;color:var(--muted)}
   @media(max-width:880px){.prod-grid,.steps-grid{grid-template-columns:1fr}}
 
+  /* LOGO BADGE */
+  .logo-badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(150deg,var(--maroon),var(--maroon-d));color:#fff;font-family:'Instrument Serif',serif;font-size:24px;display:grid;place-items:center;box-shadow:0 6px 16px -8px rgba(51,24,28,.6)}
+
+  /* SCARCITY */
+  .scarcity{display:inline-flex;align-items:center;gap:9px;margin-top:14px;background:rgba(156,91,78,.1);border:1px solid rgba(156,91,78,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;color:var(--maroon);max-width:480px}
+  .scarcity .ic{width:18px;height:18px;color:var(--wine);flex-shrink:0}
+  .scarcity b{color:var(--wine)}
+
   /* HERO PRICE */
   .hprice{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;color:var(--muted)}
   .hprice s{color:var(--muted);opacity:.8}
@@ -345,8 +353,7 @@
 <section class="hero">
   <div class="wrap">
     <div class="nav reveal in">
-      <div class="brand"><img src="https://finplansanka.com/logo.png" alt="Finplan Sanka"/><b>Finplan Sanka</b></div>
-      <a class="login" href="https://finplansanka.com" target="_blank">Masuk →</a>
+      <div class="brand"><span class="logo-badge">F</span><b>Finplan Sanka</b></div>
     </div>
     <div class="hero-grid">
       <div class="reveal in">
@@ -363,6 +370,7 @@
           <b>Rp49.900</b>
           <span>sekali bayar, selamanya</span>
         </div>
+        <div class="scarcity"><svg class="ic"><use href="#i-flame"/></svg> <span><b>27 pembeli pertama</b> dapat harga Rp49.900 — setelah kuota habis, naik ke Rp169.000.</span></div>
         <div class="trust">
           <span><svg class="ic"><use href="#i-infinity"/></svg> <b>Sekali bayar</b>, selamanya</span>
           <span><svg class="ic"><use href="#i-devices"/></svg> HP &amp; Laptop</span>
@@ -370,8 +378,6 @@
         </div>
       </div>
       <div class="reveal in" style="position:relative">
-        <div class="float-tag float-1"><svg class="ic"><use href="#i-leaf"/></svg> Hemat <b>Rp1,8jt</b>/thn</div>
-        <div class="float-tag float-2"><svg class="ic"><use href="#i-receipt"/></svg> Foto struk = beres</div>
         <div class="phone">
           <div class="notch"></div>
           <div class="phone-screen">
@@ -600,9 +606,10 @@
     <span class="eyebrow"><svg class="ic"><use href="#i-target"/></svg> Harga peluncuran</span>
     <h2 class="stitle" style="margin:0 auto">Investasi terkecil, dampak seumur hidup.</h2>
     <div class="pcard reveal">
-      <div class="badge-disc">HEMAT 70% — TERBATAS</div>
+      <div class="badge-disc">🔥 27 PEMBELI PERTAMA</div>
       <div class="old">Rp 169.000</div>
       <div class="new">Rp 49.900<small> /selamanya</small></div>
+      <p style="margin:8px 0 2px;font-size:13px;color:var(--wine);font-weight:600">Harga khusus 27 orang pertama — setelah itu naik ke Rp169.000.</p>
       <ul class="plist">
         <li><svg class="ic"><use href="#i-check"/></svg> Akses penuh semua fitur, selamanya</li>
         <li><svg class="ic"><use href="#i-check"/></svg> HP &amp; laptop, sinkron otomatis</li>
