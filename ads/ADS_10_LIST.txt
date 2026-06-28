@@ -1,0 +1,30 @@
+============================================================
+10 KONTEN META ADS — FINPLAN SANKA (multi-gaya)  · 1080x1350 (4:5)
+Folder: ads/out/  · Regen: node gen_ads10.js
+Foto/ilustrasi: ads/photos/ (Pollinations; ganti Higgsfield kalau mau)
+CTA semua: "Mulai Rp49.900 — sekali bayar, selamanya"
+Link tujuan: https://digital-store-27.myscalev.com/landing-page-baru-8
+============================================================
+
+— GAYA ILUSTRASI (flat vector, lembut) —
+01 Ill_Gaji      "Gaji Numpang Lewat?"               → angle: gaji cepat habis
+02 Ill_Receh     "Receh Tiap Hari = Jutaan Setahun"  → angle: bocor kecil numpuk
+03 Ill_Tumbuh    "Uang Receh Hari Ini, Aset Esok"    → angle: inflasi/tumbuh
+
+— GAYA PRODUK (mockup app asli) —
+04 Produk_Dashboard "Semua Keuanganmu dalam 1 Layar"  → show: dashboard
+05 Produk_Catat     "Catat Transaksi Cuma 3 Detik"    → show: dashboard
+06 Produk_Insight   "Tahu Persis Uangmu Lari ke Mana" → show: statistik/kategori
+07 Produk_Lengkap   "Dompet, Hutang, Emas — Lengkap"  → show: dashboard
+
+— GAYA FOTO (realistik) —
+08 Foto_Tenang   "Akhir Bulan Nggak Deg-Degan Lagi"          → aspirasional
+09 Foto_BadMood  "Checkout Pas Bad Mood, Nyesel Liat Saldo"  → belanja impulsif
+10 Foto_Mulai    "Mulai Sekarang. Dirimu 1 Tahun Lagi…"      → keputusan/CTA
+
+CARA A/B TEST: jalankan 1 ad set per GAYA (ilustrasi vs produk vs foto),
+lihat mana CTR/CPL terbaik, lalu scale yang menang.
+
+Caption/primary-text per angle: lihat ADS_BRIEF.txt
+Upgrade foto Higgsfield: timpa ads/photos/ph1..3.png & ill1..3.png lalu node gen_ads10.js
+============================================================
