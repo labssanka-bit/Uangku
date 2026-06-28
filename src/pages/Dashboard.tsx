@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { MonthSelector } from '@/components/MonthSelector'
+import { MonitoringChart } from '@/components/MonitoringChart'
 import { ThemeToggles } from '@/components/layout/ThemeToggles'
 import { TransactionItem } from '@/components/TransactionItem'
 import { useUIStore } from '@/store/uiStore'
@@ -151,6 +152,9 @@ export function Dashboard() {
           </p>
         )}
       </div>
+
+      {/* Grafik pemantauan arus 6 bulan */}
+      <MonitoringChart refDate={ref} />
 
       {/* Quick-add: transaksi yang sering dicatat (1 tap) */}
       {quickChips.length > 0 && (
