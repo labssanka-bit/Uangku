@@ -4,6 +4,7 @@ import { useUIStore } from '@/store/uiStore'
 import { useAuth } from '@/hooks/useAuth'
 import { useAutoPostRecurring } from '@/hooks/useAutoPostRecurring'
 import { BottomNav } from '@/components/layout/BottomNav'
+import { Sidebar } from '@/components/layout/Sidebar'
 import { TransactionSheet } from '@/components/TransactionSheet'
 import { Login } from '@/pages/Login'
 import { Dashboard } from '@/pages/Dashboard'
@@ -41,21 +42,28 @@ export default function App() {
   if (!session) return <Login />
 
   return (
-    <div className="mx-auto min-h-screen max-w-md pb-32" style={{ background: 'inherit' }}>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/transaksi" element={<Transactions />} />
-        <Route path="/statistik" element={<Statistics />} />
-        <Route path="/anggaran" element={<Budget />} />
-        <Route path="/berulang" element={<Recurring />} />
-        <Route path="/kategori" element={<Categories />} />
-        <Route path="/dompet" element={<Wallets />} />
-        <Route path="/hutang" element={<Debts />} />
-        <Route path="/aset" element={<Assets />} />
-        <Route path="/setting" element={<Settings />} />
-      </Routes>
+    <div className="min-h-screen lg:pl-60" style={{ background: 'inherit' }}>
+      <Sidebar onAdd={() => openAdd()} />
 
-      <BottomNav onAdd={() => openAdd()} />
+      <main className="mx-auto min-h-screen max-w-md pb-32 lg:max-w-5xl lg:px-8 lg:pb-10">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/transaksi" element={<Transactions />} />
+          <Route path="/statistik" element={<Statistics />} />
+          <Route path="/anggaran" element={<Budget />} />
+          <Route path="/berulang" element={<Recurring />} />
+          <Route path="/kategori" element={<Categories />} />
+          <Route path="/dompet" element={<Wallets />} />
+          <Route path="/hutang" element={<Debts />} />
+          <Route path="/aset" element={<Assets />} />
+          <Route path="/setting" element={<Settings />} />
+        </Routes>
+      </main>
+
+      {/* Pill nav hanya di mobile; desktop pakai Sidebar */}
+      <div className="lg:hidden">
+        <BottomNav onAdd={() => openAdd()} />
+      </div>
       <TransactionSheet open={addOpen} onClose={closeAdd} preset={addPreset} />
     </div>
   )

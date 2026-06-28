@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Plus, Gem, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+import { Plus, Gem, TrendingUp, TrendingDown, Wallet, RefreshCw } from 'lucide-react'
+import { fetchMarketPrice } from '@/lib/market'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
@@ -44,6 +45,23 @@ export function Assets() {
   // Deduct from wallet
   const [deductFromWallet, setDeductFromWallet] = useState(false)
   const [deductWalletId, setDeductWalletId] = useState<string>('')
+  // Ambil harga pasar terkini
+  const [fetchingPrice, setFetchingPrice] = useState(false)
+  const [priceHint, setPriceHint] = useState<string | null>(null)
+
+  async function ambilHarga() {
+    setFetchingPrice(true)
+    setPriceHint('Mengambil harga terkini…')
+    try {
+      const res = await fetchMarketPrice(type === 'saham' ? 'saham' : 'emas', name.trim())
+      setCurrentPricePerGram(String(res.price))
+      setPriceHint(`${formatRupiah(res.price)}/${res.unit} · ${res.source}${res.note ? ' — ' + res.note : ''}`)
+    } catch (e) {
+      setPriceHint(e instanceof Error ? e.message : 'Gagal mengambil harga.')
+    } finally {
+      setFetchingPrice(false)
+    }
+  }
 
   const totalAsset = useMemo(() => assets.reduce((a, x) => a + x.current_value, 0), [assets])
   const netWorth = walletTotal + totalAsset
@@ -82,6 +100,7 @@ export function Assets() {
     setDate(toISODate(new Date()))
     setDeductFromWallet(false)
     setDeductWalletId(wallets[0]?.id ?? '')
+    setPriceHint(null)
     setOpen(true)
   }
 
@@ -104,6 +123,7 @@ export function Assets() {
     setDate(a.date)
     setDeductFromWallet(false)
     setDeductWalletId(wallets[0]?.id ?? '')
+    setPriceHint(null)
     setOpen(true)
   }
 
@@ -299,8 +319,18 @@ export function Assets() {
                 className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
               />
             </label>
-            <label className="mb-3 block">
-              <span className="text-xs text-gray-400">Harga sekarang / gram (Rp) — opsional, default = harga beli</span>
+            <div className="mb-1 block">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Harga sekarang / gram (Rp) — opsional</span>
+                <button
+                  type="button"
+                  onClick={ambilHarga}
+                  disabled={fetchingPrice}
+                  className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700 disabled:opacity-50 dark:bg-amber-500/15"
+                >
+                  <RefreshCw size={11} className={fetchingPrice ? 'animate-spin' : ''} /> Ambil harga
+                </button>
+              </div>
               <input
                 inputMode="numeric"
                 value={currentPricePerGram ? formatRupiah(parseRupiah(currentPricePerGram), false) : ''}
@@ -308,10 +338,8 @@ export function Assets() {
                 placeholder={buyPricePerGram ? formatRupiah(parseRupiah(buyPricePerGram), false) : 'sama dgn harga beli'}
                 className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
               />
-            </label>
-            <p className="mb-1 text-center text-[11px] text-gray-400">
-              Harga emas Antam hari ini: cek antam.com atau Google "harga emas hari ini"
-            </p>
+            </div>
+            {priceHint && <p className="mb-1 text-center text-[11px] text-gray-500">{priceHint}</p>}
           </>
         ) : isSaham ? (
           <>
@@ -347,8 +375,18 @@ export function Assets() {
                 className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
               />
             </label>
-            <label className="mb-3 block">
-              <span className="text-xs text-gray-400">Harga sekarang / lembar (Rp) — opsional, default = harga beli</span>
+            <div className="mb-1 block">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Harga sekarang / lembar (Rp) — opsional</span>
+                <button
+                  type="button"
+                  onClick={ambilHarga}
+                  disabled={fetchingPrice || !name.trim()}
+                  className="flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-semibold text-sage-700 disabled:opacity-50 dark:bg-sage-500/15"
+                >
+                  <RefreshCw size={11} className={fetchingPrice ? 'animate-spin' : ''} /> Ambil harga
+                </button>
+              </div>
               <input
                 inputMode="numeric"
                 value={currentPricePerGram ? formatRupiah(parseRupiah(currentPricePerGram), false) : ''}
@@ -356,12 +394,16 @@ export function Assets() {
                 placeholder={buyPricePerGram ? formatRupiah(parseRupiah(buyPricePerGram), false) : 'sama dgn harga beli'}
                 className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-bold outline-none dark:bg-gray-800"
               />
-            </label>
-            <p className="mb-1 text-center text-[11px] text-gray-400">
-              {qtyNum > 0 && buyPricePerGramNum > 0
-                ? `${qtyNum} lot × 100 lembar × ${formatRupiah(buyPricePerGramNum, false)} = ${formatRupiah(qtyNum * 100 * buyPricePerGramNum)}`
-                : '1 lot = 100 lembar (standar BEI)'}
-            </p>
+            </div>
+            {priceHint ? (
+              <p className="mb-1 text-center text-[11px] text-gray-500">{priceHint}</p>
+            ) : (
+              <p className="mb-1 text-center text-[11px] text-gray-400">
+                {qtyNum > 0 && buyPricePerGramNum > 0
+                  ? `${qtyNum} lot × 100 lembar × ${formatRupiah(buyPricePerGramNum, false)} = ${formatRupiah(qtyNum * 100 * buyPricePerGramNum)}`
+                  : 'Isi nama = kode saham (mis. BBCA), lalu Ambil harga'}
+              </p>
+            )}
           </>
         ) : (
           <>

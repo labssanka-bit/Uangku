@@ -85,6 +85,10 @@ export function Dashboard() {
         <ThemeToggles />
       </div>
 
+      {/* Desktop: 2 kolom (utama + rail kanan); mobile: 1 kolom mengalir */}
+      <div className="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
+      <div className="contents lg:col-span-2 lg:block">
+
       {/* Kartu saldo gradient */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-maroon-700 to-maroon-900 p-5 text-white shadow-soft">
@@ -188,6 +192,9 @@ export function Dashboard() {
         <QuickMenu to="/setting" icon={Cog} label="Setting" />
       </div>
 
+      </div>{/* /kolom utama */}
+      <div className="contents lg:col-span-1 lg:block">
+
       {/* Ringkasan anggaran */}
       {budgets.length > 0 && (
         <Card className="mb-4">
@@ -234,6 +241,9 @@ export function Dashboard() {
           </div>
         )}
       </Card>
+
+      </div>{/* /rail kanan */}
+      </div>{/* /grid */}
     </div>
   )
 }
