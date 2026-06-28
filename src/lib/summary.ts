@@ -11,29 +11,59 @@ import { sisaHari, hariBerlalu } from './dateRange'
 export const isTransfer = (t: Pick<Transaction, 'note'>): boolean =>
   (t.note ?? '').startsWith('⇄')
 
+export const isAssetBuy = (t: Pick<Transaction, 'note'>): boolean =>
+  (t.note ?? '').startsWith('Beli aset:')
+
+/**
+ * Klasifikasi satu transaksi jadi arus kas yang BERMAKNA:
+ *  - income   : pemasukan nyata + penarikan tabungan (Saving→Cashflow)
+ *  - expense  : pengeluaran konsumsi nyata (bukan transfer/beli aset)
+ *  - nabung   : uang disisihkan = transfer Cashflow→Saving + beli aset
+ *  - pakai    : bagian income yang berasal dari penarikan tabungan
+ * Sisi "dalam" tabungan (leg di dompet Saving) diabaikan agar tak dobel.
+ */
+export function txFlow(t: Transaction): { income: number; expense: number; nabung: number; pakai: number } {
+  const grp = t.wallet?.group
+  if (isTransfer(t)) {
+    // Saving → Cashflow: uang masuk ke dompet cashflow = pakai tabungan (income)
+    if (t.type === 'income' && grp === 'cashflow') return { income: t.amount, expense: 0, nabung: 0, pakai: t.amount }
+    // Cashflow → Saving: uang keluar dari cashflow = menabung
+    if (t.type === 'expense' && grp === 'cashflow') return { income: 0, expense: 0, nabung: t.amount, pakai: 0 }
+    return { income: 0, expense: 0, nabung: 0, pakai: 0 } // leg di sisi Saving, abaikan
+  }
+  if (t.type === 'income') return { income: t.amount, expense: 0, nabung: 0, pakai: 0 }
+  if (isAssetBuy(t)) return { income: 0, expense: 0, nabung: t.amount, pakai: 0 } // beli aset = investasi
+  return { income: 0, expense: t.amount, nabung: 0, pakai: 0 }
+}
+
 export interface MonthSummary {
-  income: number
-  expense: number
-  net: number // income - expense
+  income: number // pemasukan nyata + pakai tabungan
+  expense: number // pengeluaran konsumsi
+  nabung: number // disisihkan ke Saving + beli aset
+  net: number // income - expense - nabung (sisa arus kas cashflow)
   count: number
   /** total pengeluaran per kategori, urut terbesar */
   byCategory: { id: string; name: string; color: string; icon: string; total: number; pct: number }[]
   largest: Transaction | null
   avgPerDay: number // rata-rata pengeluaran per hari berlalu
-  savingsRatio: number // (income - expense) / income, 0..1
+  savingsRatio: number // nabung / pemasukan-nyata, 0..1
 }
 
 export function summarize(transactions: Transaction[], ref: Date): MonthSummary {
   let income = 0
   let expense = 0
+  let nabung = 0
+  let pakai = 0
   let largest: Transaction | null = null
   const catMap = new Map<string, { name: string; color: string; icon: string; total: number }>()
 
   for (const t of transactions) {
-    if (isTransfer(t)) continue // transfer internal, jangan dihitung
-    if (t.type === 'income') income += t.amount
-    else {
-      expense += t.amount
+    const f = txFlow(t)
+    income += f.income
+    expense += f.expense
+    nabung += f.nabung
+    pakai += f.pakai
+    if (f.expense > 0) {
       if (!largest || t.amount > largest.amount) largest = t
       const key = t.category_id ?? 'lain'
       const prev = catMap.get(key)
@@ -41,7 +71,7 @@ export function summarize(transactions: Transaction[], ref: Date): MonthSummary 
         name: t.category?.name ?? 'Lainnya',
         color: t.category?.color ?? '#64748b',
         icon: t.category?.icon ?? 'tag',
-        total: (prev?.total ?? 0) + t.amount,
+        total: (prev?.total ?? 0) + f.expense,
       })
     }
   }
@@ -51,12 +81,14 @@ export function summarize(transactions: Transaction[], ref: Date): MonthSummary 
     .sort((a, b) => b.total - a.total)
 
   const days = hariBerlalu(ref)
-  const savingsRatio = income > 0 ? Math.max(0, (income - expense) / income) : 0
+  const realIncome = income - pakai // pemasukan asli (tanpa penarikan tabungan)
+  const savingsRatio = realIncome > 0 ? Math.min(1, Math.max(0, nabung / realIncome)) : 0
 
   return {
     income,
     expense,
-    net: income - expense,
+    nabung,
+    net: income - expense - nabung,
     count: transactions.length,
     byCategory,
     largest,

@@ -4,7 +4,7 @@ import {
 } from 'recharts'
 import { Card } from './ui/Card'
 import { useTransactionsBetween } from '@/hooks/useTransactions'
-import { isTransfer } from '@/lib/summary'
+import { txFlow } from '@/lib/summary'
 import { formatRupiah, formatRupiahRingkas, toISODate } from '@/lib/format'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
@@ -26,11 +26,11 @@ export function MonitoringChart({ refDate }: { refDate: Date }) {
       buckets[format(d, 'yyyy-MM')] = { label: format(d, 'MMM', { locale: localeId }), masuk: 0, keluar: 0 }
     }
     for (const t of txs) {
-      if (isTransfer(t)) continue
       const key = t.date.slice(0, 7)
       if (!buckets[key]) continue
-      if (t.type === 'income') buckets[key].masuk += t.amount
-      else buckets[key].keluar += t.amount
+      const f = txFlow(t)
+      buckets[key].masuk += f.income
+      buckets[key].keluar += f.expense
     }
     return Object.values(buckets)
   }, [txs, refDate])

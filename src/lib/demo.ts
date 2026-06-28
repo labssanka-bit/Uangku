@@ -115,6 +115,9 @@ export const DEMO_TRANSACTIONS: Transaction[] = [
   T(10, 'expense', 250000, 'c-sehat', 'w-bca', 'Vitamin & obat'),
   T(12, 'expense', 60000, 'c-transport', 'w-cash', 'Ojek online'),
   T(14, 'expense', 30000, 'c-makan', 'w-cash', 'Ngopi'),
+  // Menabung: transfer Cashflow → Saving (2 leg, note ⇄)
+  T(6, 'expense', 2000000, '', 'w-bca', '⇄ Transfer ke Tabungan'),
+  T(6, 'income', 2000000, '', 'w-tab', '⇄ Transfer dari BCA'),
   // bulan lalu
   T(33, 'income', 8500000, 'c-gaji', 'w-bca', 'Gaji bulanan'),
   T(35, 'expense', 1500000, 'c-rumah', 'w-bca', 'Kos / sewa'),
@@ -148,7 +151,7 @@ export const DEMO_ASSETS: Asset[] = [
 const curMonth = new Date().getMonth() + 1
 const curYear = new Date().getFullYear()
 export const DEMO_BUDGETS: Budget[] = [
-  { id: 'b-1', user_id: 'demo-user', category_id: 'c-makan', amount: 1500000, month: curMonth, year: curYear, created_at: NOW, category: cat('c-makan') },
+  { id: 'b-1', user_id: 'demo-user', category_id: 'c-makan', amount: 1500000, month: 0, year: 0, created_at: NOW, category: cat('c-makan') },
   { id: 'b-2', user_id: 'demo-user', category_id: 'c-belanja', amount: 1000000, month: curMonth, year: curYear, created_at: NOW, category: cat('c-belanja') },
   { id: 'b-3', user_id: 'demo-user', category_id: 'c-hiburan', amount: 300000, month: curMonth, year: curYear, created_at: NOW, category: cat('c-hiburan') },
 ]

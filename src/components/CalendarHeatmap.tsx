@@ -4,7 +4,7 @@ import { Card } from './ui/Card'
 import { Amount } from './ui/Amount'
 import { TransactionItem } from './TransactionItem'
 import { formatRupiahRingkas } from '@/lib/format'
-import { isTransfer } from '@/lib/summary'
+import { txFlow } from '@/lib/summary'
 import { clsx } from '@/lib/clsx'
 import type { Transaction } from '@/types'
 
@@ -21,9 +21,10 @@ export function CalendarHeatmap({ refDate, transactions }: { refDate: Date; tran
   const { perDay, max, daysInMonth, leadOffset } = useMemo(() => {
     const perDay = new Map<number, number>()
     for (const t of transactions) {
-      if (t.type !== 'expense' || isTransfer(t)) continue
+      const exp = txFlow(t).expense
+      if (exp <= 0) continue
       const d = new Date(t.date).getDate()
-      perDay.set(d, (perDay.get(d) ?? 0) + t.amount)
+      perDay.set(d, (perDay.get(d) ?? 0) + exp)
     }
     const max = Math.max(1, ...perDay.values())
     return {

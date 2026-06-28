@@ -19,7 +19,8 @@ import { CalendarHeatmap } from '@/components/CalendarHeatmap'
 import { useUIStore } from '@/store/uiStore'
 import { useTransactions, useTransactionsBetween } from '@/hooks/useTransactions'
 import { buildPeriode } from '@/lib/dateRange'
-import { summarize, isTransfer } from '@/lib/summary'
+import { summarize, txFlow } from '@/lib/summary'
+import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { formatRupiah, formatRupiahRingkas } from '@/lib/format'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
@@ -52,11 +53,11 @@ export function Statistics() {
       buckets[key] = { label: format(d, 'MMM', { locale: localeId }), masuk: 0, keluar: 0 }
     }
     for (const t of rangeTxs) {
-      if (isTransfer(t)) continue
       const key = t.date.slice(0, 7)
       if (!buckets[key]) continue
-      if (t.type === 'income') buckets[key].masuk += t.amount
-      else buckets[key].keluar += t.amount
+      const f = txFlow(t)
+      buckets[key].masuk += f.income
+      buckets[key].keluar += f.expense
     }
     return Object.values(buckets)
   }, [rangeTxs]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -79,14 +80,14 @@ export function Statistics() {
             <TrendingDown size={14} /> Pengeluaran
           </span>
           <Amount value={summary.expense} className="mt-1 block text-lg font-extrabold text-wine-600" />
-          <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'expense' && !isTransfer(t)).length} transaksi</span>
+          <span className="text-[11px] text-gray-400">{txs.filter((t) => txFlow(t).expense > 0).length} transaksi</span>
         </Card>
         <Card className="bg-sage-50 dark:bg-sage-500/10">
           <span className="flex items-center gap-1 text-xs font-medium text-sage-600">
             <TrendingUp size={14} /> Pemasukan
           </span>
           <Amount value={summary.income} className="mt-1 block text-lg font-extrabold text-sage-600" />
-          <span className="text-[11px] text-gray-400">{txs.filter((t) => t.type === 'income' && !isTransfer(t)).length} transaksi</span>
+          <span className="text-[11px] text-gray-400">{txs.filter((t) => txFlow(t).income > 0).length} transaksi</span>
         </Card>
       </div>
 
@@ -107,7 +108,40 @@ export function Statistics() {
         </div>
         <CashFlowBar income={summary.income} expense={summary.expense} />
         <Amount value={net} className="mt-2 block text-lg font-extrabold" />
+        {summary.nabung > 0 && (
+          <p className="mt-1 text-xs text-sage-600">
+            💰 Disisihkan ke tabungan/aset bulan ini: <b>{formatRupiah(summary.nabung)}</b>
+          </p>
+        )}
       </Card>
+
+      {/* Rekap pengeluaran per kategori */}
+      {summary.byCategory.length > 0 && (
+        <Card className="mb-3">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-bold">Pengeluaran per Kategori</h2>
+            <span className="nums text-sm font-bold text-wine-600">{formatRupiah(summary.expense)}</span>
+          </div>
+          <div className="space-y-3">
+            {summary.byCategory.map((c) => (
+              <div key={c.id}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <CategoryIcon icon={c.icon} color={c.color} size="sm" />
+                    {c.name}
+                  </span>
+                  <span className="nums text-xs text-gray-500">
+                    {formatRupiah(c.total)} · {Math.round(c.pct * 100)}%
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(3, c.pct * 100)}%`, backgroundColor: c.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Kalender heatmap pengeluaran */}
       <CalendarHeatmap refDate={ref} transactions={txs} />
@@ -183,7 +217,7 @@ function CashFlowBar({ income, expense }: { income: number; expense: number }) {
 
 /** Susun data line chart: top-4 kategori pengeluaran per bucket waktu. */
 function buildCategoryTrend(txs: import('@/types').Transaction[], gran: Granularity) {
-  const expense = txs.filter((t) => t.type === 'expense' && !isTransfer(t))
+  const expense = txs.filter((t) => txFlow(t).expense > 0)
 
   // Tentukan kunci bucket per transaksi
   const bucketKey = (dateStr: string) => {

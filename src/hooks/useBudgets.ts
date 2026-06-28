@@ -7,6 +7,17 @@ import type { Budget } from '@/types'
 
 const KEY = 'budgets'
 
+/**
+ * Gabung anggaran: yang "semua bulan" (month=0,year=0) jadi default,
+ * di-override oleh anggaran spesifik bulan ini bila ada (per kategori).
+ */
+function mergeBudgets(rows: Budget[], periode: Periode): Budget[] {
+  const byCat = new Map<string, Budget>()
+  for (const b of rows) if (b.month === 0) byCat.set(b.category_id, b) // default semua-bulan
+  for (const b of rows) if (b.month === periode.month && b.year === periode.year) byCat.set(b.category_id, b) // spesifik menang
+  return [...byCat.values()]
+}
+
 /** Anggaran untuk periode bulan tertentu, join kategori. */
 export function useBudgets(periode: Periode) {
   const { user } = useAuth()
@@ -14,14 +25,16 @@ export function useBudgets(periode: Periode) {
     queryKey: [KEY, user?.id, periode.year, periode.month],
     enabled: !!user,
     queryFn: async (): Promise<Budget[]> => {
-      if (isDemo()) return DEMO_BUDGETS.filter((b) => b.month === periode.month && b.year === periode.year)
+      if (isDemo()) {
+        const rows = DEMO_BUDGETS.filter((b) => b.month === 0 || (b.month === periode.month && b.year === periode.year))
+        return mergeBudgets(rows, periode)
+      }
       const { data, error } = await supabase
         .from('budgets')
         .select('*, category:categories(*)')
-        .eq('month', periode.month)
-        .eq('year', periode.year)
+        .or(`and(month.eq.${periode.month},year.eq.${periode.year}),and(month.eq.0,year.eq.0)`)
       if (error) throw error
-      return data as Budget[]
+      return mergeBudgets(data as Budget[], periode)
     },
   })
 }
