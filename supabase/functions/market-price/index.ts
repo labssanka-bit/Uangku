@@ -45,8 +45,8 @@ serve(async (req) => {
     }
 
     if (kind === 'emas') {
-      // XAU/USD = harga 1 troy ounce emas dalam USD; IDR=X = kurs USD→IDR
-      const [xauUsd, usdIdr] = await Promise.all([yahoo('XAUUSD=X'), yahoo('IDR=X')])
+      // GC=F = harga 1 troy ounce emas (futures) dalam USD; IDR=X = kurs USD→IDR
+      const [xauUsd, usdIdr] = await Promise.all([yahoo('GC=F'), yahoo('IDR=X')])
       if (xauUsd == null || usdIdr == null) return json({ error: 'Gagal ambil harga emas spot' }, 502)
       const idrPerGram = (xauUsd / GRAM_PER_OZ) * usdIdr
       return json({
