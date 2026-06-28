@@ -16,6 +16,8 @@ export function MonthSelector({ className }: { className?: string }) {
 
   const [open, setOpen] = useState(false)
   const [pickYear, setPickYear] = useState(ref.getFullYear())
+  const [view, setView] = useState<'bulan' | 'tahun'>('bulan')
+  const [yearStart, setYearStart] = useState(ref.getFullYear() - 6) // awal grid 12 tahun
 
   const now = new Date()
   // Pakai tanggal 15 agar bebas dari pergeseran zona waktu saat toISOString
@@ -26,6 +28,8 @@ export function MonthSelector({ className }: { className?: string }) {
 
   function openPicker() {
     setPickYear(ref.getFullYear())
+    setYearStart(ref.getFullYear() - 6)
+    setView('bulan')
     setOpen(true)
   }
 
@@ -54,49 +58,87 @@ export function MonthSelector({ className }: { className?: string }) {
         </button>
       </div>
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Pilih Bulan">
-        {/* Tahun: panah + label */}
+      <Sheet open={open} onClose={() => setOpen(false)} title={view === 'bulan' ? 'Pilih Bulan' : 'Pilih Tahun'}>
+        {/* Header: panah + label (label tahun bisa diketuk → mode pilih tahun) */}
         <div className="mb-4 flex items-center justify-center gap-4">
           <button
-            onClick={() => setPickYear((y) => y - 1)}
+            onClick={() => (view === 'bulan' ? setPickYear((y) => y - 1) : setYearStart((s) => s - 12))}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 active:scale-95 dark:bg-gray-800"
-            aria-label="Tahun sebelumnya"
+            aria-label="Sebelumnya"
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="nums w-20 text-center text-xl font-extrabold text-maroon-700 dark:text-dusty-200">{pickYear}</span>
+          {view === 'bulan' ? (
+            <button
+              onClick={() => { setYearStart(pickYear - 6); setView('tahun') }}
+              className="nums w-28 rounded-full py-1 text-center text-xl font-extrabold text-maroon-700 active:scale-95 dark:text-dusty-200"
+            >
+              {pickYear} ▾
+            </button>
+          ) : (
+            <span className="nums w-28 text-center text-base font-bold text-maroon-700 dark:text-dusty-200">
+              {yearStart}–{yearStart + 11}
+            </span>
+          )}
           <button
-            onClick={() => setPickYear((y) => y + 1)}
+            onClick={() => (view === 'bulan' ? setPickYear((y) => y + 1) : setYearStart((s) => s + 12))}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 active:scale-95 dark:bg-gray-800"
-            aria-label="Tahun berikutnya"
+            aria-label="Berikutnya"
           >
             <ChevronRight size={20} />
           </button>
         </div>
 
-        {/* Grid 12 bulan */}
-        <div className="grid grid-cols-3 gap-2">
-          {BULAN.map((b, i) => {
-            const isActive = ref.getFullYear() === pickYear && ref.getMonth() === i
-            const isNow = now.getFullYear() === pickYear && now.getMonth() === i
-            return (
-              <button
-                key={b}
-                onClick={() => jump(pickYear, i)}
-                className={clsx(
-                  'rounded-2xl py-3 text-sm font-semibold transition active:scale-95',
-                  isActive
-                    ? 'bg-maroon-700 text-white shadow-soft'
-                    : isNow
-                      ? 'bg-dusty-100 text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200'
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-                )}
-              >
-                {b}
-              </button>
-            )
-          })}
-        </div>
+        {view === 'bulan' ? (
+          /* Grid 12 bulan */
+          <div className="grid grid-cols-3 gap-2">
+            {BULAN.map((b, i) => {
+              const isActive = ref.getFullYear() === pickYear && ref.getMonth() === i
+              const isNow = now.getFullYear() === pickYear && now.getMonth() === i
+              return (
+                <button
+                  key={b}
+                  onClick={() => jump(pickYear, i)}
+                  className={clsx(
+                    'rounded-2xl py-3 text-sm font-semibold transition active:scale-95',
+                    isActive
+                      ? 'bg-maroon-700 text-white shadow-soft'
+                      : isNow
+                        ? 'bg-dusty-100 text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                  )}
+                >
+                  {b}
+                </button>
+              )
+            })}
+          </div>
+        ) : (
+          /* Grid 12 tahun → pilih → kembali ke grid bulan */
+          <div className="grid grid-cols-3 gap-2">
+            {Array.from({ length: 12 }).map((_, i) => {
+              const y = yearStart + i
+              const isActive = ref.getFullYear() === y
+              const isNow = now.getFullYear() === y
+              return (
+                <button
+                  key={y}
+                  onClick={() => { setPickYear(y); setView('bulan') }}
+                  className={clsx(
+                    'nums rounded-2xl py-3 text-sm font-semibold transition active:scale-95',
+                    isActive
+                      ? 'bg-maroon-700 text-white shadow-soft'
+                      : isNow
+                        ? 'bg-dusty-100 text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                  )}
+                >
+                  {y}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Lompat ke bulan ini */}
         <button
