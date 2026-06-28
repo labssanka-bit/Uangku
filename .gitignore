@@ -27,3 +27,6 @@ pnpm-debug.log*
 
 # Kampanye medsos (folder kerja terpisah, bukan bagian app)
 content-plan
+
+# Ads tooling deps (puppeteer)
+ads/node_modules

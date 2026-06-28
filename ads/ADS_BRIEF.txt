@@ -1,0 +1,118 @@
+============================================================
+4 KONTEN META ADS — FINPLAN SANKA
+Format: 1080x1350 (4:5 feed). File siap pakai → ads/out/
+CTA button Meta (pilih): "Coba Sekarang" / "Beli Sekarang" / "Pelajari Lebih Lanjut"
+Link tujuan (Website URL): https://digital-store-27.myscalev.com/landing-page-baru-8
+============================================================
+
+CTA inti (sudah di-bake ke gambar):
+  "Mulai Rp49.900 — Keputusan untuk Dirimu 1 Tahun Lagi"
+
+STRIP NILAI (di semua kreatif):
+  Catat · Dompet · Hutang · Aset & Emas · Insight · HP & Laptop
+
+------------------------------------------------------------
+1) Meta_1_Gaji_Habis.png — ANGLE: GAJI NUMPANG LEWAT
+   Hook  : "Gaji Masuk, Belum Tanggal 20 Udah Habis?"
+   Pain  : Bukan kamu boros — kamu cuma belum tahu uangmu lari ke mana.
+   Untuk : Karyawan, fresh grad, first jobber.
+
+   PRIMARY TEXT (caption):
+   Tiap akhir bulan bertanya "kok habis ya?" 😮‍💨
+   Masalahnya bukan kamu boros — kamu cuma belum punya sistem yang nunjukin
+   uangmu lari ke mana. Finplan Sanka bantu kamu lihat dengan jelas:
+   • Tahu "uang aman harian" tiap hari
+   • Catat cuma 3 detik (foto struk AI / suara)
+   • Bocoran pengeluaran langsung ketahuan
+   Ini keputusan kecil hari ini yang dirimu 1 tahun lagi akan syukuri.
+   👉 Mulai Rp49.900 — sekali bayar, selamanya.
+
+------------------------------------------------------------
+2) Meta_2_Bad_Mood.png — ANGLE: BELANJA IMPULSIF / EMOTIONAL SPENDING
+   Hook  : "Checkout Pas Bad Mood, Nyesel Pas Liat Saldo."
+   Pain  : Pengeluaran "receh" tiap hari diam-diam numpuk jadi jutaan.
+   Untuk : Gen-Z, mahasiswa, suka belanja online / scroll.
+
+   PRIMARY TEXT (caption):
+   Scroll TikTok → tiba-tiba udah checkout. Relate? 🛒
+   Belanja pas stres/bosan itu wajar — yang bahaya, polanya gak pernah kelihatan.
+   Finplan Sanka bikin kamu sadar:
+   • Rekap per kategori → pola belanja kelihatan nyata
+   • Insight otomatis: "pengeluaran naik 20% dari bulan lalu"
+   • Sadar SEBELUM saldo telanjur bocor
+   Bukan biar kamu pelit — biar kamu pegang kendali.
+   👉 Coba sekarang, Rp49.900 selamanya.
+
+------------------------------------------------------------
+3) Meta_3_Inflasi.png — ANGLE: INFLASI / KETAKUTAN MASA DEPAN
+   Hook  : "Harga Naik Terus. Uangmu Diam-Diam Menyusut."
+   Pain  : Rp100rb hari ini cuma terasa ~Rp70rb dalam 10 tahun.
+   Untuk : Usia 25–40, mulai mikir masa depan, keluarga muda, IRT.
+
+   PRIMARY TEXT (caption):
+   Harga naik, dolar naik, biaya hidup naik — tapi uang yang didiamkan?
+   Diam-diam menyusut. 📉
+   Kamu gak bisa kendaliin ekonomi. Tapi kamu 100% bisa kendaliin ke mana
+   uangmu pergi. Mulai dari yang paling dasar: catat & atur.
+   • Bangun dana darurat & tabungan terukur
+   • Pantau emas & aset — harga terkini otomatis
+   • Rasio nabung naik, tiap bulan kelihatan
+   Makin cepat mulai, makin besar bunga waktu bekerja untukmu.
+   👉 Ambil kendali — Rp49.900, akses selamanya.
+
+------------------------------------------------------------
+4) Meta_4_Tenang.png — ANGLE: ASPIRASIONAL / KETENANGAN (after-state)
+   Hook  : "Bayangkan Tenangnya Tahu Persis Kondisi Keuanganmu."
+   Pain  : Mulai hari ini — dirimu 1 tahun lagi akan berterima kasih.
+   Untuk : Semua kalangan (retargeting / broad).
+
+   PRIMARY TEXT (caption):
+   Bayangkan: akhir bulan tanpa deg-degan. Tahu persis sisa uang, tabungan
+   bertumbuh, dan setiap rupiah jelas ke mana. 🌱
+   Itu bukan soal gaji besar — itu soal sistem yang simpel & kamu pakai tiap hari.
+   • Semua keuangan rapi dalam 1 aplikasi
+   • Buka di HP & laptop, full Bahasa Indonesia
+   • Sekali bayar Rp49.900 — akses selamanya
+   Keputusan kecil hari ini = ketenangan setahun ke depan.
+   👉 Mulai sekarang.
+
+============================================================
+SARAN TARGETING META (awal — sesuaikan setelah data):
+  Lokasi : Indonesia (kota besar dulu: Jabodetabek, Bandung, Surabaya…)
+  Usia   : 20–40
+  Minat  : keuangan pribadi, menabung, investasi, budgeting, aplikasi keuangan,
+           e-wallet (GoPay/OVO/Dana), gaya hidup hemat, self improvement
+  Placement: Feed + Reels + Stories (Advantage+ placements)
+  Bujet uji: mulai kecil (Rp30–50rb/hari/ad set), 3–5 hari, matikan yang CTR rendah.
+
+VARIASI HOOK (buat A/B test, ganti baris hook di gen_meta_ads.js):
+  • "Uang ke Mana Sih? 7 dari 10 Orang Gak Bisa Jawab."
+  • "Nabung 'Kalau Ada Sisa' = Gak Pernah Ada Sisa."
+  • "1 Tahun Lagi Kamu Mau Punya Tabungan, atau Penyesalan?"
+
+============================================================
+UPGRADE FOTO KE HIGGSFIELD (opsional, kualitas lebih tinggi)
+Foto saat ini dari Pollinations (gratis). Untuk hasil premium, generate di
+Higgsfield (rasio 4:5 / 1080x1350), lalu timpa file di ads/photos/ (nama sama:
+ad1.png … ad4.png) dan jalankan ulang: node gen_meta_ads.js
+
+Prompt Higgsfield (gaya konsisten — tambah di tiap prompt):
+  "...warm editorial photography, muted deep maroon-brown & warm cream beige
+   color grade, soft natural window light, cinematic, shallow depth of field,
+   premium lifestyle, Indonesian, candid, no text"
+
+  ad1 : young Indonesian woman late 20s, tired/worried looking at an empty
+        leather wallet on a wooden table at home, end-of-month money stress
+  ad2 : Indonesian young man on sofa at night scrolling phone (online shopping),
+        a few paper shopping bags nearby, subtle regret / impulse mood
+  ad3 : thoughtful Indonesian woman early 30s by a window holding coffee,
+        contemplating future savings as prices rise, calm but concerned
+  ad4 : calm confident Indonesian person relaxing with coffee & smartphone,
+        organized and fully in control of personal finances, serene & content
+
+============================================================
+REGENERASI:
+  Foto  : node dl.js            (Pollinations) — atau drop Higgsfield manual
+  Ads   : node gen_meta_ads.js  (butuh Chrome)
+  Edit copy/CTA: ubah array ADS / CTA / VALUE di gen_meta_ads.js
+============================================================

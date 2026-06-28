@@ -1,0 +1,8 @@
+{
+  "name": "finplan-ads",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "puppeteer-core": "^25.2.1"
+  }
+}
