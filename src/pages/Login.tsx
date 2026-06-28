@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { enterDemo } from '@/lib/demo'
 
 /** Halaman login / daftar sederhana via email + password (Supabase Auth). */
 export function Login() {
@@ -80,6 +81,17 @@ export function Login() {
           {loading ? 'Memproses…' : mode === 'login' ? 'Masuk' : 'Daftar'}
         </button>
       </form>
+
+      {/* Coba tanpa daftar */}
+      <div className="my-4 flex items-center gap-3 text-xs text-gray-400">
+        <span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />atau<span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
+      </div>
+      <button
+        onClick={() => { enterDemo(); window.location.href = '/' }}
+        className="w-full rounded-2xl border border-maroon-200 bg-white py-3 text-base font-bold text-maroon-700 shadow-card dark:border-maroon-700/40 dark:bg-gray-900 dark:text-dusty-200"
+      >
+        👀 Coba Demo dulu (tanpa daftar)
+      </button>
 
       <button
         onClick={() => {

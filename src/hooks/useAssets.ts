@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_ASSETS } from '@/lib/demo'
 import type { Asset, AssetType } from '@/types'
 
 const KEY = ['assets']
@@ -11,6 +12,7 @@ export function useAssets() {
     queryKey: [...KEY, user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Asset[]> => {
+      if (isDemo()) return DEMO_ASSETS
       const { data, error } = await supabase
         .from('assets')
         .select('*')
@@ -38,6 +40,7 @@ export function useAssetMutations() {
 
   const create = useMutation({
     mutationFn: async (input: AssetInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('assets').insert({ ...input, user_id: user!.id })
       if (error) throw error
     },
@@ -46,6 +49,7 @@ export function useAssetMutations() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: Partial<AssetInput> & { id: string }) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('assets').update(input).eq('id', id)
       if (error) throw error
     },
@@ -54,6 +58,7 @@ export function useAssetMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('assets').delete().eq('id', id)
       if (error) throw error
     },

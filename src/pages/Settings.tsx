@@ -10,6 +10,7 @@ import { useUIStore } from '@/store/uiStore'
 import { exportTransactionsCSV } from '@/lib/export'
 import { formatRupiah, parseRupiah } from '@/lib/format'
 import { supabase } from '@/lib/supabase'
+import { isDemo, demoBlock } from '@/lib/demo'
 
 export function Settings() {
   const { user, signOut } = useAuth()
@@ -33,6 +34,7 @@ export function Settings() {
     e instanceof Error ? e.message : (e as { message?: string })?.message || fallback
 
   async function handleExport() {
+    if (isDemo()) { demoBlock(); return }
     setBusy(true)
     try {
       await exportTransactionsCSV()
@@ -44,6 +46,7 @@ export function Settings() {
   }
 
   async function handleReset() {
+    if (isDemo()) { demoBlock(); return }
     if (!confirm('Hapus SEMUA transaksi? Tindakan ini tidak bisa dibatalkan.')) return
     const { error } = await supabase.from('transactions').delete().eq('user_id', user!.id)
     if (error) alert('Gagal mereset data.')

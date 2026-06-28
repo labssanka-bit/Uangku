@@ -7,6 +7,7 @@ import {
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { isDemo, exitDemo, DEMO_SESSION } from '@/lib/demo'
 
 interface AuthContextValue {
   session: Session | null
@@ -27,6 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Mode demo: pakai sesi palsu, tak menyentuh Supabase
+    if (isDemo()) {
+      setSession(DEMO_SESSION)
+      setLoading(false)
+      return
+    }
     // Ambil sesi awal
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
@@ -42,6 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signOut = async () => {
+    if (isDemo()) {
+      exitDemo()
+      window.location.href = '/'
+      return
+    }
     await supabase.auth.signOut()
   }
 

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_CATEGORIES } from '@/lib/demo'
 import type { Category, TxType } from '@/types'
 
 const KEY = ['categories']
@@ -12,6 +13,7 @@ export function useCategories(type?: TxType) {
     queryKey: [...KEY, user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Category[]> => {
+      if (isDemo()) return DEMO_CATEGORIES
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -39,6 +41,7 @@ export function useCategoryMutations() {
 
   const create = useMutation({
     mutationFn: async (input: CategoryInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase
         .from('categories')
         .insert({ ...input, user_id: user!.id, is_default: false })
@@ -49,6 +52,7 @@ export function useCategoryMutations() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: CategoryInput & { id: string }) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('categories').update(input).eq('id', id)
       if (error) throw error
     },
@@ -57,6 +61,7 @@ export function useCategoryMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('categories').delete().eq('id', id)
       if (error) throw error
     },

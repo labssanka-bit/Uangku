@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_TRANSACTIONS } from '@/lib/demo'
 import type { Periode } from '@/lib/dateRange'
 import type { Transaction, TransactionInput } from '@/types'
+
+const demoSortDesc = (a: Transaction, b: Transaction) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)
 
 const KEY = 'transactions'
 
@@ -13,6 +16,7 @@ export function useTransactions(periode: Periode) {
     queryKey: [KEY, user?.id, periode.year, periode.month],
     enabled: !!user,
     queryFn: async (): Promise<Transaction[]> => {
+      if (isDemo()) return DEMO_TRANSACTIONS.filter((t) => t.date >= periode.start && t.date <= periode.end).sort(demoSortDesc)
       const { data, error } = await supabase
         .from('transactions')
         .select('*, category:categories(*), wallet:wallets(*)')
@@ -33,6 +37,7 @@ export function useRecentTransactions(limit = 5) {
     queryKey: [KEY, 'recent', user?.id, limit],
     enabled: !!user,
     queryFn: async (): Promise<Transaction[]> => {
+      if (isDemo()) return [...DEMO_TRANSACTIONS].sort(demoSortDesc).slice(0, limit)
       const { data, error } = await supabase
         .from('transactions')
         .select('*, category:categories(*), wallet:wallets(*)')
@@ -52,6 +57,7 @@ export function useTransactionMutations() {
 
   const create = useMutation({
     mutationFn: async (input: TransactionInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase
         .from('transactions')
         .insert({ ...input, user_id: user!.id })
@@ -62,6 +68,7 @@ export function useTransactionMutations() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: TransactionInput & { id: string }) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('transactions').update(input).eq('id', id)
       if (error) throw error
     },
@@ -70,6 +77,7 @@ export function useTransactionMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('transactions').delete().eq('id', id)
       if (error) throw error
     },
@@ -86,6 +94,7 @@ export function useTransactionsBetween(startISO: string, endISO: string) {
     queryKey: [KEY, 'range', user?.id, startISO, endISO],
     enabled: !!user,
     queryFn: async (): Promise<Transaction[]> => {
+      if (isDemo()) return DEMO_TRANSACTIONS.filter((t) => t.date >= startISO && t.date <= endISO).sort((a, b) => (a.date < b.date ? -1 : 1))
       const { data, error } = await supabase
         .from('transactions')
         .select('*, category:categories(*), wallet:wallets(*)')
@@ -105,6 +114,7 @@ export function useTransactionDates() {
     queryKey: [KEY, 'dates', user?.id],
     enabled: !!user,
     queryFn: async (): Promise<string[]> => {
+      if (isDemo()) return DEMO_TRANSACTIONS.map((t) => t.date)
       const { data, error } = await supabase.from('transactions').select('date')
       if (error) throw error
       return (data as { date: string }[]).map((r) => r.date)
@@ -119,6 +129,7 @@ export function useTotalBalance() {
     queryKey: [KEY, 'balance', user?.id],
     enabled: !!user,
     queryFn: async (): Promise<number> => {
+      if (isDemo()) return DEMO_TRANSACTIONS.reduce((a, t) => a + (t.type === 'income' ? t.amount : -t.amount), 0)
       const { data, error } = await supabase.from('transactions').select('amount, type')
       if (error) throw error
       return (data as { amount: number; type: string }[]).reduce(

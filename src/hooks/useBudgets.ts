@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_BUDGETS } from '@/lib/demo'
 import type { Periode } from '@/lib/dateRange'
 import type { Budget } from '@/types'
 
@@ -13,6 +14,7 @@ export function useBudgets(periode: Periode) {
     queryKey: [KEY, user?.id, periode.year, periode.month],
     enabled: !!user,
     queryFn: async (): Promise<Budget[]> => {
+      if (isDemo()) return DEMO_BUDGETS.filter((b) => b.month === periode.month && b.year === periode.year)
       const { data, error } = await supabase
         .from('budgets')
         .select('*, category:categories(*)')
@@ -39,6 +41,7 @@ export function useBudgetMutations() {
   /** Upsert berdasarkan (user, category, month, year). */
   const save = useMutation({
     mutationFn: async (input: BudgetInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase
         .from('budgets')
         .upsert(
@@ -52,6 +55,7 @@ export function useBudgetMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('budgets').delete().eq('id', id)
       if (error) throw error
     },

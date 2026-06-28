@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Plus, Gem, TrendingUp, TrendingDown, Wallet, RefreshCw } from 'lucide-react'
 import { fetchMarketPrice } from '@/lib/market'
+import { isDemo, demoBlock } from '@/lib/demo'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
@@ -50,6 +51,7 @@ export function Assets() {
   const [priceHint, setPriceHint] = useState<string | null>(null)
 
   async function ambilHarga() {
+    if (isDemo()) { setPriceHint('Mode demo: harga otomatis aktif setelah daftar 😊'); return }
     setFetchingPrice(true)
     setPriceHint('Mengambil harga terkini…')
     try {
@@ -129,6 +131,7 @@ export function Assets() {
 
   async function handleSave() {
     if (!name.trim()) return
+    if (isDemo()) { demoBlock(); setOpen(false); return }
     const payload = {
       name: name.trim(),
       type,

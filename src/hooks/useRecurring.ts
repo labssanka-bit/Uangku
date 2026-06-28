@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock } from '@/lib/demo'
 import type { RecurringTransaction, RecurrenceFreq, TxType } from '@/types'
 
 const KEY = 'recurring'
@@ -11,6 +12,7 @@ export function useRecurring() {
     queryKey: [KEY, user?.id],
     enabled: !!user,
     queryFn: async (): Promise<RecurringTransaction[]> => {
+      if (isDemo()) return []
       const { data, error } = await supabase
         .from('recurring_transactions')
         .select('*, category:categories(*)')
@@ -38,6 +40,7 @@ export function useRecurringMutations() {
 
   const create = useMutation({
     mutationFn: async (input: RecurringInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase
         .from('recurring_transactions')
         .insert({ ...input, user_id: user!.id })
@@ -48,6 +51,7 @@ export function useRecurringMutations() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: Partial<RecurringInput> & { id: string }) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase
         .from('recurring_transactions')
         .update(input)
@@ -59,6 +63,7 @@ export function useRecurringMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('recurring_transactions').delete().eq('id', id)
       if (error) throw error
     },

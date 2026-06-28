@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_PROFILE } from '@/lib/demo'
 import type { Profile } from '@/types'
 
 const KEY = ['profile']
@@ -11,6 +12,7 @@ export function useProfile() {
     queryKey: [...KEY, user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Profile | null> => {
+      if (isDemo()) return DEMO_PROFILE
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -27,6 +29,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (patch: Partial<Pick<Profile, 'full_name' | 'currency' | 'opening_balance'>>) => {
+      if (isDemo()) return demoBlock()
       // Upsert agar baris profil dibuat bila belum ada (mis. trigger tak jalan)
       const { error } = await supabase
         .from('profiles')

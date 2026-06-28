@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_DEBTS } from '@/lib/demo'
 import type { Debt, DebtType } from '@/types'
 
 const KEY = ['debts']
@@ -11,6 +12,7 @@ export function useDebts() {
     queryKey: [...KEY, user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Debt[]> => {
+      if (isDemo()) return DEMO_DEBTS
       const { data, error } = await supabase
         .from('debts')
         .select('*')
@@ -42,6 +44,7 @@ export function useDebtMutations() {
 
   const create = useMutation({
     mutationFn: async (input: DebtInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('debts').insert({ ...input, user_id: user!.id })
       if (error) throw error
     },
@@ -50,6 +53,7 @@ export function useDebtMutations() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: Partial<Debt> & { id: string }) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('debts').update(input).eq('id', id)
       if (error) throw error
     },
@@ -58,6 +62,7 @@ export function useDebtMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('debts').delete().eq('id', id)
       if (error) throw error
     },
@@ -78,6 +83,7 @@ export function useDebtMutations() {
       payAmount: number
       recordTx: boolean
     }) => {
+      if (isDemo()) return demoBlock()
       const newPaid = Math.min(debt.paid_amount + payAmount, debt.amount)
       const status = newPaid >= debt.amount ? 'lunas' : 'belum'
       const { error } = await supabase

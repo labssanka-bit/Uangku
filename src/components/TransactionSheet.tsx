@@ -18,6 +18,7 @@ import {
   type RecordedAudio,
 } from '@/lib/voice'
 import { extractAmount, guessCategoryName } from '@/lib/parseAmount'
+import { isDemo } from '@/lib/demo'
 import { clsx } from '@/lib/clsx'
 import type { Transaction, TxType, ReceiptItem } from '@/types'
 
@@ -100,6 +101,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   }
 
   async function handleReceipt(file: File) {
+    if (isDemo()) { setHint('Mode demo: foto struk AI aktif setelah daftar 😊'); return }
     setBusy('ocr')
     setHint('Membaca struk dengan AI…')
     try {
@@ -136,6 +138,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       return
     }
     if (busy !== null) return
+    if (isDemo()) { setHint('Mode demo: input suara aktif setelah daftar 😊'); return }
 
     // Metode 1 — Chrome: Web Speech API (instan, gratis, on-device)
     if (isWebSpeechSupported()) {

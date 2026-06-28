@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
 import { computeDuePostings } from '@/lib/recurring'
+import { isDemo } from '@/lib/demo'
 import type { RecurringTransaction } from '@/types'
 
 /**
@@ -15,7 +16,7 @@ export function useAutoPostRecurring() {
   const done = useRef(false)
 
   useEffect(() => {
-    if (!user || done.current) return
+    if (!user || done.current || isDemo()) return
     done.current = true
 
     ;(async () => {

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { isDemo, demoBlock, DEMO_WALLETS, DEMO_TRANSACTIONS } from '@/lib/demo'
 import type { Wallet, WalletGroup } from '@/types'
 
 const KEY = ['wallets']
@@ -11,6 +12,7 @@ export function useWallets() {
     queryKey: [...KEY, user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Wallet[]> => {
+      if (isDemo()) return DEMO_WALLETS
       const { data, error } = await supabase
         .from('wallets')
         .select('*')
@@ -40,6 +42,7 @@ export function useWalletMutations() {
 
   const create = useMutation({
     mutationFn: async (input: WalletInput) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('wallets').insert({ ...input, user_id: user!.id })
       if (error) throw error
     },
@@ -48,6 +51,7 @@ export function useWalletMutations() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: Partial<WalletInput> & { id: string }) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('wallets').update(input).eq('id', id)
       if (error) throw error
     },
@@ -56,6 +60,7 @@ export function useWalletMutations() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
+      if (isDemo()) return demoBlock()
       const { error } = await supabase.from('wallets').delete().eq('id', id)
       if (error) throw error
     },
@@ -71,6 +76,7 @@ export function useWalletMutations() {
       toId: string; toName: string
       amount: number; note: string; date: string
     }) => {
+      if (isDemo()) return demoBlock()
       // Note SELALU diawali "⇄" agar terdeteksi sebagai transfer (lib/summary isTransfer)
       const tail = note ? ` (${note})` : ''
       const { error } = await supabase.from('transactions').insert([
@@ -115,6 +121,7 @@ export function useWalletBalances() {
     queryKey: ['transactions', 'wallet-flow', user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (isDemo()) return DEMO_TRANSACTIONS.map((t) => ({ amount: t.amount, type: t.type, wallet_id: t.wallet_id }))
       const { data, error } = await supabase
         .from('transactions')
         .select('amount, type, wallet_id')
