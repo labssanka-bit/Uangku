@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { enterDemo } from '@/lib/demo'
+import { redeemLicense } from '@/lib/license'
 
 /** Halaman login / daftar sederhana via email + password (Supabase Auth). */
 export function Login() {
@@ -8,26 +9,29 @@ export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [ok, setOk] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setMsg(null)
+    setOk(false)
     try {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullName } },
-        })
-        if (error) throw error
-        setMsg('Berhasil daftar! Cek email untuk verifikasi, lalu masuk.')
-        setMode('login')
+        // Daftar wajib pakai kode akses (dari pembelian) → buat akun lalu login otomatis
+        await redeemLicense({ code: code.trim(), email, password, full_name: fullName })
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          setOk(true)
+          setMsg('Akun dibuat! Silakan Masuk dengan email & password kamu.')
+          setMode('login')
+        }
       }
     } catch (err) {
       setMsg(err instanceof Error ? err.message : 'Terjadi kesalahan.')
@@ -42,7 +46,24 @@ export function Login() {
         <img src="/logo.png" alt="Finplan Sanka" className="mx-auto w-56" />
       </div>
 
+      {mode === 'signup' && (
+        <p className="mb-3 rounded-2xl bg-maroon-50 px-4 py-3 text-center text-xs text-maroon-700 dark:bg-maroon-500/10 dark:text-dusty-200">
+          🔑 Daftar butuh <b>Kode Akses</b> dari pembelian. Belum punya?{' '}
+          <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" target="_blank" rel="noreferrer" className="font-bold underline">Beli di sini</a>.
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-3">
+        {mode === 'signup' && (
+          <input
+            type="text"
+            placeholder="Kode Akses (mis. FS-AB12-CD34)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            required
+            className="w-full rounded-2xl border border-maroon-200 bg-white px-4 py-3 text-center text-sm font-semibold uppercase tracking-wider shadow-card outline-none dark:border-maroon-700/40 dark:bg-gray-900"
+          />
+        )}
         {mode === 'signup' && (
           <input
             type="text"
@@ -71,7 +92,7 @@ export function Login() {
           className="w-full rounded-2xl bg-white px-4 py-3 text-sm shadow-card outline-none dark:bg-gray-900"
         />
 
-        {msg && <p className="text-center text-xs text-wine-500">{msg}</p>}
+        {msg && <p className={`text-center text-xs ${ok ? 'text-sage-600' : 'text-wine-500'}`}>{msg}</p>}
 
         <button
           type="submit"
