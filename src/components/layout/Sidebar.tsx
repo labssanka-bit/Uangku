@@ -28,9 +28,15 @@ export function Sidebar({ onAdd }: Props) {
   const { data: profile } = useProfile()
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-maroon-100/60 bg-white/70 px-4 py-6 backdrop-blur lg:flex dark:border-maroon-900/40 dark:bg-[#1C1418]/80">
-      {/* Logo */}
-      <div className="mb-6 px-2">
-        <img src="/logo.png" alt="Finplan Sanka" className="w-40" />
+      {/* Brand — monogram + wordmark (nyatu tema, soft) */}
+      <div className="mb-7 flex items-center gap-3 px-1.5">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-maroon-500 to-maroon-800 text-lg font-extrabold text-white shadow-nm-sm">
+          F
+        </span>
+        <div className="leading-tight">
+          <p className="font-extrabold tracking-tight text-maroon-800 dark:text-dusty-200">Finplan Sanka</p>
+          <p className="text-[11px] text-gray-400">Catatan keuangan</p>
+        </div>
       </div>
 
       {/* Tombol tambah */}
