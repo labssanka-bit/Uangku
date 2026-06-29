@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet } from 'lucide-react'
+import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
@@ -12,6 +12,8 @@ import { exportTransactionsCSV } from '@/lib/export'
 import { formatRupiah, parseRupiah } from '@/lib/format'
 import { supabase } from '@/lib/supabase'
 import { isDemo, demoBlock } from '@/lib/demo'
+import { THEMES } from '@/lib/themes'
+import { clsx } from '@/lib/clsx'
 
 export function Settings() {
   const { user, signOut } = useAuth()
@@ -20,6 +22,10 @@ export function Settings() {
   const { wallets } = useWalletBalances()
   const { update: updateWallet } = useWalletMutations()
   const { dark, toggleDark } = useUIStore()
+  const theme = useUIStore((s) => s.theme)
+  const setTheme = useUIStore((s) => s.setTheme)
+  const [themeOpen, setThemeOpen] = useState(false)
+  const activeTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0]
   const qc = useQueryClient()
 
   // Dompet utama (Cash default) — tempat "Saldo Awal" disimpan
@@ -99,6 +105,20 @@ export function Settings() {
             <span className={`block h-5 w-5 rounded-full bg-white transition ${dark ? 'translate-x-5' : ''}`} />
           </span>
         } />
+        <Row
+          icon={Palette}
+          label="Tema Warna"
+          onClick={() => setThemeOpen(true)}
+          right={
+            <span className="flex items-center gap-2">
+              <span className="flex">
+                <span className="h-4 w-4 rounded-full ring-2 ring-white dark:ring-gray-900" style={{ background: activeTheme.primary }} />
+                <span className="-ml-1.5 h-4 w-4 rounded-full ring-2 ring-white dark:ring-gray-900" style={{ background: activeTheme.accent }} />
+              </span>
+              <span className="text-sm text-gray-400">{activeTheme.name}</span>
+            </span>
+          }
+        />
         <Row
           icon={Wallet}
           label={`Saldo Awal ${mainWallet ? `(${mainWallet.name})` : ''}`}
@@ -188,6 +208,40 @@ export function Settings() {
             {saveError}
           </p>
         )}
+      </Sheet>
+
+      {/* Picker tema warna (17) */}
+      <Sheet open={themeOpen} onClose={() => setThemeOpen(false)} title="Pilih Tema">
+        <p className="mb-4 text-center text-xs text-gray-400">
+          17 tema warna. Ketuk untuk langsung pakai — bisa diganti kapan saja.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {THEMES.map((t) => {
+            const active = t.id === theme
+            return (
+              <button
+                key={t.id}
+                onClick={() => { setTheme(t.id); setThemeOpen(false) }}
+                className={clsx(
+                  'relative overflow-hidden rounded-2xl p-3 text-left transition active:scale-95',
+                  active ? 'ring-2 ring-maroon-600' : 'ring-1 ring-gray-200 dark:ring-gray-800'
+                )}
+                style={{ background: t.bg }}
+              >
+                <div className="mb-2 flex items-center gap-1.5">
+                  <span className="h-8 w-8 rounded-xl shadow-sm" style={{ background: t.primary }} />
+                  <span className="h-8 w-8 rounded-xl shadow-sm" style={{ background: t.accent }} />
+                  {active && (
+                    <span className="ml-auto flex h-6 w-6 items-center justify-center rounded-full text-white" style={{ background: t.primary }}>
+                      <Check size={14} />
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-bold" style={{ color: t.primary }}>{t.name}</span>
+              </button>
+            )
+          })}
+        </div>
       </Sheet>
     </div>
   )

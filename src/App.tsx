@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { useUIStore } from '@/store/uiStore'
 import { useAuth } from '@/hooks/useAuth'
 import { isDemo } from '@/lib/demo'
+import { applyTheme } from '@/lib/themes'
 import { useAutoPostRecurring } from '@/hooks/useAutoPostRecurring'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -21,11 +22,17 @@ import { Assets } from '@/pages/Assets'
 
 export default function App() {
   const dark = useUIStore((s) => s.dark)
+  const theme = useUIStore((s) => s.theme)
   const { addOpen, addPreset, openAdd, closeAdd } = useUIStore()
   const { session, loading } = useAuth()
 
   // Auto-post transaksi berulang yang jatuh tempo (sekali per sesi)
   useAutoPostRecurring()
+
+  // Terapkan tema warna ke <html data-theme>
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
 
   // Terapkan class `dark` ke <html> untuk Tailwind dark mode
   useEffect(() => {

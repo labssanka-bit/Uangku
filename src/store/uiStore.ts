@@ -14,6 +14,10 @@ interface UIState {
   dark: boolean
   toggleDark: () => void
 
+  // Tema warna (lihat THEMES di lib/themes)
+  theme: string
+  setTheme: (id: string) => void
+
   // Privacy mode — sembunyikan semua angka
   privacy: boolean
   togglePrivacy: () => void
@@ -40,6 +44,9 @@ export const useUIStore = create<UIState>()(
       dark: false,
       toggleDark: () => set((s) => ({ dark: !s.dark })),
 
+      theme: 'maroon',
+      setTheme: (id) => set({ theme: id }),
+
       privacy: false,
       togglePrivacy: () => set((s) => ({ privacy: !s.privacy })),
 
@@ -54,7 +61,7 @@ export const useUIStore = create<UIState>()(
     {
       name: 'uangku-ui',
       // activeMonth tidak ikut dipersist agar selalu mulai dari bulan berjalan
-      partialize: (s) => ({ dark: s.dark, privacy: s.privacy }),
+      partialize: (s) => ({ dark: s.dark, privacy: s.privacy, theme: s.theme }),
     }
   )
 )

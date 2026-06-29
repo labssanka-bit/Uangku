@@ -1,3 +1,4 @@
+@import './themes.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,12 +22,13 @@
 
   body {
     @apply text-gray-900 antialiased dark:text-gray-100;
-    background: #FCF4F6;
+    background: hsl(var(--app-bg));
     font-feature-settings: 'tnum' on, 'lnum' on;
+    transition: background-color .3s ease;
   }
 
   .dark body {
-    background: #1C1418;
+    background: hsl(var(--app-bg-dark));
   }
 
   .nums {
@@ -44,11 +46,11 @@
 
   /* Neumorphic input — tekan masuk (inset) */
   .nm-input {
-    background: #FCF4F6;
+    background: hsl(var(--app-bg));
     box-shadow: var(--nm-shadow-inset);
   }
   .dark .nm-input {
-    background: #251A1F;
+    background: hsl(var(--surface-dark));
   }
 }
 

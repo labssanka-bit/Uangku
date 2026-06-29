@@ -5,28 +5,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        // === Palet UangKu: Maroon + Dusty Pink (profesional & hangat) ===
+        // === Brand (maroon) & accent (dusty) — DITEMA via CSS var (src/themes.css) ===
+        // Nilai HSL channels per tema → dukung opacity modifier (/40 dst).
         maroon: {
-          50: '#FBF1F3',
-          100: '#F6E0E5',
-          200: '#EAC0CB',
-          300: '#D998A8',
-          400: '#C06B80',
-          500: '#A14559',
-          600: '#8A3447',
-          700: '#72283A',
-          800: '#5A1E2E',
-          900: '#4A1924',
+          50: 'hsl(var(--m-50) / <alpha-value>)',
+          100: 'hsl(var(--m-100) / <alpha-value>)',
+          200: 'hsl(var(--m-200) / <alpha-value>)',
+          300: 'hsl(var(--m-300) / <alpha-value>)',
+          400: 'hsl(var(--m-400) / <alpha-value>)',
+          500: 'hsl(var(--m-500) / <alpha-value>)',
+          600: 'hsl(var(--m-600) / <alpha-value>)',
+          700: 'hsl(var(--m-700) / <alpha-value>)',
+          800: 'hsl(var(--m-800) / <alpha-value>)',
+          900: 'hsl(var(--m-900) / <alpha-value>)',
         },
-        // Dusty pink — aksen lembut
         dusty: {
-          50: '#FCF4F6',
-          100: '#F8E8ED',
-          200: '#F0D2DB',
-          300: '#E4B3C1',
-          400: '#D592A4',
-          500: '#C57489',
-          600: '#B05A72',
+          50: 'hsl(var(--d-50) / <alpha-value>)',
+          100: 'hsl(var(--d-100) / <alpha-value>)',
+          200: 'hsl(var(--d-200) / <alpha-value>)',
+          300: 'hsl(var(--d-300) / <alpha-value>)',
+          400: 'hsl(var(--d-400) / <alpha-value>)',
+          500: 'hsl(var(--d-500) / <alpha-value>)',
+          600: 'hsl(var(--d-600) / <alpha-value>)',
         },
         // Sage — pemasukan (+)
         sage: {
