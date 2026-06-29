@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom'
 import {
   Home, ListChecks, BarChart3, PiggyBank, Repeat, Tags,
-  Landmark, HandCoins, Gem, Settings as Cog, Plus,
+  Landmark, HandCoins, Gem, Settings as Cog, Plus, Headset,
 } from 'lucide-react'
+import { useProfile } from '@/hooks/useProfile'
 import { clsx } from '@/lib/clsx'
 
 interface Props {
@@ -24,6 +25,7 @@ const items = [
 
 /** Sidebar navigasi — hanya tampil di layar besar (lg+). */
 export function Sidebar({ onAdd }: Props) {
+  const { data: profile } = useProfile()
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-maroon-100/60 bg-white/70 px-4 py-6 backdrop-blur lg:flex dark:border-maroon-900/40 dark:bg-[#1C1418]/80">
       {/* Logo */}
@@ -59,6 +61,19 @@ export function Sidebar({ onAdd }: Props) {
             {it.label}
           </NavLink>
         ))}
+        {profile?.is_admin && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              clsx(
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition',
+                isActive ? 'bg-maroon-700 text-white shadow-card' : 'text-gray-500 hover:bg-maroon-50 hover:text-maroon-700 dark:text-gray-400 dark:hover:bg-maroon-900/30'
+              )
+            }
+          >
+            <Headset size={19} /> Chat Support
+          </NavLink>
+        )}
       </nav>
 
       <p className="mt-4 px-2 text-[11px] text-gray-400">Finplan Sanka v1.0</p>

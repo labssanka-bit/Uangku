@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check } from 'lucide-react'
+import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
@@ -27,6 +28,7 @@ export function Settings() {
   const [themeOpen, setThemeOpen] = useState(false)
   const activeTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0]
   const qc = useQueryClient()
+  const nav = useNavigate()
 
   // Dompet utama (Cash default) — tempat "Saldo Awal" disimpan
   const mainWallet = wallets.find((w) => w.is_default && w.group === 'cashflow') ?? wallets[0] ?? null
@@ -134,6 +136,13 @@ export function Settings() {
         <Row icon={Coins} label="Mata Uang" right={<span className="text-sm text-gray-400">{profile?.currency ?? 'IDR'}</span>} />
         <Row icon={Download} label={busy ? 'Mengekspor…' : 'Ekspor Data (CSV)'} onClick={handleExport} right={<ChevronRight size={18} className="text-gray-300" />} />
       </Card>
+
+      {/* Admin (hanya untuk akun admin) */}
+      {profile?.is_admin && (
+        <Card className="mb-4 p-0">
+          <Row icon={Headset} label="Chat Support (Admin)" onClick={() => nav('/admin')} right={<ChevronRight size={18} className="text-gray-300" />} />
+        </Card>
+      )}
 
       {/* Zona bahaya */}
       <Card className="mb-4 divide-y divide-gray-100 p-0 dark:divide-gray-800">

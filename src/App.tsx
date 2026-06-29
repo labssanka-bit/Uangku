@@ -19,6 +19,8 @@ import { Settings } from '@/pages/Settings'
 import { Wallets } from '@/pages/Wallets'
 import { Debts } from '@/pages/Debts'
 import { Assets } from '@/pages/Assets'
+import { AdminChat } from '@/pages/AdminChat'
+import { SupportChat } from '@/components/SupportChat'
 
 export default function App() {
   const dark = useUIStore((s) => s.dark)
@@ -79,6 +81,7 @@ export default function App() {
           <Route path="/dompet" element={<Wallets />} />
           <Route path="/hutang" element={<Debts />} />
           <Route path="/aset" element={<Assets />} />
+          <Route path="/admin" element={<AdminChat />} />
           <Route path="/setting" element={<Settings />} />
         </Routes>
       </main>
@@ -87,6 +90,9 @@ export default function App() {
       <div className="lg:hidden">
         <BottomNav onAdd={() => openAdd()} />
       </div>
+
+      {/* Chat support melayang (user) */}
+      <SupportChat />
       <TransactionSheet open={addOpen} onClose={closeAdd} preset={addPreset} />
     </div>
   )

@@ -59,6 +59,17 @@ export interface Profile {
   full_name: string | null
   currency: string
   opening_balance: number
+  is_admin?: boolean
+  created_at: string
+}
+
+export interface SupportMessage {
+  id: string
+  user_id: string
+  sender: 'user' | 'admin'
+  body: string
+  read_admin: boolean
+  read_user: boolean
   created_at: string
 }
 
