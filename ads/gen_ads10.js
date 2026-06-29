@@ -12,14 +12,14 @@ const PDIR = path.join(__dirname, 'photos')
 const OUT = path.join(__dirname, 'out')
 fs.mkdirSync(OUT, { recursive: true })
 
-const CTA = 'Mulai Rp49.900 — sekali bayar, selamanya'
+const CTA = 'Ambil Kendali Keuanganmu — Mulai Hari Ini →'
 const b64 = (f) => fs.readFileSync(path.join(PDIR, f)).toString('base64')
 
 const ADS = [
   // ── ILUSTRASI ──
   { file: 'Meta_01_Ill_Gaji', layout: 'ill', img: 'ill1.png',
     hook: 'Gaji <span class="c">Numpang Lewat?</span>',
-    sub: 'Bukan kamu boros — kamu cuma belum tahu uangmu lari ke mana.',
+    sub: 'Tiap akhir bulan cuma bisa bertanya: “kok udah habis lagi?”',
     bens: ['Tahu “uang aman harian” tiap hari', 'Catat 3 detik: foto struk / suara'] },
   { file: 'Meta_02_Ill_Receh', layout: 'ill', img: 'ill2.png',
     hook: 'Receh Tiap Hari = <span class="c">Jutaan</span> Setahun.',
@@ -53,22 +53,22 @@ const ADS = [
     bens: ['Rekap kategori bikin pola kelihatan', 'Insight: “pengeluaran naik 20%”', 'Sadar sebelum saldo bocor'] },
   { file: 'Meta_10_Foto_Mulai', layout: 'photo', img: 'ph3.png',
     hook: 'Mulai Sekarang. Dirimu <span class="c">1 Tahun Lagi</span> Berterima Kasih.',
-    sub: 'Keputusan kecil hari ini = ketenangan setahun ke depan. ☕',
+    sub: 'Harga naik tiap tahun. Makin ditunda, makin jauh dari rasa aman. ☕',
     bens: ['Catat 3 detik, foto struk & suara', 'HP & laptop, full Bahasa Indonesia', 'Cuma Rp49.900, selamanya'] },
 ]
 
 // ── Mockup layar app (CSS) ──
 function screen(kind) {
   if (kind === 'stat') {
-    return `<div class="ps-top">Statistik · Juni</div>
-    <div class="prow"><div class="pcard pin"><span>Pemasukan</span><b>Rp 10jt</b></div><div class="pcard pex"><span>Pengeluaran</span><b>Rp 2,7jt</b></div></div>
+    return `<div class="ps-top">Statistik · Bulan Ini</div>
+    <div class="prow"><div class="pcard pin"><span>Pemasukan</span><b>Rp ••••</b></div><div class="pcard pex"><span>Pengeluaran</span><b>Rp ••••</b></div></div>
     <div class="pblock"><div class="pbh">Pengeluaran per Kategori</div>
       ${[['Belanja',92,'#9C5B4E'],['Makanan',55,'#72283A'],['Hiburan',30,'#B08968'],['Transport',20,'#6F5F4D']].map(([n,w,c])=>`<div class="catrow"><span>${n}</span><div class="cbar"><i style="width:${w}%;background:${c}"></i></div></div>`).join('')}
     </div>`
   }
   return `<div class="ps-top">Hai, Sanka 👋 <span class="fl">🔥 7 hari</span></div>
-  <div class="bal"><small>Total Saldo</small><div class="big">Rp 12.480.000</div>
-    <div class="brow"><div><small>Masuk</small><br><b>Rp 8,2jt</b></div><div><small>Keluar</small><br><b>Rp 3,1jt</b></div></div></div>
+  <div class="bal"><small>Total Saldo · 👁</small><div class="big">Rp ••••••••</div>
+    <div class="brow"><div><small>Pemasukan</small><br><b>Rp ••••</b></div><div><small>Pengeluaran</small><br><b>Rp ••••</b></div></div></div>
   <div class="mini">${[42,62,34,78,50,90].map((h,i)=>`<span style="height:${h}%;background:${i%2?'#9C5B4E':'#6F5F4D'}"></span>`).join('')}</div>
   <div class="chips"><span>☕ Kopi</span><span>🍔 Makan</span><span>💰 Nabung</span></div>`
 }

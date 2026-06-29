@@ -2,7 +2,7 @@
 10 KONTEN META ADS — FINPLAN SANKA (multi-gaya)  · 1080x1350 (4:5)
 Folder: ads/out/  · Regen: node gen_ads10.js
 Foto/ilustrasi: ads/photos/ (Pollinations; ganti Higgsfield kalau mau)
-CTA semua: "Mulai Rp49.900 — sekali bayar, selamanya"
+CTA semua (di gambar): "Ambil Kendali Keuanganmu — Mulai Hari Ini →" (harga TIDAK ditampilkan di kreatif; harga ada di LP/checkout)
 Link tujuan: https://digital-store-27.myscalev.com/landing-page-baru-8
 ============================================================
 
