@@ -1,0 +1,84 @@
+============================================================
+HIGGSFIELD FLOW — PROMPT VIDEO "ORANG PAKAI APP FINPLAN SANKA"
+Untuk iklan Reels/Story (9:16). Sinkron dgn angle ads gambar.
+============================================================
+
+CARA PAKAI (penting biar layar app AKURAT):
+1. Buka app Finplan Sanka, screenshot layar yang sesuai tiap scene
+   (Dashboard / Tambah Transaksi / Statistik / Saving). Simpan.
+2. Di Higgsfield Flow: pilih image-to-video. UPLOAD screenshot app /
+   foto tangan-pegang-HP-yang-menampilkan-app sebagai START FRAME /
+   referensi. Tempel PROMPT di bawah.
+3. Set: aspect 9:16, durasi 5 dtk (sambung beberapa klip jadi 1 ad).
+4. Gerak kamera dibuat HALUS biar layar app tetap kebaca & gak warping.
+
+GAYA KONSISTEN (tambah di akhir tiap prompt):
+  "warm cinematic lifestyle, soft natural daylight, cream and deep maroon
+   color tones, shallow depth of field, photorealistic, Indonesian, authentic
+   candid, 9:16 vertical, subtle smooth handheld motion, the phone screen
+   clearly shows the app UI from the reference, screen stays crisp and readable"
+
+NEGATIVE (kolom negative bila ada):
+  "distorted hands, extra fingers, warped/glitching phone screen, flickering
+   UI, unreadable text, jitter, oversaturated, plastic skin"
+
+------------------------------------------------------------
+1) DASHBOARD — "Cek saldo, lega"   [screenshot: Beranda/Dashboard]
+EN: A young Indonesian woman in her late 20s sits by a bright cafe window,
+holding her smartphone showing a personal finance app dashboard, she glances
+at her balance and smiles softly with relief, slow gentle push-in toward the
+phone, morning light. [+gaya konsisten]
+Overlay ID: "Akhir bulan nggak deg-degan lagi."
+
+2) TAMBAH TRANSAKSI — "Catat 3 detik"   [screenshot: sheet Tambah Transaksi]
+EN: Over-the-shoulder shot of an Indonesian man at a small food stall, he just
+paid and quickly taps his phone to log the expense in a finance app, confident
+and effortless, camera slowly settles over his shoulder onto the screen. [+gaya]
+Overlay ID: "Habis jajan? Catat 3 detik. Beres."
+
+3) FOTO STRUK (AI) — "Tinggal foto"   [screenshot: tombol Kamera/struk]
+EN: Close-up of Indonesian woman's hands holding a receipt in one hand and a
+smartphone in the other, she snaps a photo of the receipt with a finance app,
+the app auto-fills the amount, bright clean kitchen counter, macro detail. [+gaya]
+Overlay ID: "Foto struk → otomatis tercatat."
+
+4) BAD MOOD / IMPULSIF — "Sadar pola"   [screenshot: Statistik / per kategori]
+EN: An Indonesian young woman lies on a sofa surrounded by a few shopping bags,
+she opens a finance app and her expression shifts to mild realization as she
+sees her spending breakdown, slow dolly-in, soft afternoon light. [+gaya]
+Overlay ID: "Ternyata segini ya, tiap bulan."
+
+5) NABUNG — "Sekali tap"   [screenshot: kartu Saving / transfer Nabung]
+EN: An Indonesian person taps the "save" button in a finance app on their phone,
+a small satisfied smile, then sets the phone down calmly on a wooden table with
+a cup of tea, cozy warm home, gentle camera rise. [+gaya]
+Overlay ID: "Nabung sekarang, sekali tap."
+
+6) TENANG / ASPIRASIONAL — "In control"   [screenshot: Dashboard]
+EN: An Indonesian person relaxes on a couch in a sunny living room in the
+morning, calmly scrolling a finance app on their phone, content and at peace,
+slow subtle orbit around them, airy bright tones. [+gaya]
+Overlay ID: "Tenangnya tahu persis kondisi keuanganmu."
+
+7) MASA DEPAN / INFLASI — "Mulai rencana"   [screenshot: Statistik/Aset]
+EN: A thoughtful Indonesian woman stands by a large window holding coffee,
+she opens a finance app and begins planning, expression turning hopeful and
+determined, soft morning light, slow push-in. [+gaya]
+Overlay ID: "Harga naik terus. Saatnya ambil kendali."
+
+8) BERDUA / KELUARGA — "Atur bareng"   [screenshot: Dashboard]
+EN: An Indonesian young couple sit close on a sofa looking together at a
+finance app on one phone, discussing and nodding, warm intimate evening light,
+camera slowly pushes in on their faces then the screen. [+gaya]
+Overlay ID: "Atur keuangan bareng, masa depan tenang."
+
+------------------------------------------------------------
+STRUKTUR 1 IKLAN VIDEO (gabung klip):
+  [Hook 0-2s] scene 1 atau 4 + teks hook masalah
+  [Solusi 2-6s] scene 2 / 3 / 5 (app beraksi)
+  [After 6-9s] scene 6 + benefit
+  [CTA 9-12s] layar app + teks "Ambil Kendali Keuanganmu — Mulai Hari Ini"
+              + logo Finplan Sanka
+Musik: upbeat-calm, voiceover ID opsional (pakai caption ADS_BRIEF.txt).
+CTA button Meta: "Coba Sekarang" → https://digital-store-27.myscalev.com/landing-page-baru-8
+============================================================
