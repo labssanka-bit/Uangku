@@ -1,0 +1,86 @@
+============================================================
+ISI FORM META ADS — Kampanye "Gaji Hilang Misterius" (4 ads, berurutan)
+Field: Teks utama · Judul · Deskripsi · Ajakan bertindak
+Ajakan bertindak (semua ads): BELI SEKARANG
+Website URL (semua): https://digital-store-27.myscalev.com/landing-page-baru-8
+============================================================
+
+████ ADS 1 — Ads1_GajiNumpangLewat.png ████
+
+TEKS UTAMA:
+Gajian numpang lewat? Tanggal 15 udah bingung sisa berapa. 😮‍💨
+Tenang — bukan kamu yang boros. Kamu cuma belum punya alat buat lihat ke mana uangmu pergi.
+Finplan Sanka: catat 3 detik (foto struk/suara) & tahu sisa uang real-time, full Bahasa Indonesia.
+Sekali bayar Rp49.900, akses selamanya.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+JUDUL (opsi 1): Gaji Habis Sebelum Akhir Bulan?
+JUDUL (opsi 2): Tahu Sisa Uangmu Real-Time
+JUDUL (opsi 3): Catat Keuangan 3 Detik
+
+DESKRIPSI: Sekali bayar Rp49.900 — akses selamanya.
+AJAKAN BERTINDAK: Beli Sekarang
+
+
+████ ADS 2 — Ads2_NggakAdaSisa.png ████
+
+TEKS UTAMA:
+Punya pemasukan, tapi kok nggak pernah ada sisa? 🤔
+Masalahnya bukan penghasilan kecil — kamu cuma nggak tahu uang lari ke mana.
+Finplan Sanka kasih rekap per kategori otomatis + insight cerdas tiap bulan, jadi semuanya kelihatan jelas.
+Cuma Rp49.900, sekali bayar selamanya.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+JUDUL (opsi 1): Uangmu Lari ke Mana?
+JUDUL (opsi 2): Rekap Otomatis Tiap Kategori
+JUDUL (opsi 3): Biar Ada Sisa Tiap Bulan
+
+DESKRIPSI: Insight otomatis. Rp49.900 selamanya.
+AJAKAN BERTINDAK: Beli Sekarang
+
+
+████ ADS 3 — Ads3_Reframe.png (hook terkuat) ████
+
+TEKS UTAMA:
+Bukan gaji kecil. Kamu cuma nggak tahu uangnya ke mana.
+Kebocoran kecil tiap hari diam-diam numpuk jadi jutaan — dan selama ini nggak pernah kelihatan.
+Finplan Sanka bikin pola pengeluaranmu kelihatan, plus kasih tahu "uang aman harian" tiap hari.
+Sekali bayar Rp49.900, akses selamanya.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+JUDUL (opsi 1): Bukan Boros — Cuma Tak Terlihat
+JUDUL (opsi 2): Temukan Kebocoran Uangmu
+JUDUL (opsi 3): Tahu "Uang Aman Harian" Tiap Hari
+
+DESKRIPSI: Lihat pola pengeluaranmu. Sekali bayar.
+AJAKAN BERTINDAK: Beli Sekarang
+
+
+████ ADS 4 — CAROUSEL (5 kartu) ████
+
+TEKS UTAMA (satu untuk seluruh carousel):
+Ke mana uangmu bulan ini? 🤔
+Coba hitung: kopi 25rb, ongkir 10rb, jajan 15rb… kelihatan receh, tapi sebulan bisa Rp1,2 juta lenyap tanpa terasa.
+Geser → kami tunjukkan KENAPA ini terjadi, dan cara paling simpel buat berhenti "kehilangan" uang tiap bulan.
+Bukan soal boros — kamu cuma belum punya alat buat lihat polanya. Finplan Sanka bikin semuanya kelihatan.
+Sekali bayar Rp49.900 — akses selamanya, tanpa langganan.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+AJAKAN BERTINDAK: Beli Sekarang
+
+JUDUL & DESKRIPSI PER KARTU (kalau Meta minta per kartu; semua link ke checkout):
+  Kartu 1 (Hook)     Judul: Ke Mana Uangmu Bulan Ini?     Deskripsi: Geser, coba hitung →
+  Kartu 2 (Agitasi)  Judul: Yang Receh Itu Numpuk          Deskripsi: Rp1,2 juta lenyap/bulan
+  Kartu 3 (Reframe)  Judul: Bukan Boros — Tak Terlihat     Deskripsi: Yang tak terukur tak terkendali
+  Kartu 4 (Solusi)   Judul: Bikin Semuanya Kelihatan       Deskripsi: Catat · Rekap · Insight
+  Kartu 5 (Offer)    Judul: Rp49.900 — Akses Selamanya     Deskripsi: Tanpa langganan. Mulai hari ini.
+
+(Kalau cuma boleh 1 judul carousel → pakai "Ke Mana Uangmu Bulan Ini?")
+
+============================================================
+CATATAN:
+- "Tambahkan opsi judul" di Meta → masukkan ketiga opsi judul; Meta auto-pilih yang
+  paling perform.
+- "Tambahkan opsi teks" → bisa juga masukkan variasi teks utama bila mau di-tes.
+- Gambar: ads/campaign/out/ (Ads1..3 + Carousel_1..5 untuk kartu carousel).
+============================================================
