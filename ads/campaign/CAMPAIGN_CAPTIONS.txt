@@ -1,0 +1,59 @@
+============================================================
+KAMPANYE "GAJI HILANG MISTERIUS" — Finplan Sanka
+Cold audience · angle: pindahkan rasa bersalah → "kamu cuma belum punya alat".
+Kreatif: ads/campaign/out/ (3 statis + carousel 5 kartu). 1080x1350.
+CTA button Meta (semua): "Coba Sekarang" / "Beli Sekarang"
+Website URL: https://digital-store-27.myscalev.com/landing-page-baru-8
+============================================================
+
+=== PRIMARY TEXT (CAPTION) ===
+
+— ADS 1 · Ads1_GajiNumpangLewat.png —
+Gajian numpang lewat? Tanggal 15 udah bingung sisa berapa. 😮‍💨
+Tenang — bukan kamu yang boros. Kamu cuma belum punya alat buat lihat ke mana
+uangmu pergi. Finplan Sanka: catat 3 detik (foto struk/suara) & tahu sisa uang
+real-time, full Bahasa Indonesia.
+Sekali bayar Rp49.900, akses selamanya.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+— ADS 2 · Ads2_NggakAdaSisa.png —
+Punya pemasukan, tapi kok nggak pernah ada sisa? 🤔
+Masalahnya bukan penghasilan kecil — kamu cuma nggak tahu uang lari ke mana.
+Finplan Sanka kasih rekap per kategori otomatis + insight cerdas tiap bulan,
+jadi semuanya kelihatan jelas.
+Cuma Rp49.900, sekali bayar selamanya.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+— ADS 3 · Ads3_Reframe.png (hook terkuat) —
+Bukan gaji kecil. Kamu cuma nggak tahu uangnya ke mana.
+Kebocoran kecil tiap hari diam-diam numpuk jadi jutaan — dan selama ini nggak
+pernah kelihatan. Finplan Sanka bikin pola pengeluaranmu kelihatan, plus kasih
+tahu "uang aman harian" tiap hari.
+Sekali bayar Rp49.900, akses selamanya.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+— CAROUSEL (SATU primary text) · Carousel_1..5 —
+Ke mana uangmu bulan ini? 🤔
+Coba hitung: kopi 25rb, ongkir 10rb, jajan 15rb… kelihatan receh, tapi sebulan
+bisa Rp1,2 juta lenyap tanpa terasa.
+Geser → kami tunjukkan KENAPA ini terjadi, dan cara paling simpel buat berhenti
+"kehilangan" uang tiap bulan.
+Intinya: bukan soal boros — kamu cuma belum punya alat buat lihat polanya.
+Finplan Sanka bikin semuanya kelihatan: catat 3 detik, rekap per kategori,
+insight otomatis, tahu "uang aman harian" tiap hari.
+Sekali bayar Rp49.900 — akses selamanya, tanpa langganan.
+👉 Ambil kendali keuanganmu — mulai hari ini.
+
+============================================================
+URUTAN KARTU CAROUSEL (jangan diacak):
+  1 Hook (penasaran) → 2 Agitasi (receh numpuk) → 3 Reframe (bukan boros) →
+  4 Solusi (produk) → 5 Penawaran (Rp49.900 + CTA)
+
+TARGETING awal (budget < Rp500rb): Indonesia kota besar, usia 22–40,
+minat keuangan pribadi/menabung/budgeting/e-wallet. Placement Advantage+.
+Uji ketiga statis + carousel di 1 campaign (CBO) atau 4 ad-set kecil;
+matikan yang CTR rendah setelah ~3 hari, scale pemenang.
+
+REGEN: node gen_campaign.cjs  ·  ganti copy = edit array JOBS/CARDS.
+Ganti foto = timpa ads/campaign/photos/*.png (Higgsfield 4:5) lalu regen.
+============================================================
