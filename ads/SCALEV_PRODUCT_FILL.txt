@@ -1,0 +1,85 @@
+============================================================
+ISI FORM PRODUK SCALEV — Finplan Sanka
+============================================================
+
+PUBLIC NAME (Product Page):
+Finplan Sanka — Aplikasi Catatan Keuangan Pribadi
+(punyamu "Finplan - Financial Reporting By Sanka" juga boleh; yg di atas lebih jelas utk awam)
+
+KATEGORI: Financial, Tax & Accounting ✓ (sudah benar)
+TIPE: Digital ✓
+
+------------------------------------------------------------
+DESCRIPTION (tempel ke editor; pakai bold/bullet sesuai toolbar):
+
+Finplan Sanka — catat, atur, & tumbuhkan uangmu. Simpel, di HP & laptop, full Bahasa Indonesia.
+
+Capek tiap akhir bulan bertanya "kok uangku habis ya?" Masalahnya bukan kamu boros — kamu cuma belum punya alat untuk melihat ke mana uangmu pergi. Finplan Sanka membuat semuanya kelihatan jelas.
+
+✅ Yang kamu dapat:
+• Catat transaksi 3 detik — ketik, foto struk (AI), atau suara
+• Dompet & Tabungan — pisahkan uang harian & tabungan, nabung 1 tap
+• Hutang & Piutang — catat, cicil, jatuh tempo, anti lupa
+• Aset & Emas — pantau emas (per gram) & saham (per lot), harga terkini otomatis
+• Rekap per kategori + Insight cerdas — "uang aman harian", pengeluaran naik/turun
+• Grafik, anggaran, kalender pengeluaran — kondisi keuangan kelihatan sekejap
+• 17 tema warna + mode gelap + mode privasi
+
+💡 Kenapa Finplan Sanka:
+• Web-app — buka link, langsung pakai. Tanpa install ribet.
+• Bisa "Add to Homescreen" → terasa seperti aplikasi beneran
+• Data pribadi aman, tiap akun terpisah
+
+💰 Harga: Sekali bayar Rp49.900 — AKSES SELAMANYA. Tanpa langganan.
+
+🔑 Cara aktivasi: setelah pembayaran, kamu menerima KODE AKSES + link aplikasi. Buka finplansanka.com → Daftar → masukkan kode → langsung aktif.
+
+------------------------------------------------------------
+SHORT DESCRIPTION:
+Aplikasi catatan keuangan pribadi yang simpel — catat, atur & tumbuhkan uangmu. Sekali bayar Rp49.900, akses selamanya. HP & laptop, full Bahasa Indonesia.
+
+------------------------------------------------------------
+BENEFIT:
+• File/Links: ON ✓  (ini kanal kirim ke pembeli setelah bayar)
+• LMS: OFF
+
+============================================================
+CARA KIRIM KODE UNIK  (PENTING — baca)
+============================================================
+Fitur "File/Links" Scalev mengirim konten yang SAMA ke SEMUA pembeli.
+Jadi kode UNIK per pembeli TIDAK bisa otomatis dari sini.
+
+>>> CARA DIPAKAI (manual unik — paling aman, cocok utk batch awal):
+
+1) Di kolom File/Links (konten yang diterima SEMUA pembeli), isi PANDUAN +
+   pemberitahuan bahwa kode dikirim manual:
+
+----- ISI FILE/LINKS -----
+Terima kasih sudah membeli Finplan Sanka! 🎉
+
+Aplikasi: https://finplansanka.com
+
+KODE AKSES kamu kami kirim manual via WhatsApp/chat maksimal 1×24 jam setelah
+pembayaran terverifikasi (biasanya jauh lebih cepat).
+
+Cara aktivasi begitu kode diterima:
+1. Buka https://finplansanka.com
+2. Klik "Daftar"
+3. Masukkan KODE AKSES + email & password kamu
+4. Selesai — aktif di HP & laptop, selamanya!
+
+Butuh bantuan? Balas chat ini atau klik tombol "Bantuan" di dalam aplikasi.
+---------------------------
+
+2) Tiap ada order LUNAS → buka daftar 30 kode (SCALEV_SETUP.txt bagian D) →
+   kirim 1 kode ke nomor WA pembeli → coret kode itu biar tak dobel.
+
+>>> ALTERNATIF OTOMATIS (kalau mau tanpa kirim manual):
+   - Taruh SATU kode "bersama" langsung di File/Links (semua pembeli dapat kode
+     sama). Aku set kode itu boleh dipakai N kali (mis. 50). Praktis TAPI rawan
+     disebar (1 orang share → banyak yg pakai gratis). Tidak disarankan utk jualan.
+   - Atau hubungkan Scalev → Google Sheet kode via Zapier/Make (auto kirim unik).
+     Lebih ribet; bisa dibahas nanti kalau order sudah ramai.
+
+REKOMENDASI: mulai MANUAL (batch 30). Aku pantau stok/terpakai dari DB kapan saja.
+============================================================
