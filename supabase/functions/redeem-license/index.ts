@@ -21,7 +21,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
     const { code, email, password, full_name } = await req.json()
-    const kode = String(code ?? '').trim()
+    const kode = String(code ?? '').trim().toUpperCase()
     const mail = String(email ?? '').trim().toLowerCase()
     if (!kode) return json({ error: 'Kode akses wajib diisi.' }, 400)
     if (!mail || !mail.includes('@')) return json({ error: 'Email tidak valid.' }, 400)
