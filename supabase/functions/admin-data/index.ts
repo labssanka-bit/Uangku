@@ -36,7 +36,7 @@ serve(async (req) => {
     const { data: prof } = await admin.from('profiles').select('is_admin').eq('id', ures.user.id).single()
     if (!prof?.is_admin) return json({ error: 'Khusus admin.' }, 403)
 
-    const { action, count } = await req.json().catch(() => ({ action: 'overview' }))
+    const { action, count, userId } = await req.json().catch(() => ({ action: 'overview' }))
 
     if (action === 'gen') {
       const n = Math.min(Math.max(parseInt(String(count)) || 0, 1), 200)
@@ -49,14 +49,28 @@ serve(async (req) => {
       return json({ generated: data?.map((r: { code: string }) => r.code) ?? [] })
     }
 
+    if (action === 'delete') {
+      const uid = String(userId || '')
+      if (!uid) return json({ error: 'userId wajib.' }, 400)
+      if (uid === ures.user.id) return json({ error: 'Tidak bisa menghapus akun admin yang sedang login.' }, 400)
+      const { error } = await admin.auth.admin.deleteUser(uid)
+      if (error) return json({ error: error.message }, 500)
+      // Bebaskan tautan kode (kode tetap terpakai/ tercatat email-nya)
+      await admin.from('license_keys').update({ used_by: null }).eq('used_by', uid)
+      return json({ ok: true })
+    }
+
     // overview
     const { data: codes } = await admin
       .from('license_keys')
-      .select('code, uses, max_uses, note, created_at, last_used_at')
+      .select('code, uses, max_uses, note, created_at, last_used_at, used_by, used_email')
       .order('created_at', { ascending: false })
     const total = codes?.length ?? 0
     const used = (codes ?? []).filter((c: { uses: number; max_uses: number }) => c.uses >= c.max_uses).length
     const unused = (codes ?? []).filter((c: { uses: number; max_uses: number }) => c.uses < c.max_uses)
+    // map user → kode yang dipakai
+    const codeByUser = new Map<string, string>()
+    for (const c of codes ?? []) if (c.used_by) codeByUser.set(c.used_by, c.code)
 
     const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 })
     const { data: profs } = await admin.from('profiles').select('id, full_name, is_admin')
@@ -66,6 +80,7 @@ serve(async (req) => {
       email: u.email,
       full_name: pmap.get(u.id)?.full_name ?? (u.user_metadata?.full_name ?? ''),
       is_admin: pmap.get(u.id)?.is_admin ?? false,
+      code: codeByUser.get(u.id) ?? null,
       created_at: u.created_at,
       last_sign_in_at: u.last_sign_in_at,
     }))

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw } from 'lucide-react'
+import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2 } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { useProfile } from '@/hooks/useProfile'
-import { useAdminOverview, useGenerateCodes } from '@/hooks/useAdminData'
+import { useAdminOverview, useGenerateCodes, useDeleteUser } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
@@ -54,26 +54,48 @@ export function Admin() {
 
 function UsersTab() {
   const { data, isLoading, error } = useAdminOverview(true)
+  const del = useDeleteUser()
   if (isLoading) return <Loading />
   if (error) return <ErrMsg msg={(error as Error).message} />
   const users = data?.users ?? []
+
+  async function hapus(id: string, nama: string) {
+    if (!confirm(`Hapus akun "${nama}"? Semua data (transaksi, dompet, dll) ikut terhapus permanen. Tindakan ini tidak bisa dibatalkan.`)) return
+    try { await del.mutateAsync(id) } catch (e) { alert((e as Error).message) }
+  }
+
   return (
     <>
       <p className="mb-3 text-sm text-gray-400">{users.length} pengguna terdaftar</p>
       <div className="space-y-2">
         {users.map((u) => (
           <Card key={u.id} className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-maroon-100 font-bold text-maroon-700 dark:bg-maroon-500/20">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-maroon-100 font-bold text-maroon-700 dark:bg-maroon-500/20">
               {(u.full_name || u.email || '?').charAt(0).toUpperCase()}
             </span>
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 truncate font-semibold">
                 {u.full_name || 'Pengguna'}
-                {u.is_admin && <ShieldCheck size={14} className="text-sage-600" />}
+                {u.is_admin && <ShieldCheck size={14} className="shrink-0 text-sage-600" />}
               </p>
               <p className="truncate text-xs text-gray-400">{u.email}</p>
+              <p className="mt-0.5 text-[11px]">
+                {u.code
+                  ? <span className="nums rounded bg-dusty-100 px-1.5 py-0.5 font-semibold tracking-wider text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200">🔑 {u.code}</span>
+                  : <span className="text-gray-400">{u.is_admin ? 'admin (tanpa kode)' : 'tanpa kode'}</span>}
+                <span className="ml-2 text-gray-400">{formatTanggal(u.created_at)}</span>
+              </p>
             </div>
-            <span className="shrink-0 text-[11px] text-gray-400">{formatTanggal(u.created_at)}</span>
+            {!u.is_admin && (
+              <button
+                onClick={() => hapus(u.id, u.full_name || u.email || 'Pengguna')}
+                disabled={del.isPending}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-wine-50 text-wine-500 disabled:opacity-50 dark:bg-wine-500/10"
+                aria-label="Hapus akun"
+              >
+                {del.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+              </button>
+            )}
           </Card>
         ))}
       </div>

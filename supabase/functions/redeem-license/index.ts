@@ -39,7 +39,7 @@ serve(async (req) => {
     if (!ok) return json({ error: 'Kode akses tidak valid atau sudah terpakai.' }, 400)
 
     // 2) Buat akun (langsung terkonfirmasi → bisa login tanpa email)
-    const { error: cErr } = await admin.auth.admin.createUser({
+    const { data: created, error: cErr } = await admin.auth.admin.createUser({
       email: mail,
       password,
       email_confirm: true,
@@ -53,6 +53,9 @@ serve(async (req) => {
         : cErr.message
       return json({ error: msg }, 400)
     }
+
+    // 3) Catat pemilik kode (utk panel admin)
+    await admin.from('license_keys').update({ used_by: created.user?.id, used_email: mail }).eq('code', kode)
 
     return json({ ok: true })
   } catch (e) {

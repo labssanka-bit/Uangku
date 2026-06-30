@@ -14,6 +14,7 @@ export interface AdminUser {
   email: string | null
   full_name: string
   is_admin: boolean
+  code: string | null
   created_at: string
   last_sign_in_at: string | null
 }
@@ -50,6 +51,14 @@ export function useGenerateCodes() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (count: number) => callAdmin<{ generated: string[] }>({ action: 'gen', count }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
+  })
+}
+
+export function useDeleteUser() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: string) => callAdmin<{ ok: boolean }>({ action: 'delete', userId }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
   })
 }
