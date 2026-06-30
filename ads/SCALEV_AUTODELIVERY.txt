@@ -1,0 +1,53 @@
+============================================================
+PESAN OTOMATIS SETELAH BAYAR — Finplan Sanka
+============================================================
+
+FAKTA:
+- Scalev BISA kirim pesan otomatis begitu order LUNAS (File/Links + follow-up
+  WA/Email). Konten ini SAMA untuk semua pembeli.
+- Jadi "ucapan + link app + panduan" = OTOMATIS. ✅
+- Yang TIDAK bisa otomatis-unik dari File/Links = KODE UNIK per orang
+  (karena kontennya sama untuk semua).
+
+────────────────────────────────────────
+JALUR 1 — OTOMATIS SEKARANG (0 koding) ⭐ rekomendasi untuk mulai
+Pesan welcome + link OTOMATIS, kode dikirim manual (cepat, batch awal kecil):
+
+1. Scalev → produk → File/Links (sudah ON) → isi:
+   ---------------------------------------------
+   Terima kasih sudah membeli Finplan Sanka! 🎉
+   Aplikasi: https://finplansanka.com
+   KODE AKSES kamu akan dikirim via WhatsApp maksimal beberapa menit setelah ini.
+   Cara aktivasi: buka finplansanka.com → Daftar → masukkan Kode Akses + email & password → selesai, selamanya!
+   ---------------------------------------------
+2. Aktifkan juga "Follow up / Notifikasi WhatsApp otomatis" di Scalev (kalau ada)
+   → pembeli langsung dapat pesan ini begitu bayar.
+3. Tiap order masuk → buka Panel Admin app → tab Kode → salin 1 kode → kirim ke
+   WA pembeli. (Karena auto-message sudah jalan, kamu cuma tinggal kirim kodenya.)
+
+────────────────────────────────────────
+JALUR 2 — OTOMATIS PENUH lewat Scalev native (kalau fitur ada)
+Cek Scalev: Produk digital → ada opsi "Kode Unik / Lisensi / Voucher / Stok kode"?
+- KALAU ADA → tempel 30 kode (1/baris). Scalev auto-kirim 1 kode unik tiap order.
+  100% otomatis, 0 koding. (Cek menu produk; kirim screenshot kalau ragu.)
+
+────────────────────────────────────────
+JALUR 3 — OTOMATIS PENUH lewat WEBHOOK (aku bangun) 🤖
+Kalau Scalev punya Webhook / Integrasi / Zapier-Make pada event "order paid":
+  Scalev (order lunas) → kirim data pembeli (email/no HP) → Edge Function kita
+  → ambil 1 kode unused dari DB (atomik) → kirim kode ke pembeli via:
+     • Email (Resend) — butuh RESEND_API_KEY, atau
+     • WhatsApp (Fonnte/Wablas) — butuh token API WA
+  → tandai kode terpakai + tercatat pemiliknya.
+
+Yang aku butuhkan untuk bangun Jalur 3:
+  1. Konfirmasi Scalev punya Webhook/Zapier (screenshot menu Integrasi/Otomasi).
+  2. Pilih kanal kirim: Email (Resend) atau WhatsApp (Fonnte).
+  3. Kasih API key kanal itu (Resend API key / token Fonnte).
+Setelah itu aku buatkan endpoint-nya, kode terkirim 100% otomatis tanpa kamu sentuh.
+
+────────────────────────────────────────
+REKOMENDASI:
+- Mulai JALUR 1 sekarang (auto-message jalan, kode manual) → bisa langsung jualan.
+- Begitu order ramai → naik ke JALUR 2 (kalau Scalev support) atau JALUR 3 (webhook).
+============================================================
