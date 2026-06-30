@@ -7,8 +7,8 @@ import { useAdminConversations, useChatMessages, useChatMutations } from '@/hook
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 
-/** Halaman admin: daftar percakapan support + balas. Hanya untuk is_admin. */
-export function AdminChat() {
+/** Daftar percakapan support + balas. Hanya untuk is_admin. */
+export function AdminChat({ embedded = false }: { embedded?: boolean }) {
   const { data: profile } = useProfile()
   const [sel, setSel] = useState<{ id: string; name: string } | null>(null)
   const { data: convos = [] } = useAdminConversations(!!profile?.is_admin)
@@ -25,7 +25,7 @@ export function AdminChat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel?.id, msgs.length])
 
-  if (profile && !profile.is_admin) {
+  if (profile && !profile.is_admin && !embedded) {
     return (
       <div className="px-4 pt-5">
         <PageHeader title="Admin" />
@@ -79,8 +79,8 @@ export function AdminChat() {
 
   // Daftar percakapan
   return (
-    <div className="px-4 pt-5">
-      <PageHeader title="Chat Support (Admin)" />
+    <div className={embedded ? '' : 'px-4 pt-5'}>
+      {!embedded && <PageHeader title="Chat Support (Admin)" />}
       {convos.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-16 text-center text-gray-400">
           <Inbox size={32} /><p className="text-sm">Belum ada percakapan masuk.</p>

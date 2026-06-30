@@ -79,7 +79,7 @@ export function Sidebar({ onAdd }: Props) {
               )
             }
           >
-            <Headset size={19} /> Chat Support
+            <Headset size={19} /> Panel Admin
           </NavLink>
         )}
       </nav>

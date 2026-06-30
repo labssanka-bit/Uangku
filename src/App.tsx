@@ -19,7 +19,7 @@ import { Settings } from '@/pages/Settings'
 import { Wallets } from '@/pages/Wallets'
 import { Debts } from '@/pages/Debts'
 import { Assets } from '@/pages/Assets'
-import { AdminChat } from '@/pages/AdminChat'
+import { Admin } from '@/pages/Admin'
 import { SupportChat } from '@/components/SupportChat'
 
 export default function App() {
@@ -81,7 +81,7 @@ export default function App() {
           <Route path="/dompet" element={<Wallets />} />
           <Route path="/hutang" element={<Debts />} />
           <Route path="/aset" element={<Assets />} />
-          <Route path="/admin" element={<AdminChat />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/setting" element={<Settings />} />
         </Routes>
       </main>

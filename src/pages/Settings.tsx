@@ -140,7 +140,7 @@ export function Settings() {
       {/* Admin (hanya untuk akun admin) */}
       {profile?.is_admin && (
         <Card className="mb-4 p-0">
-          <Row icon={Headset} label="Chat Support (Admin)" onClick={() => nav('/admin')} right={<ChevronRight size={18} className="text-gray-300" />} />
+          <Row icon={Headset} label="Panel Admin" onClick={() => nav('/admin')} right={<ChevronRight size={18} className="text-gray-300" />} />
         </Card>
       )}
 
