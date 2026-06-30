@@ -1,0 +1,94 @@
+============================================================
+SETUP PRODUK FINPLAN SANKA DI SCALEV + 30 KODE AKSES
+============================================================
+
+A. NARUH PRODUK DI SCALEV (bukan cuma link)
+Link landing-page-baru-8 itu = halaman LANDING/CHECKOUT. Tetap perlu produk + setting:
+
+1. Buat Produk
+   Scalev → Produk → Tambah Produk
+   - Nama   : Finplan Sanka — Aplikasi Catatan Keuangan
+   - Harga  : 49.900
+   - Tipe   : Digital / Non-fisik (tanpa ongkir/kurir)
+   - Foto   : pakai logo / 1 kreatif
+   - Stok   : 30 (atau sesuai jumlah kode) — biar habis = order ditutup
+
+2. Hubungkan ke halaman checkout
+   - Pastikan landing-page-baru-8 terhubung ke produk ini + ada tombol "Pesan/Beli"
+     yang mengarah ke form checkout (nama, no HP, email, pembayaran).
+
+3. Pembayaran (WAJIB biar uang masuk otomatis)
+   Scalev → Pembayaran → aktifkan: Transfer Bank / QRIS / Payment Gateway.
+   Digital → pilih BAYAR DI MUKA (bukan COD). COD tidak cocok utk produk digital.
+
+4. Fulfillment = DIGITAL (kirim kode, bukan kurir)
+   Set pengiriman = digital / tanpa pengiriman fisik.
+
+5. Pesan setelah bayar (delivery) → lihat bagian C.
+
+------------------------------------------------------------
+B. MEMASUKKAN 30 KODE UNIK
+
+Cek dulu di Scalev apakah ADA fitur "produk digital dengan stok kode/lisensi/voucher unik":
+  Produk → (Digital / Lisensi / Kode Unik / Voucher) → tempel daftar kode (1 per baris).
+  Kalau ADA → tiap order otomatis dapat 1 kode berbeda. PALING IDEAL.
+
+KALAU TIDAK ADA fitur itu (paling umum) → pakai cara MANUAL (cocok utk batch awal):
+  1. Simpan daftar 30 kode (bawah) di Google Sheet / catatan.
+  2. Tiap ada order LUNAS (notif Scalev/WA), kirim 1 kode ke pembeli (template C).
+  3. Coret/centang kode yang sudah dikirim biar tak dobel.
+  (Volume awal kecil "27 pertama" → manual aman & cepat.)
+
+CEK KODE TERPAKAI kapan saja: minta aku query DB (license_keys) — yang sudah
+dipakai pembeli otomatis tercatat (uses bertambah). Stok menipis → minta aku
+generate batch baru.
+
+------------------------------------------------------------
+C. PESAN SETELAH BAYAR (tempel di "pesan setelah order" Scalev / kirim WA)
+
+Terima kasih sudah membeli Finplan Sanka! 🎉
+
+KODE AKSES kamu: [TEMPEL_SATU_KODE]
+
+Cara aktivasi (2 menit):
+1. Buka https://finplansanka.com
+2. Klik "Daftar"
+3. Masukkan KODE AKSES di atas + email & password kamu
+4. Selesai! Akun langsung aktif — bisa dipakai di HP & laptop, selamanya.
+
+Butuh bantuan? Balas pesan ini atau klik tombol "Bantuan" di dalam aplikasi.
+— Tim Finplan Sanka
+
+------------------------------------------------------------
+D. 30 KODE AKSES (semua belum terpakai)
+FS-02B6-854F
+FS-03F0-590B
+FS-0A23-DD9C
+FS-105F-2110
+FS-17D5-EA6D
+FS-211E-9FC9
+FS-24FA-5B6F
+FS-29CC-781B
+FS-417E-CD0C
+FS-4597-E190
+FS-59A7-EEB5
+FS-64C4-209D
+FS-6C3B-E7CA
+FS-7097-4B06
+FS-7BDE-4E04
+FS-7E45-5F87
+FS-7EFA-A0CC
+FS-8811-E60F
+FS-9642-A1B9
+FS-A0B2-A60F
+FS-A69B-0F9E
+FS-AEB0-22A4
+FS-B6E4-FE00
+FS-BC8C-AEBF
+FS-C376-9398
+FS-DBA8-0028
+FS-DFF8-4F9E
+FS-E8A3-2FDC
+FS-F621-710F
+FS-FC6E-4C25
+============================================================
