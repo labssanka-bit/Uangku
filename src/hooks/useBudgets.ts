@@ -75,5 +75,21 @@ export function useBudgetMutations() {
     onSuccess: invalidate,
   })
 
-  return { save, remove }
+  /** Hapus anggaran khusus 1 bulan (override) utk kategori → balik ke template tiap-bulan. */
+  const removeOverride = useMutation({
+    mutationFn: async ({ category_id, month, year }: { category_id: string; month: number; year: number }) => {
+      if (isDemo()) return demoBlock()
+      const { error } = await supabase
+        .from('budgets')
+        .delete()
+        .eq('user_id', user!.id)
+        .eq('category_id', category_id)
+        .eq('month', month)
+        .eq('year', year)
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+
+  return { save, remove, removeOverride }
 }
