@@ -20,13 +20,14 @@ import { Wallets } from '@/pages/Wallets'
 import { Debts } from '@/pages/Debts'
 import { Assets } from '@/pages/Assets'
 import { Admin } from '@/pages/Admin'
+import { ResetPassword } from '@/pages/ResetPassword'
 import { SupportChat } from '@/components/SupportChat'
 
 export default function App() {
   const dark = useUIStore((s) => s.dark)
   const theme = useUIStore((s) => s.theme)
   const { addOpen, addPreset, openAdd, closeAdd } = useUIStore()
-  const { session, loading } = useAuth()
+  const { session, loading, recovery } = useAuth()
 
   // Auto-post transaksi berulang yang jatuh tempo (sekali per sesi)
   useAutoPostRecurring()
@@ -48,6 +49,9 @@ export default function App() {
       </div>
     )
   }
+
+  // Klik link reset password dari email → set password baru
+  if (recovery) return <ResetPassword />
 
   if (!session) return <Login />
 

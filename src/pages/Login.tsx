@@ -3,9 +3,9 @@ import { supabase } from '@/lib/supabase'
 import { enterDemo } from '@/lib/demo'
 import { redeemLicense } from '@/lib/license'
 
-/** Halaman login / daftar sederhana via email + password (Supabase Auth). */
+/** Halaman login / daftar / lupa password via Supabase Auth. */
 export function Login() {
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -23,6 +23,14 @@ export function Login() {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
+      } else if (mode === 'forgot') {
+        // Kirim email berisi link reset password (buka app dgn event PASSWORD_RECOVERY)
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: window.location.origin,
+        })
+        if (error) throw error
+        setOk(true)
+        setMsg('Link reset password sudah dikirim ke emailmu. Cek inbox / folder spam, lalu klik link-nya untuk buat password baru.')
       } else {
         // Daftar wajib pakai kode akses (dari pembelian) → buat akun lalu login otomatis
         await redeemLicense({ code: code.trim(), email, password, full_name: fullName })
@@ -50,6 +58,13 @@ export function Login() {
         <p className="mb-3 rounded-2xl bg-maroon-50 px-4 py-3 text-center text-xs text-maroon-700 dark:bg-maroon-500/10 dark:text-dusty-200">
           🔑 Daftar butuh <b>Kode Akses</b> dari pembelian. Belum punya?{' '}
           <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" target="_blank" rel="noreferrer" className="font-bold underline">Beli di sini</a>.
+        </p>
+      )}
+
+      {mode === 'forgot' && (
+        <p className="mb-3 rounded-2xl bg-maroon-50 px-4 py-3 text-center text-xs text-maroon-700 dark:bg-maroon-500/10 dark:text-dusty-200">
+          🔒 Masukkan email akunmu. Kami kirim <b>link</b> untuk membuat password baru
+          (demi keamanan, password lama tidak bisa ditampilkan).
         </p>
       )}
 
@@ -82,15 +97,27 @@ export function Login() {
           required
           className="w-full rounded-2xl bg-white px-4 py-3 text-sm shadow-card outline-none dark:bg-gray-900"
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={6}
-          className="w-full rounded-2xl bg-white px-4 py-3 text-sm shadow-card outline-none dark:bg-gray-900"
-        />
+        {mode !== 'forgot' && (
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full rounded-2xl bg-white px-4 py-3 text-sm shadow-card outline-none dark:bg-gray-900"
+          />
+        )}
+
+        {mode === 'login' && (
+          <button
+            type="button"
+            onClick={() => { setMode('forgot'); setMsg(null); setOk(false) }}
+            className="block w-full text-right text-xs font-semibold text-maroon-700 dark:text-dusty-200"
+          >
+            Lupa password?
+          </button>
+        )}
 
         {msg && <p className={`text-center text-xs ${ok ? 'text-sage-600' : 'text-wine-500'}`}>{msg}</p>}
 
@@ -99,33 +126,44 @@ export function Login() {
           disabled={loading}
           className="w-full rounded-2xl bg-maroon-700 py-3 text-base font-bold text-white shadow-soft disabled:opacity-50"
         >
-          {loading ? 'Memproses…' : mode === 'login' ? 'Masuk' : 'Daftar'}
+          {loading ? 'Memproses…' : mode === 'login' ? 'Masuk' : mode === 'forgot' ? 'Kirim Link Reset' : 'Daftar'}
         </button>
       </form>
 
-      {/* Coba tanpa daftar */}
-      <div className="my-4 flex items-center gap-3 text-xs text-gray-400">
-        <span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />atau<span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
-      </div>
-      <button
-        onClick={() => { enterDemo(); window.location.href = '/' }}
-        className="w-full rounded-2xl border border-maroon-200 bg-white py-3 text-base font-bold text-maroon-700 shadow-card dark:border-maroon-700/40 dark:bg-gray-900 dark:text-dusty-200"
-      >
-        👀 Coba Demo dulu (tanpa daftar)
-      </button>
+      {mode === 'forgot' ? (
+        <button
+          onClick={() => { setMode('login'); setMsg(null); setOk(false) }}
+          className="mt-4 text-center text-sm text-gray-500"
+        >
+          ← Kembali ke <span className="font-semibold text-maroon-700">Masuk</span>
+        </button>
+      ) : (
+        <>
+          {/* Coba tanpa daftar */}
+          <div className="my-4 flex items-center gap-3 text-xs text-gray-400">
+            <span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />atau<span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
+          </div>
+          <button
+            onClick={() => { enterDemo(); window.location.href = '/' }}
+            className="w-full rounded-2xl border border-maroon-200 bg-white py-3 text-base font-bold text-maroon-700 shadow-card dark:border-maroon-700/40 dark:bg-gray-900 dark:text-dusty-200"
+          >
+            👀 Coba Demo dulu (tanpa daftar)
+          </button>
 
-      <button
-        onClick={() => {
-          setMode((m) => (m === 'login' ? 'signup' : 'login'))
-          setMsg(null)
-        }}
-        className="mt-4 text-center text-sm text-gray-500"
-      >
-        {mode === 'login' ? 'Belum punya akun? ' : 'Sudah punya akun? '}
-        <span className="font-semibold text-maroon-700">
-          {mode === 'login' ? 'Daftar' : 'Masuk'}
-        </span>
-      </button>
+          <button
+            onClick={() => {
+              setMode((m) => (m === 'login' ? 'signup' : 'login'))
+              setMsg(null)
+            }}
+            className="mt-4 text-center text-sm text-gray-500"
+          >
+            {mode === 'login' ? 'Belum punya akun? ' : 'Sudah punya akun? '}
+            <span className="font-semibold text-maroon-700">
+              {mode === 'login' ? 'Daftar' : 'Masuk'}
+            </span>
+          </button>
+        </>
+      )}
     </div>
   )
 }
