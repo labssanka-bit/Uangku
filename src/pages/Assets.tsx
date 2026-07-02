@@ -68,12 +68,28 @@ export function Assets() {
   const totalAsset = useMemo(() => assets.reduce((a, x) => a + x.current_value, 0), [assets])
   const netWorth = walletTotal + totalAsset
 
-  // Rekap emas
-  const goldAssets = useMemo(() => assets.filter((a) => a.type === 'emas'), [assets])
-  const goldTotalGrams = useMemo(() => goldAssets.reduce((s, a) => s + a.quantity, 0), [goldAssets])
-  const goldTotalBuy = useMemo(() => goldAssets.reduce((s, a) => s + a.buy_price, 0), [goldAssets])
-  const goldTotalNow = useMemo(() => goldAssets.reduce((s, a) => s + a.current_value, 0), [goldAssets])
-  const goldProfit = goldTotalNow - goldTotalBuy
+  // Filter kategori + rekap per kategori
+  const [filter, setFilter] = useState<'semua' | AssetType>('semua')
+  const TYPE_ORDER: AssetType[] = ['emas', 'saham', 'reksadana', 'properti', 'lainnya']
+  const groups = useMemo(() => {
+    return TYPE_ORDER
+      .map((t) => {
+        const items = assets.filter((a) => a.type === t)
+        if (items.length === 0) return null
+        const qty = items.reduce((s, a) => s + a.quantity, 0)
+        const buy = items.reduce((s, a) => s + a.buy_price, 0)
+        const now = items.reduce((s, a) => s + a.current_value, 0)
+        return { type: t, meta: TYPE_META[t], items, qty, buy, now, profit: now - buy }
+      })
+      .filter(Boolean) as { type: AssetType; meta: (typeof TYPE_META)[AssetType]; items: Asset[]; qty: number; buy: number; now: number; profit: number }[]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assets])
+
+  // Reset filter kalau kategori terpilih sudah tak punya aset
+  const filterExists = filter === 'semua' || groups.some((g) => g.type === filter)
+  const activeFilter = filterExists ? filter : 'semua'
+  const visibleGroups = activeFilter === 'semua' ? groups : groups.filter((g) => g.type === activeFilter)
+  const visibleAssets = activeFilter === 'semua' ? assets : assets.filter((a) => a.type === activeFilter)
 
   const isGold = type === 'emas'
   const isSaham = type === 'saham'
@@ -190,37 +206,59 @@ export function Assets() {
         </div>
       </div>
 
-      {/* Rekap emas (hanya tampil jika ada) */}
-      {goldAssets.length > 0 && (
-        <div className="mb-4 rounded-2xl bg-amber-50 p-4 dark:bg-amber-500/10">
-          <div className="mb-2 flex items-center gap-2">
-            <Gem size={16} className="text-amber-500" />
-            <span className="text-sm font-bold text-amber-700 dark:text-amber-400">Rekap Emas</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div>
-              <p className="text-gray-400">Total Gram</p>
-              <p className="nums font-bold text-amber-700 dark:text-amber-400">{goldTotalGrams.toFixed(2)} g</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Nilai Beli</p>
-              <p className="nums font-bold">{formatRupiah(goldTotalBuy)}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Nilai Sekarang</p>
-              <p className="nums font-bold">{formatRupiah(goldTotalNow)}</p>
-            </div>
-          </div>
-          <div className={clsx('mt-2 text-center text-xs font-semibold', goldProfit >= 0 ? 'text-sage-600' : 'text-wine-500')}>
-            {goldProfit >= 0 ? '▲' : '▼'} {goldProfit >= 0 ? 'Untung' : 'Rugi'} {formatRupiah(Math.abs(goldProfit))}
-            {goldTotalBuy > 0 && (
-              <span className="ml-1 font-normal text-gray-400">
-                ({((goldProfit / goldTotalBuy) * 100).toFixed(1)}%)
-              </span>
-            )}
-          </div>
+      {/* Menu kategori (filter) */}
+      {groups.length > 0 && (
+        <div className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
+          <FilterChip label="Semua" active={activeFilter === 'semua'} onClick={() => setFilter('semua')} />
+          {groups.map((g) => (
+            <FilterChip
+              key={g.type}
+              label={g.meta.label}
+              color={g.meta.color}
+              active={activeFilter === g.type}
+              onClick={() => setFilter(g.type)}
+            />
+          ))}
         </div>
       )}
+
+      {/* Rekap per kategori */}
+      {visibleGroups.map((g) => {
+        const qtyLabel = g.type === 'emas' ? 'Total Gram' : g.type === 'saham' ? 'Total Lot' : 'Jumlah'
+        const qtyValue =
+          g.type === 'emas' ? `${g.qty.toFixed(2)} g`
+          : g.type === 'saham' ? `${g.qty % 1 === 0 ? g.qty : g.qty.toFixed(2)} lot`
+          : `${g.items.length} item`
+        const up = g.profit >= 0
+        return (
+          <div key={g.type} className="mb-3 rounded-2xl p-4" style={{ backgroundColor: g.meta.color + '14' }}>
+            <div className="mb-2 flex items-center gap-2">
+              <CategoryIcon icon={g.meta.icon} color={g.meta.color} size="sm" />
+              <span className="text-sm font-bold" style={{ color: g.meta.color }}>Rekap {g.meta.label}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div>
+                <p className="text-gray-400">{qtyLabel}</p>
+                <p className="nums font-bold" style={{ color: g.meta.color }}>{qtyValue}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Nilai Beli</p>
+                <p className="nums font-bold">{formatRupiah(g.buy)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Nilai Sekarang</p>
+                <p className="nums font-bold">{formatRupiah(g.now)}</p>
+              </div>
+            </div>
+            {g.buy > 0 && (
+              <div className={clsx('mt-2 text-center text-xs font-semibold', up ? 'text-sage-600' : 'text-wine-500')}>
+                {up ? '▲' : '▼'} {up ? 'Untung' : 'Rugi'} {formatRupiah(Math.abs(g.profit))}
+                <span className="ml-1 font-normal text-gray-400">({((g.profit / g.buy) * 100).toFixed(1)}%)</span>
+              </div>
+            )}
+          </div>
+        )
+      })}
 
       {assets.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-12 text-center text-gray-400">
@@ -229,7 +267,7 @@ export function Assets() {
         </div>
       ) : (
         <div className="space-y-3">
-          {assets.map((a) => {
+          {visibleAssets.map((a) => {
             const meta = TYPE_META[a.type]
             const gain = a.current_value - a.buy_price
             const up = gain >= 0
@@ -501,5 +539,22 @@ export function Assets() {
         </div>
       </Sheet>
     </div>
+  )
+}
+
+/** Pil menu filter kategori aset. */
+function FilterChip({ label, active, onClick, color }: { label: string; active: boolean; onClick: () => void; color?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={clsx(
+        'flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition',
+        active ? 'text-white shadow-card' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300'
+      )}
+      style={active ? { backgroundColor: color ?? '#5C1A2B' } : undefined}
+    >
+      {color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: active ? '#fff' : color }} />}
+      {label}
+    </button>
   )
 }
