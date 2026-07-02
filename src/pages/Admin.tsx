@@ -126,11 +126,17 @@ function CodesTab() {
   return (
     <>
       {/* Statistik */}
-      <div className="mb-4 grid grid-cols-3 gap-2">
-        <StatBox label="Total" value={c.total} />
-        <StatBox label="Tersisa" value={c.unusedCount} hl />
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <StatBox label="Tersedia" value={c.unusedCount} hl />
+        <StatBox label="Terkirim (tunggu aktivasi)" value={c.reservedCount ?? 0} />
         <StatBox label="Terpakai" value={c.used} />
+        <StatBox label="Total" value={c.total} />
       </div>
+      {(c.reservedCount ?? 0) > 0 && (
+        <p className="mb-3 rounded-xl bg-dusty-50 px-3 py-2 text-center text-[11px] text-gray-500 dark:bg-dusty-500/10">
+          🤖 {c.reservedCount} kode sudah dikirim otomatis ke pembeli &amp; menunggu mereka daftar. Disembunyikan dari daftar "Tersedia" agar tak terkirim dobel.
+        </p>
+      )}
 
       {/* Generate */}
       <Card className="mb-4">

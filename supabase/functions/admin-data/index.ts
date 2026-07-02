@@ -63,11 +63,15 @@ serve(async (req) => {
     // overview
     const { data: codes } = await admin
       .from('license_keys')
-      .select('code, uses, max_uses, note, created_at, last_used_at, used_by, used_email')
+      .select('code, uses, max_uses, note, created_at, last_used_at, used_by, used_email, reserved_email, reserved_at')
       .order('created_at', { ascending: false })
+    type Code = { uses: number; max_uses: number; reserved_email: string | null }
     const total = codes?.length ?? 0
-    const used = (codes ?? []).filter((c: { uses: number; max_uses: number }) => c.uses >= c.max_uses).length
-    const unused = (codes ?? []).filter((c: { uses: number; max_uses: number }) => c.uses < c.max_uses)
+    const used = (codes ?? []).filter((c: Code) => c.uses >= c.max_uses).length
+    // reserved = sudah dikirim otomatis ke pembeli, tunggu aktivasi (jangan kirim ulang)
+    const reserved = (codes ?? []).filter((c: Code) => c.uses < c.max_uses && c.reserved_email)
+    // available = benar-benar bebas (aman dikirim manual)
+    const unused = (codes ?? []).filter((c: Code) => c.uses < c.max_uses && !c.reserved_email)
     // map user → kode yang dipakai
     const codeByUser = new Map<string, string>()
     for (const c of codes ?? []) if (c.used_by) codeByUser.set(c.used_by, c.code)
@@ -86,7 +90,7 @@ serve(async (req) => {
     }))
 
     return json({
-      codes: { total, used, unusedCount: unused.length, unused },
+      codes: { total, used, unusedCount: unused.length, unused, reservedCount: reserved.length, reserved },
       users,
     })
   } catch (e) {

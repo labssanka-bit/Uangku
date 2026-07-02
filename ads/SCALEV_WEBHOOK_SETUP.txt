@@ -1,0 +1,81 @@
+============================================================
+PESAN OTOMATIS SAAT ORDER LUNAS — Finplan Sanka (Webhook)
+============================================================
+Alur: Scalev (order lunas) → webhook → Edge Function ambil 1 kode tersisa
+(atomik) → EMAIL otomatis ke pembeli (welcome + link + kode + cara aktivasi).
+Kode ditandai "reserved" (tidak akan terkirim dobel) tapi tetap bisa dipakai
+pembeli saat daftar. Kalau stok kode habis → admin dapat email peringatan.
+
+STATUS SEKARANG:
+  ✅ Edge Function 'scalev-webhook' sudah DEPLOY
+  ✅ DB fungsi claim_next_license + kolom reserved sudah dibuat
+  ✅ Secret WEBHOOK_SECRET, MAIL_FROM, ADMIN_EMAIL sudah di-set
+  ✅ Panel Admin tab Kode sudah bedakan Tersedia / Terkirim / Terpakai
+  ⚠️ KURANG 1: RESEND_API_KEY belum di-set (tanpa ini email TIDAK terkirim)
+  ⚠️ KURANG 2: Webhook belum dipasang di dashboard Scalev
+
+────────────────────────────────────────
+URL WEBHOOK (pasang di Scalev):
+  https://hsenddeuzmblgbsfwtdp.supabase.co/functions/v1/scalev-webhook?token=6d91c0a883073283d12abcfe8feb78157561f8bc9e3536b7
+
+  Method  : POST
+  Event   : Order Paid / Pembayaran Berhasil / Lunas
+  (Jangan bagikan URL ini — token-nya kunci keamanan.)
+
+────────────────────────────────────────
+LANGKAH 1 — Set RESEND API KEY (WAJIB, 1 menit)
+Email dikirim lewat Resend (domain finplansanka.com sudah kamu pakai utk email
+Supabase). API key = string diawali "re_".
+  • Ambil: resend.com → login → API Keys → (pakai yg ada / Create) → salin.
+    (Ini SAMA dgn "password SMTP" yg kamu isi di Supabase Auth → SMTP.)
+  • Kirim key itu ke saya, saya set-kan. ATAU jalankan sendiri:
+
+  Di folder project, terminal:
+    npx supabase secrets set "RESEND_API_KEY=re_xxxxxxx" --project-ref hsenddeuzmblgbsfwtdp
+
+  Catatan pengirim: email keluar dari noreply@finplansanka.com.
+  Domain finplansanka.com harus "Verified" di Resend (biasanya sudah, krn
+  dipakai email login). Kalau belum → verifikasi dulu di Resend → Domains.
+
+────────────────────────────────────────
+LANGKAH 2 — Pasang webhook di Scalev
+Cari menu: Pengaturan / Integrasi / Otomasi / Webhook / Notifikasi.
+  • Tambah Webhook baru → tempel URL di atas → event "Order Paid/Lunas".
+  • Simpan. Kalau ada tombol "Test/Kirim contoh" → klik (lihat Langkah 3).
+
+  ❓ Kalau Scalev TIDAK punya menu Webhook:
+     Cek apakah bisa lewat Zapier/Make/Pabbly (trigger "order paid" →
+     action "Webhook POST" ke URL di atas). Kalau tetap tak ada → pakai
+     CADANGAN di bawah (auto welcome, kode manual).
+
+────────────────────────────────────────
+LANGKAH 3 — Uji coba
+Setelah RESEND di-set & webhook terpasang:
+  • Buat order test di Scalev sampai status LUNAS (atau klik "Test webhook").
+  • Cek email pembeli test → harus masuk email berisi kode & cara aktivasi.
+  • Buka Panel Admin → tab Kode → angka "Terkirim (tunggu aktivasi)" naik 1.
+  • Kalau tak masuk: cek folder spam; cek Resend → Logs; pastikan domain verified.
+
+────────────────────────────────────────
+CADANGAN — kalau Scalev tak punya webhook (auto welcome, kode manual)
+Di Scalev → produk → "File/Links" / pesan setelah bayar, tempel:
+  ---------------------------------------------
+  Terima kasih sudah membeli Finplan Sanka! 🎉
+  Aplikasi: https://finplansanka.com
+  KODE AKSES kamu dikirim via WhatsApp/Email beberapa menit setelah ini.
+  Cara aktivasi: buka finplansanka.com → Daftar → masukkan Kode Akses + email
+  & password → selesai, selamanya!
+  ---------------------------------------------
+Lalu tiap order: Panel Admin → tab Kode → salin 1 kode → kirim ke pembeli
+(pakai template di ads/PESAN_PEMBELI.txt).
+
+────────────────────────────────────────
+KEAMANAN & MAINTENANCE
+  • WEBHOOK_SECRET = 6d91c0a883073283d12abcfe8feb78157561f8bc9e3536b7 (rahasia).
+    Ganti kapan saja: npx supabase secrets set "WEBHOOK_SECRET=..." lalu update
+    URL di Scalev.
+  • Stok kode menipis → Panel Admin tab Kode → Generate. Kalau habis saat ada
+    order, admin (anugrahirsan75@gmail.com) otomatis dapat email peringatan.
+  • Ganti email penerima peringatan:
+    npx supabase secrets set "ADMIN_EMAIL=email@kamu.com" --project-ref hsenddeuzmblgbsfwtdp
+============================================================

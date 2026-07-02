@@ -8,6 +8,8 @@ export interface AdminCode {
   note: string | null
   created_at: string
   last_used_at: string | null
+  reserved_email?: string | null
+  reserved_at?: string | null
 }
 export interface AdminUser {
   id: string
@@ -19,7 +21,14 @@ export interface AdminUser {
   last_sign_in_at: string | null
 }
 export interface AdminOverview {
-  codes: { total: number; used: number; unusedCount: number; unused: AdminCode[] }
+  codes: {
+    total: number
+    used: number
+    unusedCount: number
+    unused: AdminCode[]
+    reservedCount?: number
+    reserved?: AdminCode[]
+  }
   users: AdminUser[]
 }
 
