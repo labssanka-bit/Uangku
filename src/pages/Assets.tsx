@@ -12,7 +12,7 @@ import { useWalletBalances } from '@/hooks/useWallets'
 import { useAuth } from '@/hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
+import { formatRupiah, formatRupiahRingkas, parseRupiah, toISODate } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 import type { Asset, AssetType } from '@/types'
 
@@ -209,11 +209,12 @@ export function Assets() {
       {/* Menu kategori (filter) */}
       {groups.length > 0 && (
         <div className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
-          <FilterChip label="Semua" active={activeFilter === 'semua'} onClick={() => setFilter('semua')} />
+          <FilterChip label="Semua" value={formatRupiahRingkas(totalAsset)} active={activeFilter === 'semua'} onClick={() => setFilter('semua')} />
           {groups.map((g) => (
             <FilterChip
               key={g.type}
               label={g.meta.label}
+              value={formatRupiahRingkas(g.now)}
               color={g.meta.color}
               active={activeFilter === g.type}
               onClick={() => setFilter(g.type)}
@@ -542,19 +543,26 @@ export function Assets() {
   )
 }
 
-/** Pil menu filter kategori aset. */
-function FilterChip({ label, active, onClick, color }: { label: string; active: boolean; onClick: () => void; color?: string }) {
+/** Pil menu filter kategori aset (label + nilai total kategori). */
+function FilterChip({ label, value, active, onClick, color }: { label: string; value?: string; active: boolean; onClick: () => void; color?: string }) {
   return (
     <button
       onClick={onClick}
       className={clsx(
-        'flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition',
-        active ? 'text-white shadow-card' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300'
+        'flex shrink-0 flex-col items-start gap-0.5 rounded-2xl px-4 py-2 text-left transition',
+        active ? 'text-white shadow-card' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
       )}
       style={active ? { backgroundColor: color ?? '#5C1A2B' } : undefined}
     >
-      {color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: active ? '#fff' : color }} />}
-      {label}
+      <span className="flex items-center gap-1.5 text-sm font-semibold">
+        {color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: active ? '#fff' : color }} />}
+        {label}
+      </span>
+      {value && (
+        <span className={clsx('nums text-[11px] font-bold', active ? 'text-white/90' : 'text-gray-500 dark:text-gray-400')}>
+          {value}
+        </span>
+      )}
     </button>
   )
 }
