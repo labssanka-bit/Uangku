@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 
 interface SheetProps {
   open: boolean
@@ -8,8 +8,10 @@ interface SheetProps {
   title?: string
 }
 
-/** Bottom sheet modal — slide up, neumorphic background. */
+/** Bottom sheet modal — slide up, geser grip ke bawah untuk menutup. */
 export function Sheet({ open, onClose, children, title }: SheetProps) {
+  const dragControls = useDragControls()
+
   return (
     <AnimatePresence>
       {open && (
@@ -28,14 +30,28 @@ export function Sheet({ open, onClose, children, title }: SheetProps) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+            // Geser ke bawah untuk menutup — hanya dari grip (dragListener=false)
+            drag="y"
+            dragListener={false}
+            dragControls={dragControls}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.6 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 110 || info.velocity.y > 700) onClose()
+            }}
           >
-            {/* Grip indicator */}
-            <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-maroon-200 dark:bg-maroon-700/60" />
-            {title && (
-              <h2 className="mb-4 text-center text-base font-bold text-maroon-800 dark:text-maroon-200">
-                {title}
-              </h2>
-            )}
+            {/* Area grip — tarik ke bawah untuk menutup */}
+            <div
+              onPointerDown={(e) => dragControls.start(e)}
+              className="-mx-5 -mt-5 mb-3 cursor-grab touch-none px-5 pb-1 pt-4 active:cursor-grabbing"
+            >
+              <div className="mx-auto h-1.5 w-14 rounded-full bg-maroon-200 dark:bg-maroon-700/60" />
+              {title && (
+                <h2 className="mt-3 text-center text-base font-bold text-maroon-800 dark:text-maroon-200">
+                  {title}
+                </h2>
+              )}
+            </div>
             {children}
           </motion.div>
         </>
