@@ -36,7 +36,7 @@ serve(async (req) => {
     const { data: prof } = await admin.from('profiles').select('is_admin').eq('id', ures.user.id).single()
     if (!prof?.is_admin) return json({ error: 'Khusus admin.' }, 403)
 
-    const { action, count, userId } = await req.json().catch(() => ({ action: 'overview' }))
+    const { action, count, userId, code, label } = await req.json().catch(() => ({ action: 'overview' }))
 
     if (action === 'gen') {
       const n = Math.min(Math.max(parseInt(String(count)) || 0, 1), 200)
@@ -47,6 +47,35 @@ serve(async (req) => {
         .select('code')
       if (error) return json({ error: error.message }, 500)
       return json({ generated: data?.map((r: { code: string }) => r.code) ?? [] })
+    }
+
+    if (action === 'reserve') {
+      // Tandai kode "sudah dikasih ke calon pembeli" (manual). label = nama/no WA.
+      const kode = String(code || '').trim().toUpperCase()
+      const lbl = String(label || '').trim()
+      if (!kode) return json({ error: 'Kode wajib.' }, 400)
+      if (!lbl) return json({ error: 'Isi nama/no WA penerima.' }, 400)
+      const { data, error } = await admin
+        .from('license_keys')
+        .update({ reserved_email: lbl, reserved_at: new Date().toISOString() })
+        .eq('code', kode)
+        .lt('uses', 1)
+        .select('code')
+      if (error) return json({ error: error.message }, 500)
+      if (!data || data.length === 0) return json({ error: 'Kode tak ditemukan / sudah terpakai.' }, 400)
+      return json({ ok: true })
+    }
+
+    if (action === 'unreserve') {
+      // Batalkan tanda "sudah dikasih" → kode kembali ke daftar tersedia.
+      const kode = String(code || '').trim().toUpperCase()
+      if (!kode) return json({ error: 'Kode wajib.' }, 400)
+      const { error } = await admin
+        .from('license_keys')
+        .update({ reserved_email: null, reserved_at: null })
+        .eq('code', kode)
+      if (error) return json({ error: error.message }, 500)
+      return json({ ok: true })
     }
 
     if (action === 'delete') {

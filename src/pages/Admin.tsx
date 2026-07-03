@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2 } from 'lucide-react'
+import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { useProfile } from '@/hooks/useProfile'
-import { useAdminOverview, useGenerateCodes, useDeleteUser } from '@/hooks/useAdminData'
+import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
@@ -106,8 +106,11 @@ function UsersTab() {
 function CodesTab() {
   const { data, isLoading, error, refetch, isFetching } = useAdminOverview(true)
   const gen = useGenerateCodes()
+  const reserve = useReserveCode()
+  const unreserve = useUnreserveCode()
   const [count, setCount] = useState('30')
   const [justGen, setJustGen] = useState<string[] | null>(null)
+  const [busy, setBusy] = useState<string | null>(null)
 
   async function doGen() {
     const n = parseInt(count) || 0
@@ -118,25 +121,40 @@ function CodesTab() {
 
   const copy = (txt: string) => navigator.clipboard?.writeText(txt)
 
+  async function tandaiDikasih(code: string) {
+    const label = prompt(`Kode ${code} dikasih ke siapa?\n(nama / no WA — biar kamu ingat)`)
+    if (label == null) return
+    const lbl = label.trim()
+    if (!lbl) return
+    setBusy(code)
+    try { await reserve.mutateAsync({ code, label: lbl }); copy(code) }
+    catch (e) { alert((e as Error).message) }
+    finally { setBusy(null) }
+  }
+
+  async function batalDikasih(code: string) {
+    if (!confirm(`Batalkan tanda "sudah dikasih" untuk ${code}? Kode kembali ke daftar Tersedia.`)) return
+    setBusy(code)
+    try { await unreserve.mutateAsync(code) }
+    catch (e) { alert((e as Error).message) }
+    finally { setBusy(null) }
+  }
+
   if (isLoading) return <Loading />
   if (error) return <ErrMsg msg={(error as Error).message} />
   const c = data!.codes
   const unusedList = c.unused.map((x) => x.code)
+  const reservedList = c.reserved ?? []
 
   return (
     <>
       {/* Statistik */}
       <div className="mb-4 grid grid-cols-2 gap-2">
         <StatBox label="Tersedia" value={c.unusedCount} hl />
-        <StatBox label="Terkirim (tunggu aktivasi)" value={c.reservedCount ?? 0} />
+        <StatBox label="Sudah dikasih (tunggu dipakai)" value={c.reservedCount ?? 0} />
         <StatBox label="Terpakai" value={c.used} />
         <StatBox label="Total" value={c.total} />
       </div>
-      {(c.reservedCount ?? 0) > 0 && (
-        <p className="mb-3 rounded-xl bg-dusty-50 px-3 py-2 text-center text-[11px] text-gray-500 dark:bg-dusty-500/10">
-          🤖 {c.reservedCount} kode sudah dikirim otomatis ke pembeli &amp; menunggu mereka daftar. Disembunyikan dari daftar "Tersedia" agar tak terkirim dobel.
-        </p>
-      )}
 
       {/* Generate */}
       <Card className="mb-4">
@@ -167,7 +185,39 @@ function CodesTab() {
         )}
       </Card>
 
-      {/* Daftar tersisa */}
+      {/* Sudah dikasih ke calon pembeli (menunggu dipakai) */}
+      {reservedList.length > 0 && (
+        <>
+          <h2 className="mb-2 font-bold">Sudah Dikasih — Tunggu Dipakai ({reservedList.length})</h2>
+          <Card className="mb-4 p-0">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {reservedList.map((k) => (
+                <div key={k.code} className="flex items-center gap-2 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <button onClick={() => copy(k.code)} className="nums flex items-center gap-1 font-semibold tracking-wider text-maroon-700 dark:text-dusty-200">
+                      {k.code} <Copy size={12} className="text-gray-300" />
+                    </button>
+                    <p className="truncate text-xs text-gray-500">
+                      <UserCheck size={11} className="mr-1 inline text-amber-500" />
+                      {k.reserved_email}
+                      {k.reserved_at && <span className="ml-1 text-gray-400">· {formatTanggal(k.reserved_at)}</span>}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => batalDikasih(k.code)}
+                    disabled={busy === k.code}
+                    className="flex h-8 items-center gap-1 rounded-lg bg-gray-100 px-2 text-xs font-semibold text-gray-500 disabled:opacity-50 dark:bg-gray-800"
+                  >
+                    {busy === k.code ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />} Batal
+                  </button>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* Daftar tersedia */}
       <div className="mb-2 flex items-center justify-between">
         <h2 className="font-bold">Kode Tersedia ({c.unusedCount})</h2>
         <div className="flex gap-3">
@@ -177,16 +227,26 @@ function CodesTab() {
       </div>
       <Card className="p-0">
         <div className="max-h-[420px] divide-y divide-gray-100 overflow-y-auto no-scrollbar dark:divide-gray-800">
-          {unusedList.length === 0 && <p className="py-8 text-center text-sm text-gray-400">Semua kode terpakai. Generate baru di atas.</p>}
+          {unusedList.length === 0 && <p className="py-8 text-center text-sm text-gray-400">Tak ada kode tersedia. Generate baru di atas.</p>}
           {c.unused.map((k) => (
-            <button key={k.code} onClick={() => copy(k.code)} className="flex w-full items-center justify-between px-4 py-3 text-left active:bg-gray-50 dark:active:bg-gray-800">
-              <span className="nums font-semibold tracking-wider text-maroon-700 dark:text-dusty-200">{k.code}</span>
-              <Copy size={15} className="text-gray-300" />
-            </button>
+            <div key={k.code} className="flex items-center gap-2 px-4 py-3">
+              <button onClick={() => copy(k.code)} className="nums flex flex-1 items-center gap-1.5 text-left font-semibold tracking-wider text-maroon-700 dark:text-dusty-200">
+                {k.code} <Copy size={13} className="text-gray-300" />
+              </button>
+              <button
+                onClick={() => tandaiDikasih(k.code)}
+                disabled={busy === k.code}
+                className="flex h-8 items-center gap-1 rounded-lg bg-amber-100 px-2.5 text-xs font-semibold text-amber-700 disabled:opacity-50 dark:bg-amber-500/15"
+              >
+                {busy === k.code ? <Loader2 size={13} className="animate-spin" /> : <UserPlus size={13} />} Tandai dikasih
+              </button>
+            </div>
           ))}
         </div>
       </Card>
-      <p className="mt-3 text-center text-[11px] text-gray-400">Ketuk kode untuk menyalin. Kirim ke pembeli, otomatis tertandai terpakai saat dipakai daftar.</p>
+      <p className="mt-3 text-center text-[11px] text-gray-400">
+        Ketuk kode = salin. “Tandai dikasih” = catat kamu sudah kirim kode itu ke calon pembeli (biar tak dobel), kode langsung tersalin. Otomatis jadi “Terpakai” saat mereka daftar.
+      </p>
     </>
   )
 }

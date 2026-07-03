@@ -71,3 +71,22 @@ export function useDeleteUser() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
   })
 }
+
+/** Tandai kode "sudah dikasih ke calon pembeli" (label = nama/no WA). */
+export function useReserveCode() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, label }: { code: string; label: string }) =>
+      callAdmin<{ ok: boolean }>({ action: 'reserve', code, label }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
+  })
+}
+
+/** Batalkan tanda "sudah dikasih" → kode kembali tersedia. */
+export function useUnreserveCode() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (code: string) => callAdmin<{ ok: boolean }>({ action: 'unreserve', code }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
+  })
+}
