@@ -65,6 +65,9 @@ export function Login() {
             <span>
               <b>Sudah beli tapi Kode Akses belum datang?</b> Tenang, kode dikirim ke <b>email &amp; WhatsApp</b> kamu setelah pembayaran.
               Mohon <b>cek secara berkala</b> (termasuk folder <b>Spam/Promosi</b>) ya 🙏
+              <br />
+              Masih belum dapat juga? Langsung <b>DM Instagram</b>{' '}
+              <a href="https://instagram.com/finplan.bysanka" target="_blank" rel="noreferrer" className="font-bold underline">@finplan.bysanka</a>, kami bantu kirim kodenya.
             </span>
           </div>
         </>
