@@ -75,7 +75,7 @@ export function Dashboard() {
         <div>
           <h1 className="text-xl font-extrabold">Hai{firstName ? `, ${firstName}` : ''}! 👋</h1>
           <div className="flex items-center gap-2">
-            <p className="text-sm capitalize text-gray-400">{new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(ref)}</p>
+            <p className="text-sm capitalize text-gray-400">{new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</p>
             {streak > 0 && (
               <span className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-600 dark:bg-orange-500/15">
                 <Flame size={12} /> {streak} hari
