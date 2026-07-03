@@ -255,7 +255,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   return (
     <Sheet open={open} onClose={onClose} title={editing ? 'Edit Transaksi' : 'Tambah Transaksi'}>
       {/* Sticky: type toggle + nominal — tetap terlihat saat scroll ke bawah */}
-      <div className="sticky top-0 z-10 -mx-5 border-b border-gray-100 bg-white px-5 pb-3 dark:border-gray-800 dark:bg-gray-900">
+      <div className="sticky top-0 z-10 -mx-5 border-b border-gray-100 bg-white px-5 pb-3 pt-1 dark:border-gray-800 dark:bg-[#221519]">
         <div className="flex rounded-2xl bg-gray-100 p-1 dark:bg-gray-800">
           {(['expense', 'income'] as TxType[]).map((t) => (
             <button
@@ -468,7 +468,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
         </p>
       )}
 
-      <div className="mt-3 flex gap-2">
+      {/* Sticky footer: tombol Simpan selalu terlihat, tak perlu scroll cari */}
+      <div className="sticky bottom-0 z-10 -mx-5 -mb-[calc(1.5rem+env(safe-area-inset-bottom))] mt-3 flex gap-2 border-t border-gray-100 bg-white px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 dark:border-gray-800 dark:bg-[#221519]">
         {editing && (
           <button
             onClick={handleDelete}
