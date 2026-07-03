@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset } from 'lucide-react'
+import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset, Eraser } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
@@ -71,6 +71,33 @@ export function Settings() {
     // Segarkan semua data terkait agar saldo & list langsung kosong
     await qc.invalidateQueries()
     alert(`${data?.length ?? 0} transaksi dihapus.`)
+  }
+
+  async function handleResetTotal() {
+    if (isDemo()) { demoBlock(); return }
+    if (!confirm('RESET TOTAL: hapus SEMUA transaksi DAN nol-kan Saldo Awal semua dompet?\nTotal Saldo jadi Rp 0. Tindakan ini tidak bisa dibatalkan.')) return
+    setBusy(true)
+    try {
+      // 1) Hapus semua transaksi milik user (RLS + filter user_id → hanya akun ini)
+      const { data: del, error: e1 } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('user_id', user!.id)
+        .select('id')
+      if (e1) throw e1
+      // 2) Nol-kan saldo awal semua dompet milik user
+      const { error: e2 } = await supabase
+        .from('wallets')
+        .update({ opening_balance: 0 })
+        .eq('user_id', user!.id)
+      if (e2) throw e2
+      await qc.invalidateQueries()
+      alert(`Reset total selesai. ${del?.length ?? 0} transaksi dihapus & saldo awal semua dompet jadi 0.`)
+    } catch (e) {
+      alert('Gagal reset total: ' + errMsg(e, 'terjadi kesalahan.'))
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -145,10 +172,14 @@ export function Settings() {
       )}
 
       {/* Zona bahaya */}
-      <Card className="mb-4 divide-y divide-gray-100 p-0 dark:divide-gray-800">
+      <Card className="mb-2 divide-y divide-gray-100 p-0 dark:divide-gray-800">
         <Row icon={Trash2} label="Reset Semua Transaksi" onClick={handleReset} danger right={<ChevronRight size={18} className="text-wine-500/40" />} />
+        <Row icon={Eraser} label="Reset Total (transaksi + saldo awal → 0)" onClick={handleResetTotal} danger right={<ChevronRight size={18} className="text-wine-500/40" />} />
         <Row icon={LogOut} label="Keluar" onClick={signOut} danger />
       </Card>
+      <p className="mb-4 px-1 text-center text-[11px] text-gray-400">
+        Reset hanya menghapus data <b>akun kamu sendiri</b>, tidak menyentuh akun lain.
+      </p>
 
       <p className="text-center text-xs text-gray-400">Finplan Sanka v1.0 — dibuat untuk mempermudah catatan keuanganmu.</p>
 
