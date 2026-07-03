@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw, Search, X } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
+import { Sheet } from '@/components/ui/Sheet'
 import { useProfile } from '@/hooks/useProfile'
 import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
@@ -112,6 +113,8 @@ function CodesTab() {
   const [justGen, setJustGen] = useState<string[] | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [q, setQ] = useState('')
+  const [reserveFor, setReserveFor] = useState<string | null>(null)
+  const [reserveLabel, setReserveLabel] = useState('')
 
   async function doGen() {
     const n = parseInt(count) || 0
@@ -122,15 +125,25 @@ function CodesTab() {
 
   const copy = (txt: string) => navigator.clipboard?.writeText(txt)
 
-  async function tandaiDikasih(code: string) {
-    const label = prompt(`Kode ${code} dikasih ke siapa?\n(nama / no WA — biar kamu ingat)`)
-    if (label == null) return
-    const lbl = label.trim()
-    if (!lbl) return
+  function tandaiDikasih(code: string) {
+    setReserveLabel('')
+    setReserveFor(code)
+  }
+
+  async function submitReserve() {
+    const code = reserveFor
+    const lbl = reserveLabel.trim()
+    if (!code || !lbl) return
     setBusy(code)
-    try { await reserve.mutateAsync({ code, label: lbl }); copy(code) }
-    catch (e) { alert((e as Error).message) }
-    finally { setBusy(null) }
+    try {
+      await reserve.mutateAsync({ code, label: lbl })
+      copy(code)
+      setReserveFor(null)
+    } catch (e) {
+      alert((e as Error).message)
+    } finally {
+      setBusy(null)
+    }
   }
 
   async function batalDikasih(code: string) {
@@ -278,6 +291,45 @@ function CodesTab() {
       <p className="mt-3 text-center text-[11px] text-gray-400">
         Ketuk kode = salin. “Tandai dikasih” = catat kamu sudah kirim kode itu ke calon pembeli (biar tak dobel), kode langsung tersalin. Otomatis jadi “Terpakai” saat mereka daftar.
       </p>
+
+      {/* Modal Tandai Dikasih */}
+      <Sheet open={!!reserveFor} onClose={() => setReserveFor(null)} title="Tandai Sudah Dikasih">
+        <div className="mb-4 flex flex-col items-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-500/15">
+            <UserPlus size={22} className="text-amber-600" />
+          </div>
+          <p className="mt-3 text-sm text-gray-500">Kode akses</p>
+          <p className="nums text-lg font-extrabold tracking-wider text-maroon-700 dark:text-dusty-200">{reserveFor}</p>
+        </div>
+
+        <label className="mb-1 block text-sm font-semibold">Dikasih ke siapa?</label>
+        <input
+          autoFocus
+          value={reserveLabel}
+          onChange={(e) => setReserveLabel(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') submitReserve() }}
+          placeholder="mis. Budi — 0812-3456-7890"
+          className="mb-1.5 w-full rounded-2xl bg-gray-100 px-4 py-3 text-sm outline-none ring-maroon-500 focus:ring-2 dark:bg-gray-800"
+        />
+        <p className="mb-4 text-xs text-gray-400">Isi nama atau nomor WA calon pembeli, biar kamu ingat kode ini sudah dikirim ke siapa.</p>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setReserveFor(null)}
+            className="flex-1 rounded-2xl bg-gray-100 py-3 font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+          >
+            Batal
+          </button>
+          <button
+            onClick={submitReserve}
+            disabled={!reserveLabel.trim() || busy === reserveFor}
+            className="flex flex-[1.4] items-center justify-center gap-2 rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
+          >
+            {busy === reserveFor ? <Loader2 size={16} className="animate-spin" /> : <UserCheck size={16} />}
+            Simpan & Salin Kode
+          </button>
+        </div>
+      </Sheet>
     </>
   )
 }
