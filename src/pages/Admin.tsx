@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw } from 'lucide-react'
+import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw, Search, X } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { useProfile } from '@/hooks/useProfile'
@@ -111,6 +111,7 @@ function CodesTab() {
   const [count, setCount] = useState('30')
   const [justGen, setJustGen] = useState<string[] | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
+  const [q, setQ] = useState('')
 
   async function doGen() {
     const n = parseInt(count) || 0
@@ -143,8 +144,13 @@ function CodesTab() {
   if (isLoading) return <Loading />
   if (error) return <ErrMsg msg={(error as Error).message} />
   const c = data!.codes
-  const unusedList = c.unused.map((x) => x.code)
-  const reservedList = c.reserved ?? []
+  const ql = q.trim().toLowerCase()
+  const match = (code: string, label?: string | null) =>
+    code.toLowerCase().includes(ql) || (label ?? '').toLowerCase().includes(ql)
+  const unusedFiltered = ql ? c.unused.filter((k) => match(k.code)) : c.unused
+  const reservedFiltered = ql ? (c.reserved ?? []).filter((k) => match(k.code, k.reserved_email)) : (c.reserved ?? [])
+  const unusedList = unusedFiltered.map((x) => x.code)
+  const reservedList = reservedFiltered
 
   return (
     <>
@@ -185,6 +191,27 @@ function CodesTab() {
         )}
       </Card>
 
+      {/* Cari kode / penerima */}
+      <div className="relative mb-4">
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Cari kode atau nama/no WA…"
+          className="w-full rounded-xl bg-gray-100 py-2.5 pl-9 pr-9 text-sm outline-none dark:bg-gray-800"
+        />
+        {q && (
+          <button onClick={() => setQ('')} className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" aria-label="Bersihkan">
+            <X size={14} />
+          </button>
+        )}
+      </div>
+      {ql && (
+        <p className="-mt-2 mb-3 text-center text-[11px] text-gray-400">
+          {unusedFiltered.length + reservedFiltered.length} kode cocok “{q}”
+        </p>
+      )}
+
       {/* Sudah dikasih ke calon pembeli (menunggu dipakai) */}
       {reservedList.length > 0 && (
         <>
@@ -219,7 +246,7 @@ function CodesTab() {
 
       {/* Daftar tersedia */}
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-bold">Kode Tersedia ({c.unusedCount})</h2>
+        <h2 className="font-bold">Kode Tersedia ({ql ? `${unusedFiltered.length} dari ${c.unusedCount}` : c.unusedCount})</h2>
         <div className="flex gap-3">
           <button onClick={() => copy(unusedList.join('\n'))} className="flex items-center gap-1 text-sm font-semibold text-maroon-700"><Copy size={14} /> Salin semua</button>
           <button onClick={() => refetch()} className="flex items-center gap-1 text-sm text-gray-400"><RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} /></button>
@@ -227,8 +254,12 @@ function CodesTab() {
       </div>
       <Card className="p-0">
         <div className="max-h-[420px] divide-y divide-gray-100 overflow-y-auto no-scrollbar dark:divide-gray-800">
-          {unusedList.length === 0 && <p className="py-8 text-center text-sm text-gray-400">Tak ada kode tersedia. Generate baru di atas.</p>}
-          {c.unused.map((k) => (
+          {unusedList.length === 0 && (
+            <p className="py-8 text-center text-sm text-gray-400">
+              {ql ? `Tak ada kode tersedia yang cocok “${q}”.` : 'Tak ada kode tersedia. Generate baru di atas.'}
+            </p>
+          )}
+          {unusedFiltered.map((k) => (
             <div key={k.code} className="flex items-center gap-2 px-4 py-3">
               <button onClick={() => copy(k.code)} className="nums flex flex-1 items-center gap-1.5 text-left font-semibold tracking-wider text-maroon-700 dark:text-dusty-200">
                 {k.code} <Copy size={13} className="text-gray-300" />
