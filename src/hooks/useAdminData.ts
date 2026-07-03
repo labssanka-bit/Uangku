@@ -90,3 +90,13 @@ export function useUnreserveCode() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
   })
 }
+
+/** Kirim email kode + cara aktivasi ke pembeli. Menandai kode "sudah dikasih". */
+export function useSendCodeEmail() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, email, name }: { code: string; email: string; name: string }) =>
+      callAdmin<{ ok: boolean }>({ action: 'send_email', code, email, name }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
+  })
+}

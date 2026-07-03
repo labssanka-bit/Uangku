@@ -18,6 +18,36 @@ function rand4() {
   return Array.from({ length: 4 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('')
 }
 
+function esc(s: string) {
+  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
+}
+
+/** Email pembeli (HTML) — mengikuti template WA. */
+function buyerEmailHtml(nama: string, kode: string) {
+  const APP = 'https://finplansanka.com'
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:auto;color:#2b2b2b;line-height:1.6">
+    <h2 style="color:#5C1A2B;margin:0 0 8px">Halo ${esc(nama)} 👋</h2>
+    <p>Terima kasih sudah membeli <b>Finplan Sanka</b> 🎉</p>
+    <p style="margin:0 0 6px">Ini akses <b>seumur hidup</b>mu:</p>
+    <div style="background:#F2ECE2;border-radius:14px;padding:16px 18px;margin:12px 0">
+      <p style="margin:0 0 6px;font-size:13px;color:#6b5b4b">🔑 KODE AKSES</p>
+      <p style="margin:0;font-size:24px;font-weight:800;letter-spacing:2px;color:#5C1A2B">${esc(kode)}</p>
+      <p style="margin:10px 0 0;font-size:13px;color:#6b5b4b">🌐 Aplikasi: <a href="${APP}" style="color:#5C1A2B">${APP}</a></p>
+    </div>
+    <p style="margin:0 0 4px"><b>Cara aktifkan (1 menit):</b></p>
+    <ol style="margin:0 0 14px;padding-left:20px">
+      <li>Buka <a href="${APP}" style="color:#5C1A2B">${APP}</a></li>
+      <li>Tap <b>Daftar</b></li>
+      <li>Masukkan Kode Akses di atas + email &amp; password kamu</li>
+      <li>Selesai! Langsung bisa dipakai selamanya ✅</li>
+    </ol>
+    <p style="font-size:13px;color:#6b5b4b">Simpan email ini ya, kodenya cuma bisa dipakai 1x untuk buat akun.</p>
+    <p style="font-size:13px;color:#6b5b4b">Ada kendala? Balas email ini, aku bantu 🙏</p>
+    <p style="margin-top:18px;color:#5C1A2B"><b>Tim Finplan Sanka</b><br><a href="${APP}" style="color:#5C1A2B">${APP}</a></p>
+  </div>`
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
@@ -36,7 +66,37 @@ serve(async (req) => {
     const { data: prof } = await admin.from('profiles').select('is_admin').eq('id', ures.user.id).single()
     if (!prof?.is_admin) return json({ error: 'Khusus admin.' }, 403)
 
-    const { action, count, userId, code, label } = await req.json().catch(() => ({ action: 'overview' }))
+    const { action, count, userId, code, label, email, name } = await req.json().catch(() => ({ action: 'overview' }))
+
+    if (action === 'send_email') {
+      // Kirim email kode + cara aktivasi ke pembeli (template WA) via Resend.
+      const kode = String(code || '').trim().toUpperCase()
+      const mail = String(email || '').trim().toLowerCase()
+      const nama = String(name || '').trim() || 'Kak'
+      if (!kode) return json({ error: 'Pilih kode dulu.' }, 400)
+      if (!mail || !mail.includes('@')) return json({ error: 'Email pembeli tidak valid.' }, 400)
+
+      const RESEND = Deno.env.get('RESEND_API_KEY')
+      if (!RESEND) return json({ error: 'RESEND_API_KEY belum di-set. Minta admin sistem set dulu.' }, 400)
+      const FROM = Deno.env.get('MAIL_FROM') ?? 'Finplan Sanka <noreply@finplansanka.com>'
+
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: FROM, to: mail, subject: '🎉 Akses Finplan Sanka kamu — kode & cara aktivasi', html: buyerEmailHtml(nama, kode) }),
+      })
+      if (!res.ok) {
+        const detail = await res.text()
+        return json({ error: 'Gagal kirim email: ' + detail.slice(0, 300) }, 500)
+      }
+      // Tandai kode "sudah dikasih" (reserved) supaya tercatat & tak dobel — hanya jika belum terpakai
+      await admin
+        .from('license_keys')
+        .update({ reserved_email: `${nama} <${mail}>`, reserved_at: new Date().toISOString() })
+        .eq('code', kode)
+        .lt('uses', 1)
+      return json({ ok: true })
+    }
 
     if (action === 'gen') {
       const n = Math.min(Math.max(parseInt(String(count)) || 0, 1), 200)

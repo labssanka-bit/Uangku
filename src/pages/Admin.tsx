@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw, Search, X } from 'lucide-react'
+import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw, Search, X, Mail, Send } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
 import { useProfile } from '@/hooks/useProfile'
-import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode } from '@/hooks/useAdminData'
+import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 
-type Tab = 'chat' | 'users' | 'codes'
+type Tab = 'chat' | 'users' | 'codes' | 'email'
 
 export function Admin() {
   const { data: profile } = useProfile()
@@ -26,8 +26,9 @@ export function Admin() {
 
   const tabs: { id: Tab; label: string; icon: typeof Users }[] = [
     { id: 'chat', label: 'Chat', icon: MessageCircle },
-    { id: 'users', label: 'Pengguna', icon: Users },
+    { id: 'users', label: 'User', icon: Users },
     { id: 'codes', label: 'Kode', icon: KeyRound },
+    { id: 'email', label: 'Email', icon: Mail },
   ]
 
   return (
@@ -38,7 +39,7 @@ export function Admin() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={clsx('flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-sm font-semibold transition',
+            className={clsx('flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-2 text-xs font-semibold transition sm:flex-row sm:gap-1.5 sm:text-sm',
               tab === t.id ? 'bg-maroon-700 text-white' : 'text-gray-500')}
           >
             <t.icon size={16} /> {t.label}
@@ -49,6 +50,7 @@ export function Admin() {
       {tab === 'chat' && <AdminChat embedded />}
       {tab === 'users' && <UsersTab />}
       {tab === 'codes' && <CodesTab />}
+      {tab === 'email' && <EmailTab />}
     </div>
   )
 }
@@ -330,6 +332,124 @@ function CodesTab() {
           </button>
         </div>
       </Sheet>
+    </>
+  )
+}
+
+function buildEmailPreview(nama: string, kode: string) {
+  return `Halo ${nama} 👋 Terima kasih sudah membeli Finplan Sanka 🎉
+
+Ini akses seumur hidupmu:
+
+🔑 Kode Akses: ${kode}
+🌐 Aplikasi: https://finplansanka.com
+
+Cara aktifkan (1 menit):
+1. Buka https://finplansanka.com
+2. Tap Daftar
+3. Masukkan Kode Akses di atas + email & password kamu
+4. Selesai! Langsung bisa dipakai selamanya ✅
+
+Simpan email ini ya, kodenya cuma bisa dipakai 1x untuk buat akun.
+Ada kendala? Balas email ini, aku bantu 🙏`
+}
+
+function EmailTab() {
+  const { data, isLoading, error } = useAdminOverview(true)
+  const send = useSendCodeEmail()
+  const [nama, setNama] = useState('')
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
+  const [sent, setSent] = useState<string | null>(null)
+
+  if (isLoading) return <Loading />
+  if (error) return <ErrMsg msg={(error as Error).message} />
+
+  const available = data!.codes.unused
+  const selected = code || available[0]?.code || ''
+  const preview = buildEmailPreview(nama.trim() || '[nama pembeli]', selected || 'FS-XXXX-XXXX')
+  const copy = (t: string) => navigator.clipboard?.writeText(t)
+
+  async function kirim() {
+    if (!nama.trim()) { alert('Isi nama pembeli.'); return }
+    if (!email.trim() || !email.includes('@')) { alert('Isi email pembeli yang valid.'); return }
+    if (!selected) { alert('Tidak ada kode tersedia. Generate dulu di tab Kode.'); return }
+    if (!confirm(`Kirim email ke ${email.trim()} berisi kode ${selected}?`)) return
+    try {
+      await send.mutateAsync({ code: selected, email: email.trim(), name: nama.trim() })
+      setSent(email.trim())
+      setNama(''); setEmail(''); setCode('')
+    } catch (e) {
+      alert((e as Error).message)
+    }
+  }
+
+  return (
+    <>
+      <p className="mb-3 text-sm text-gray-400">Kirim kode + cara aktivasi ke email pembeli. Isi nama, email, pilih kode, cek pratinjau, lalu kirim.</p>
+
+      {sent && (
+        <div className="mb-4 rounded-2xl bg-sage-50 p-3 text-center text-sm text-sage-700 dark:bg-sage-500/10">
+          ✅ Email terkirim ke <b>{sent}</b>. Kode ditandai “sudah dikasih”.
+        </div>
+      )}
+
+      <Card className="mb-4 space-y-3">
+        <label className="block">
+          <span className="text-xs font-medium text-gray-400">Nama pembeli</span>
+          <input
+            value={nama}
+            onChange={(e) => setNama(e.target.value)}
+            placeholder="mis. Reza Asqalani"
+            className="mt-1 w-full rounded-xl bg-gray-100 px-3 py-2.5 text-sm outline-none dark:bg-gray-800"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs font-medium text-gray-400">Email pembeli</span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="mis. reza@gmail.com"
+            className="mt-1 w-full rounded-xl bg-gray-100 px-3 py-2.5 text-sm outline-none dark:bg-gray-800"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs font-medium text-gray-400">Pilih kode ({available.length} tersedia)</span>
+          {available.length === 0 ? (
+            <p className="mt-1 rounded-xl bg-wine-50 px-3 py-2 text-xs text-wine-600 dark:bg-wine-500/10">Tak ada kode tersedia. Generate dulu di tab Kode.</p>
+          ) : (
+            <select
+              value={selected}
+              onChange={(e) => setCode(e.target.value)}
+              className="nums mt-1 w-full rounded-xl bg-gray-100 px-3 py-2.5 text-sm font-semibold tracking-wider outline-none dark:bg-gray-800"
+            >
+              {available.map((k) => (
+                <option key={k.code} value={k.code}>{k.code}</option>
+              ))}
+            </select>
+          )}
+        </label>
+      </Card>
+
+      {/* Pratinjau */}
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="font-bold">Pratinjau Email</h2>
+        <button onClick={() => copy(preview)} className="flex items-center gap-1 text-sm font-semibold text-maroon-700"><Copy size={14} /> Salin teks</button>
+      </div>
+      <Card className="mb-4 bg-dusty-50 dark:bg-gray-900/60">
+        <p className="whitespace-pre-line text-sm leading-relaxed text-gray-700 dark:text-gray-200">{preview}</p>
+      </Card>
+
+      <button
+        onClick={kirim}
+        disabled={send.isPending || available.length === 0}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
+      >
+        {send.isPending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+        Kirim Email ke Pembeli
+      </button>
+      <p className="mt-3 text-center text-[11px] text-gray-400">Setelah terkirim, kode otomatis masuk daftar “Sudah Dikasih” di tab Kode.</p>
     </>
   )
 }
