@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { isDemo } from '@/lib/demo'
 import { applyTheme } from '@/lib/themes'
 import { useAutoPostRecurring } from '@/hooks/useAutoPostRecurring'
+import { useHeartbeat } from '@/hooks/useHeartbeat'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TransactionSheet } from '@/components/TransactionSheet'
@@ -31,6 +32,9 @@ export default function App() {
 
   // Auto-post transaksi berulang yang jatuh tempo (sekali per sesi)
   useAutoPostRecurring()
+
+  // Denyut aktivitas → admin tahu siapa sedang/terakhir aktif
+  useHeartbeat()
 
   // Terapkan tema warna ke <html data-theme>
   useEffect(() => {

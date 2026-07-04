@@ -166,21 +166,50 @@ serve(async (req) => {
     for (const c of codes ?? []) if (c.used_by) codeByUser.set(c.used_by, c.code)
 
     const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    const { data: profs } = await admin.from('profiles').select('id, full_name, is_admin')
-    const pmap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; is_admin: boolean }) => [p.id, p]))
-    const users = (list?.users ?? []).map((u) => ({
-      id: u.id,
-      email: u.email,
-      full_name: pmap.get(u.id)?.full_name ?? (u.user_metadata?.full_name ?? ''),
-      is_admin: pmap.get(u.id)?.is_admin ?? false,
-      code: codeByUser.get(u.id) ?? null,
-      created_at: u.created_at,
-      last_sign_in_at: u.last_sign_in_at,
-    }))
+    const { data: profs } = await admin.from('profiles').select('id, full_name, is_admin, last_seen')
+    type Prof = { id: string; full_name: string | null; is_admin: boolean; last_seen: string | null }
+    const pmap = new Map((profs ?? []).map((p: Prof) => [p.id, p]))
+
+    // Statistik kuota DB + jumlah transaksi per pengguna
+    const { data: usageRaw } = await admin.rpc('admin_usage_stats')
+    const usage = (usageRaw ?? {}) as {
+      db_bytes?: number; tx_total?: number; tx_bytes?: number
+      tx_by_user?: { user_id: string; n: number }[]
+      tables?: { name: string; bytes: number }[]
+    }
+    const txByUser = new Map<string, number>((usage.tx_by_user ?? []).map((r) => [r.user_id, r.n]))
+    const txTotal = usage.tx_total ?? 0
+    const txBytes = usage.tx_bytes ?? 0
+    // Estimasi byte per user = porsi transaksinya dari total tabel transactions
+    const bytesPerTx = txTotal > 0 ? txBytes / txTotal : 0
+
+    const users = (list?.users ?? []).map((u) => {
+      const n = txByUser.get(u.id) ?? 0
+      return {
+        id: u.id,
+        email: u.email,
+        full_name: pmap.get(u.id)?.full_name ?? (u.user_metadata?.full_name ?? ''),
+        is_admin: pmap.get(u.id)?.is_admin ?? false,
+        code: codeByUser.get(u.id) ?? null,
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at,
+        last_seen: pmap.get(u.id)?.last_seen ?? null,
+        tx_count: n,
+        est_bytes: Math.round(n * bytesPerTx),
+      }
+    })
+
+    const DB_LIMIT_BYTES = 500 * 1024 * 1024 // Supabase free tier ~500 MB
 
     return json({
       codes: { total, used, unusedCount: unused.length, unused, reservedCount: reserved.length, reserved },
       users,
+      usage: {
+        db_bytes: usage.db_bytes ?? 0,
+        limit_bytes: DB_LIMIT_BYTES,
+        tx_total: txTotal,
+        tables: usage.tables ?? [],
+      },
     })
   } catch (e) {
     return json({ error: String(e) }, 500)

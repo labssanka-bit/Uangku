@@ -3,6 +3,7 @@ import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, Refre
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useProfile } from '@/hooks/useProfile'
 import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
@@ -55,52 +56,121 @@ export function Admin() {
   )
 }
 
+function fmtBytes(n: number) {
+  if (n >= 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + ' MB'
+  if (n >= 1024) return (n / 1024).toFixed(0) + ' KB'
+  return n + ' B'
+}
+function relTime(iso?: string | null) {
+  if (!iso) return null
+  const d = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(d / 60000)
+  if (m < 1) return 'baru saja'
+  if (m < 60) return `${m} mnt lalu`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h} jam lalu`
+  const day = Math.floor(h / 24)
+  if (day < 30) return `${day} hr lalu`
+  return `${Math.floor(day / 30)} bln lalu`
+}
+function isOnline(last_seen?: string | null) {
+  return !!last_seen && Date.now() - new Date(last_seen).getTime() < 3 * 60 * 1000
+}
+
 function UsersTab() {
   const { data, isLoading, error } = useAdminOverview(true)
   const del = useDeleteUser()
   if (isLoading) return <Loading />
   if (error) return <ErrMsg msg={(error as Error).message} />
   const users = data?.users ?? []
+  const usage = data?.usage
+  const onlineCount = users.filter((u) => isOnline(u.last_seen)).length
 
   async function hapus(id: string, nama: string) {
     if (!confirm(`Hapus akun "${nama}"? Semua data (transaksi, dompet, dll) ikut terhapus permanen. Tindakan ini tidak bisa dibatalkan.`)) return
     try { await del.mutateAsync(id) } catch (e) { alert((e as Error).message) }
   }
 
+  // Urutkan: online dulu, lalu paling baru aktif
+  const sorted = [...users].sort((a, b) => {
+    const ta = new Date(a.last_seen ?? a.last_sign_in_at ?? a.created_at).getTime()
+    const tb = new Date(b.last_seen ?? b.last_sign_in_at ?? b.created_at).getTime()
+    return tb - ta
+  })
+
   return (
     <>
-      <p className="mb-3 text-sm text-gray-400">{users.length} pengguna terdaftar</p>
-      <div className="space-y-2">
-        {users.map((u) => (
-          <Card key={u.id} className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-maroon-100 font-bold text-maroon-700 dark:bg-maroon-500/20">
-              {(u.full_name || u.email || '?').charAt(0).toUpperCase()}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1.5 truncate font-semibold">
-                {u.full_name || 'Pengguna'}
-                {u.is_admin && <ShieldCheck size={14} className="shrink-0 text-sage-600" />}
-              </p>
-              <p className="truncate text-xs text-gray-400">{u.email}</p>
-              <p className="mt-0.5 text-[11px]">
-                {u.code
-                  ? <span className="nums rounded bg-dusty-100 px-1.5 py-0.5 font-semibold tracking-wider text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200">🔑 {u.code}</span>
-                  : <span className="text-gray-400">{u.is_admin ? 'admin (tanpa kode)' : 'tanpa kode'}</span>}
-                <span className="ml-2 text-gray-400">{formatTanggal(u.created_at)}</span>
-              </p>
+      {/* Kapasitas database */}
+      {usage && (() => {
+        const ratio = usage.limit_bytes > 0 ? usage.db_bytes / usage.limit_bytes : 0
+        const pct = (ratio * 100)
+        const warn = ratio > 0.8
+        return (
+          <Card className={clsx('mb-4', warn && 'bg-wine-50 dark:bg-wine-500/10')}>
+            <div className="mb-1 flex items-end justify-between">
+              <span className="text-sm font-semibold">Kapasitas Database</span>
+              <span className="nums text-sm">
+                <b className={warn ? 'text-wine-600' : 'text-maroon-700 dark:text-dusty-200'}>{fmtBytes(usage.db_bytes)}</b>
+                <span className="text-gray-400"> / {fmtBytes(usage.limit_bytes)}</span>
+              </span>
             </div>
-            {!u.is_admin && (
-              <button
-                onClick={() => hapus(u.id, u.full_name || u.email || 'Pengguna')}
-                disabled={del.isPending}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-wine-50 text-wine-500 disabled:opacity-50 dark:bg-wine-500/10"
-                aria-label="Hapus akun"
-              >
-                {del.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-              </button>
-            )}
+            <ProgressBar ratio={ratio} />
+            <p className={clsx('mt-1 text-xs', warn ? 'font-medium text-wine-600' : 'text-gray-400')}>
+              {pct.toFixed(1)}% terpakai · {users.length} pengguna · {usage.tx_total} transaksi
+              {warn && ' — mendekati batas! Pertimbangkan upgrade atau bersihkan data.'}
+            </p>
           </Card>
-        ))}
+        )
+      })()}
+
+      <p className="mb-3 text-sm text-gray-400">
+        {users.length} pengguna · <span className="font-semibold text-sage-600">{onlineCount} online</span>
+      </p>
+      <div className="space-y-2">
+        {sorted.map((u) => {
+          const online = isOnline(u.last_seen)
+          const lastActive = relTime(u.last_seen)
+          const lastLogin = relTime(u.last_sign_in_at)
+          return (
+            <Card key={u.id} className="flex items-center gap-3">
+              <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-maroon-100 font-bold text-maroon-700 dark:bg-maroon-500/20">
+                {(u.full_name || u.email || '?').charAt(0).toUpperCase()}
+                {online && <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-sage-500 dark:border-gray-900" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-1.5 truncate font-semibold">
+                  {u.full_name || 'Pengguna'}
+                  {u.is_admin && <ShieldCheck size={14} className="shrink-0 text-sage-600" />}
+                </p>
+                <p className="truncate text-xs text-gray-400">{u.email}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-gray-400">
+                  {online
+                    ? <span className="font-semibold text-sage-600">🟢 Online sekarang</span>
+                    : lastActive
+                      ? <span>aktif {lastActive}</span>
+                      : lastLogin ? <span>login {lastLogin}</span> : <span>belum pernah aktif</span>}
+                  {(u.tx_count ?? 0) > 0 && <span>· {u.tx_count} tx · {fmtBytes(u.est_bytes ?? 0)}</span>}
+                </p>
+                <p className="mt-0.5 text-[11px]">
+                  {u.code
+                    ? <span className="nums rounded bg-dusty-100 px-1.5 py-0.5 font-semibold tracking-wider text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200">🔑 {u.code}</span>
+                    : <span className="text-gray-400">{u.is_admin ? 'admin (tanpa kode)' : 'tanpa kode'}</span>}
+                  <span className="ml-2 text-gray-400">daftar {formatTanggal(u.created_at)}</span>
+                </p>
+              </div>
+              {!u.is_admin && (
+                <button
+                  onClick={() => hapus(u.id, u.full_name || u.email || 'Pengguna')}
+                  disabled={del.isPending}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center self-start rounded-xl bg-wine-50 text-wine-500 disabled:opacity-50 dark:bg-wine-500/10"
+                  aria-label="Hapus akun"
+                >
+                  {del.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                </button>
+              )}
+            </Card>
+          )
+        })}
       </div>
     </>
   )

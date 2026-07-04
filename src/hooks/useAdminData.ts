@@ -19,6 +19,15 @@ export interface AdminUser {
   code: string | null
   created_at: string
   last_sign_in_at: string | null
+  last_seen?: string | null
+  tx_count?: number
+  est_bytes?: number
+}
+export interface AdminUsage {
+  db_bytes: number
+  limit_bytes: number
+  tx_total: number
+  tables: { name: string; bytes: number }[]
 }
 export interface AdminOverview {
   codes: {
@@ -30,6 +39,7 @@ export interface AdminOverview {
     reserved?: AdminCode[]
   }
   users: AdminUser[]
+  usage?: AdminUsage
 }
 
 async function callAdmin<T>(body: Record<string, unknown>): Promise<T> {
