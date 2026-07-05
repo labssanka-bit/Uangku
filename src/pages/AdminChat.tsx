@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { ChevronLeft, Send, Headset, Inbox } from 'lucide-react'
+import { ChevronLeft, Headset, Inbox } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { ChatThread } from '@/components/ChatThread'
+import { ChatComposer } from '@/components/ChatComposer'
 import { useProfile } from '@/hooks/useProfile'
 import { useAdminConversations, useChatMessages, useChatMutations } from '@/hooks/useSupportChat'
 import { formatTanggal } from '@/lib/format'
@@ -47,18 +48,7 @@ export function AdminChat({ embedded = false }: { embedded?: boolean }) {
           <p className="font-bold">{sel.name}</p>
         </div>
         <ChatThread messages={msgs} meSide="admin" emptyHint={`Belum ada pesan dengan ${sel.name}.`} />
-        <div className="flex items-center gap-2 border-t border-gray-100 p-3 dark:border-gray-800">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-            placeholder="Balas sebagai admin…"
-            className="flex-1 rounded-full bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800"
-          />
-          <button onClick={submit} disabled={!text.trim()} className="flex h-11 w-11 items-center justify-center rounded-full bg-maroon-700 text-white disabled:opacity-40" aria-label="Kirim">
-            <Send size={18} />
-          </button>
-        </div>
+        <ChatComposer value={text} onChange={setText} onSend={submit} placeholder="Balas sebagai admin…" />
       </div>
     )
   }

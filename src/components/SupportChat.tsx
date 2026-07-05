@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { MessageCircle, Send, X, Headset } from 'lucide-react'
+import { MessageCircle, X, Headset } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useChatMessages, useUserUnread, useChatMutations } from '@/hooks/useSupportChat'
 import { isDemo } from '@/lib/demo'
 import { ChatThread } from '@/components/ChatThread'
+import { ChatComposer } from '@/components/ChatComposer'
 
 /** Tombol bantuan melayang + sheet chat ke admin (sisi user). */
 export function SupportChat() {
@@ -69,23 +70,7 @@ export function SupportChat() {
             />
 
             {/* Input */}
-            <div className="flex items-center gap-2 border-t border-gray-100 p-3 dark:border-gray-800">
-              <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submit()}
-                placeholder="Tulis pesan…"
-                className="flex-1 rounded-full bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800"
-              />
-              <button
-                onClick={submit}
-                disabled={!text.trim()}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-maroon-700 text-white disabled:opacity-40"
-                aria-label="Kirim"
-              >
-                <Send size={18} />
-              </button>
-            </div>
+            <ChatComposer value={text} onChange={setText} onSend={submit} placeholder="Tulis pesan…" />
           </div>
         </div>
       )}
