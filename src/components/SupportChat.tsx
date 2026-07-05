@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageCircle, Send, X, Headset } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useChatMessages, useUserUnread, useChatMutations } from '@/hooks/useSupportChat'
 import { isDemo } from '@/lib/demo'
-import { clsx } from '@/lib/clsx'
+import { ChatThread } from '@/components/ChatThread'
 
 /** Tombol bantuan melayang + sheet chat ke admin (sisi user). */
 export function SupportChat() {
@@ -16,13 +16,9 @@ export function SupportChat() {
   const { data: msgs = [] } = useChatMessages(me, open)
   const { data: unread = 0 } = useUserUnread(me, !isDemo())
   const { send, markRead } = useChatMutations()
-  const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (open && me) {
-      markRead.mutate({ userId: me, as: 'user' })
-      setTimeout(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
-    }
+    if (open && me) markRead.mutate({ userId: me, as: 'user' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, msgs.length])
 
@@ -66,26 +62,11 @@ export function SupportChat() {
             </div>
 
             {/* Pesan */}
-            <div className="flex-1 space-y-3 overflow-y-auto bg-dusty-50 p-4 no-scrollbar dark:bg-[#1C1418]">
-              {msgs.length === 0 && (
-                <div className="mt-8 text-center text-sm text-gray-400">
-                  👋 Halo! Ada yang bisa kami bantu soal Finplan Sanka? Tulis pesanmu di bawah.
-                </div>
-              )}
-              {msgs.map((m) => (
-                <div key={m.id} className={clsx('flex', m.sender === 'user' ? 'justify-end' : 'justify-start')}>
-                  <div className={clsx(
-                    'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm',
-                    m.sender === 'user'
-                      ? 'rounded-br-md bg-maroon-700 text-white'
-                      : 'rounded-bl-md bg-white text-gray-800 shadow-card dark:bg-gray-800 dark:text-gray-100'
-                  )}>
-                    {m.body}
-                  </div>
-                </div>
-              ))}
-              <div ref={endRef} />
-            </div>
+            <ChatThread
+              messages={msgs}
+              meSide="user"
+              emptyHint="👋 Halo! Ada yang bisa kami bantu soal Finplan Sanka? Tulis pesanmu di bawah."
+            />
 
             {/* Input */}
             <div className="flex items-center gap-2 border-t border-gray-100 p-3 dark:border-gray-800">

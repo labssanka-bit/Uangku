@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, Send, Headset, Inbox } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
+import { ChatThread } from '@/components/ChatThread'
 import { useProfile } from '@/hooks/useProfile'
 import { useAdminConversations, useChatMessages, useChatMutations } from '@/hooks/useSupportChat'
 import { formatTanggal } from '@/lib/format'
-import { clsx } from '@/lib/clsx'
 
 /** Daftar percakapan support + balas. Hanya untuk is_admin. */
 export function AdminChat({ embedded = false }: { embedded?: boolean }) {
@@ -15,13 +15,9 @@ export function AdminChat({ embedded = false }: { embedded?: boolean }) {
   const { data: msgs = [] } = useChatMessages(sel?.id ?? null, !!sel)
   const { send, markRead } = useChatMutations()
   const [text, setText] = useState('')
-  const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (sel) {
-      markRead.mutate({ userId: sel.id, as: 'admin' })
-      setTimeout(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
-    }
+    if (sel) markRead.mutate({ userId: sel.id, as: 'admin' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel?.id, msgs.length])
 
@@ -50,17 +46,7 @@ export function AdminChat({ embedded = false }: { embedded?: boolean }) {
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20"><Headset size={18} /></span>
           <p className="font-bold">{sel.name}</p>
         </div>
-        <div className="flex-1 space-y-3 overflow-y-auto bg-dusty-50 p-4 no-scrollbar dark:bg-[#1C1418]">
-          {msgs.map((m) => (
-            <div key={m.id} className={clsx('flex', m.sender === 'admin' ? 'justify-end' : 'justify-start')}>
-              <div className={clsx(
-                'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm',
-                m.sender === 'admin' ? 'rounded-br-md bg-maroon-700 text-white' : 'rounded-bl-md bg-white text-gray-800 shadow-card dark:bg-gray-800 dark:text-gray-100'
-              )}>{m.body}</div>
-            </div>
-          ))}
-          <div ref={endRef} />
-        </div>
+        <ChatThread messages={msgs} meSide="admin" emptyHint={`Belum ada pesan dengan ${sel.name}.`} />
         <div className="flex items-center gap-2 border-t border-gray-100 p-3 dark:border-gray-800">
           <input
             value={text}
