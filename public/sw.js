@@ -1,7 +1,7 @@
 // Service worker minimal untuk Finplan Sanka (PWA installable + fallback offline ringan).
 // Strategi: network-first. Selalu ambil versi terbaru; cache hanya dipakai saat offline.
 // → Tidak ada risiko "app nyangkut versi lama".
-const CACHE = 'finplan-v1'
+const CACHE = 'finplan-v2'
 
 self.addEventListener('install', () => self.skipWaiting())
 
