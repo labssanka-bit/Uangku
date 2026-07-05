@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset, Eraser } from 'lucide-react'
+import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset, Eraser, BookOpen } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
@@ -165,6 +165,10 @@ export function Settings() {
       </Card>
 
       {/* Admin (hanya untuk akun admin) */}
+      <Card className="mb-4 p-0">
+        <Row icon={BookOpen} label="Panduan Penggunaan" onClick={() => nav('/panduan')} right={<ChevronRight size={18} className="text-gray-300" />} />
+      </Card>
+
       {profile?.is_admin && (
         <Card className="mb-4 p-0">
           <Row icon={Headset} label="Panel Admin" onClick={() => nav('/admin')} right={<ChevronRight size={18} className="text-gray-300" />} />

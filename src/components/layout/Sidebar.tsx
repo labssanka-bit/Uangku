@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   Home, ListChecks, BarChart3, PiggyBank, Repeat, Tags,
-  Landmark, HandCoins, Gem, Settings as Cog, Plus, Headset,
+  Landmark, HandCoins, Gem, Settings as Cog, Plus, Headset, BookOpen,
 } from 'lucide-react'
 import { useProfile } from '@/hooks/useProfile'
 import { clsx } from '@/lib/clsx'
@@ -20,6 +20,7 @@ const items = [
   { to: '/anggaran', icon: PiggyBank, label: 'Anggaran' },
   { to: '/berulang', icon: Repeat, label: 'Berulang' },
   { to: '/kategori', icon: Tags, label: 'Kategori' },
+  { to: '/panduan', icon: BookOpen, label: 'Panduan' },
   { to: '/setting', icon: Cog, label: 'Setting' },
 ]
 

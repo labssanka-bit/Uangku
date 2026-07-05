@@ -21,6 +21,7 @@ import { Wallets } from '@/pages/Wallets'
 import { Debts } from '@/pages/Debts'
 import { Assets } from '@/pages/Assets'
 import { Admin } from '@/pages/Admin'
+import { Panduan } from '@/pages/Panduan'
 import { ResetPassword } from '@/pages/ResetPassword'
 import { SupportChat } from '@/components/SupportChat'
 
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="/hutang" element={<Debts />} />
           <Route path="/aset" element={<Assets />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/panduan" element={<Panduan />} />
           <Route path="/setting" element={<Settings />} />
         </Routes>
       </main>

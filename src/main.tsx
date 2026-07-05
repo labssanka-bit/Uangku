@@ -28,6 +28,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 )
 
+// Tangkap event "bisa dipasang" (Android) → dipakai tombol Pasang di Panduan
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  ;(window as unknown as { __deferredInstallPrompt?: Event }).__deferredInstallPrompt = e
+})
+
 // Daftarkan service worker → PWA installable (buka fullscreen tanpa bar browser)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
