@@ -67,39 +67,38 @@ export function useWalletMutations() {
     onSuccess: invalidate,
   })
 
-  /** Pindah uang antar dompet: buat 2 transaksi (expense dari sumber, income ke tujuan). */
+  /**
+   * Pindah uang antar dompet: 2 transaksi (expense dari sumber, income ke tujuan).
+   * Note diawali "⇄" (terdeteksi transfer). Marker menentukan efek ke Cashflow:
+   *  - Cashflow→Saving  : "⇄ Menabung …"       (keluar dari cashflow = nabung)
+   *  - Saving→Cashflow  : "⇄ Ambil tabungan …" (masuk ke cashflow = pakai tabungan)
+   *  - grup sama         : "⇄ Transfer …"       (pindah murni, netral)
+   */
   const transfer = useMutation({
     mutationFn: async ({
-      fromId, fromName, toId, toName, amount, note, date,
+      fromId, fromName, fromGroup, toId, toName, toGroup, amount, note, date,
     }: {
-      fromId: string; fromName: string
-      toId: string; toName: string
+      fromId: string; fromName: string; fromGroup: WalletGroup
+      toId: string; toName: string; toGroup: WalletGroup
       amount: number; note: string; date: string
     }) => {
       if (isDemo()) return demoBlock()
-      // Note SELALU diawali "⇄" agar terdeteksi sebagai transfer (lib/summary isTransfer)
       const tail = note ? ` (${note})` : ''
+      let fromNote: string
+      let toNote: string
+      if (fromGroup === 'cashflow' && toGroup === 'saving') {
+        fromNote = `⇄ Menabung ke ${toName}${tail}`
+        toNote = `⇄ Setoran dari ${fromName}${tail}`
+      } else if (fromGroup === 'saving' && toGroup === 'cashflow') {
+        fromNote = `⇄ Penarikan ke ${toName}${tail}`
+        toNote = `⇄ Ambil tabungan dari ${fromName}${tail}`
+      } else {
+        fromNote = `⇄ Transfer ke ${toName}${tail}`
+        toNote = `⇄ Transfer dari ${fromName}${tail}`
+      }
       const { error } = await supabase.from('transactions').insert([
-        {
-          user_id: user!.id,
-          amount,
-          type: 'expense',
-          wallet_id: fromId,
-          note: `⇄ Transfer ke ${toName}${tail}`,
-          date,
-          category_id: null,
-          is_recurring: false,
-        },
-        {
-          user_id: user!.id,
-          amount,
-          type: 'income',
-          wallet_id: toId,
-          note: `⇄ Transfer dari ${fromName}${tail}`,
-          date,
-          category_id: null,
-          is_recurring: false,
-        },
+        { user_id: user!.id, amount, type: 'expense', wallet_id: fromId, note: fromNote, date, category_id: null, is_recurring: false },
+        { user_id: user!.id, amount, type: 'income', wallet_id: toId, note: toNote, date, category_id: null, is_recurring: false },
       ])
       if (error) throw error
     },

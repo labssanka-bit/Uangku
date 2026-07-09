@@ -79,7 +79,7 @@ export function Wallets() {
     setFromId(from?.id ?? wallets[0]?.id ?? '')
     setToId(to?.id ?? '')
     setTransferAmount('')
-    setTransferNote(opts?.nabung ? 'Menabung' : '')
+    setTransferNote('') // label otomatis dari jenis dompet (Menabung / Ambil / Transfer)
     setTransferDate(toISODate(new Date()))
     setTransferError(null)
     setTransferOpen(true)
@@ -113,8 +113,10 @@ export function Wallets() {
       await transfer.mutateAsync({
         fromId,
         fromName: fromWallet?.name ?? 'Dompet',
+        fromGroup: fromWallet?.group ?? 'cashflow',
         toId,
         toName: toWallet?.name ?? 'Dompet',
+        toGroup: toWallet?.group ?? 'cashflow',
         amount: amt,
         note: transferNote.trim(),
         date: transferDate,
@@ -243,6 +245,19 @@ export function Wallets() {
             />
           </label>
         </div>
+
+        {(() => {
+          const fg = wallets.find((w) => w.id === fromId)?.group
+          const tg = wallets.find((w) => w.id === toId)?.group
+          if (!fg || !tg) return null
+          const msg =
+            fg === 'cashflow' && tg === 'saving'
+              ? '💰 Menabung — uang keluar dari Cashflow, masuk ke Saving. Dicatat sebagai “nabung” (bukan pengeluaran belanja).'
+              : fg === 'saving' && tg === 'cashflow'
+                ? '↩️ Ambil tabungan — uang dari Saving kembali ke Cashflow.'
+                : '🔄 Pindah antar dompet — tidak dihitung sebagai pemasukan/pengeluaran, hanya catatan perpindahan.'
+          return <p className="mb-3 rounded-xl bg-dusty-50 px-3 py-2 text-center text-[11px] text-gray-500 dark:bg-dusty-500/10">{msg}</p>
+        })()}
 
         {transferError && (
           <p className="mb-3 rounded-xl bg-wine-50 px-3 py-2 text-center text-xs text-wine-600 dark:bg-wine-500/10">

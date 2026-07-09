@@ -23,13 +23,14 @@ export const isAssetBuy = (t: Pick<Transaction, 'note'>): boolean =>
  * Sisi "dalam" tabungan (leg di dompet Saving) diabaikan agar tak dobel.
  */
 export function txFlow(t: Transaction): { income: number; expense: number; nabung: number; pakai: number } {
-  const grp = t.wallet?.group
   if (isTransfer(t)) {
-    // Saving → Cashflow: uang masuk ke dompet cashflow = pakai tabungan (income)
-    if (t.type === 'income' && grp === 'cashflow') return { income: t.amount, expense: 0, nabung: 0, pakai: t.amount }
-    // Cashflow → Saving: uang keluar dari cashflow = menabung
-    if (t.type === 'expense' && grp === 'cashflow') return { income: 0, expense: 0, nabung: t.amount, pakai: 0 }
-    return { income: 0, expense: 0, nabung: 0, pakai: 0 } // leg di sisi Saving, abaikan
+    const n = t.note ?? ''
+    // Cashflow → Saving: uang keluar dari cashflow = menabung (leg cashflow)
+    if (n.startsWith('⇄ Menabung')) return { income: 0, expense: 0, nabung: t.amount, pakai: 0 }
+    // Saving → Cashflow: uang masuk ke cashflow = pakai tabungan (leg cashflow)
+    if (n.startsWith('⇄ Ambil tabungan')) return { income: t.amount, expense: 0, nabung: 0, pakai: t.amount }
+    // Sisanya (pindah antar-cashflow, leg sisi Saving) = pindah murni, netral
+    return { income: 0, expense: 0, nabung: 0, pakai: 0 }
   }
   if (t.type === 'income') return { income: t.amount, expense: 0, nabung: 0, pakai: 0 }
   if (isAssetBuy(t)) return { income: 0, expense: 0, nabung: t.amount, pakai: 0 } // beli aset = investasi

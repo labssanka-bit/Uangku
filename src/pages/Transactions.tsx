@@ -7,6 +7,7 @@ import { Amount } from '@/components/ui/Amount'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useUIStore } from '@/store/uiStore'
 import { buildPeriode } from '@/lib/dateRange'
+import { txFlow } from '@/lib/summary'
 import { formatHeaderHari } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 import type { Transaction, TxType } from '@/types'
@@ -98,10 +99,11 @@ export function Transactions() {
       ) : (
         <div className="space-y-4">
           {groups.map(([date, items]) => {
-            const dayTotal = items.reduce(
-              (acc, t) => acc + (t.type === 'income' ? t.amount : -t.amount),
-              0
-            )
+            // Net arus kas hari itu (transfer murni netral; menabung = keluar cashflow)
+            const dayTotal = items.reduce((acc, t) => {
+              const f = txFlow(t)
+              return acc + f.income - f.expense - f.nabung
+            }, 0)
             return (
               <div key={date}>
                 <div className="mb-1 flex items-center justify-between px-1">

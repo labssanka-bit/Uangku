@@ -1,6 +1,7 @@
 import { CategoryIcon } from './ui/CategoryIcon'
 import { Amount } from './ui/Amount'
 import { formatTanggal } from '@/lib/format'
+import { isTransfer } from '@/lib/summary'
 import type { Transaction } from '@/types'
 
 interface Props {
@@ -36,6 +37,7 @@ export function TransactionItem({ tx, showDate = true, onClick }: Props) {
       <Amount
         value={tx.amount}
         signed={tx.type}
+        muted={isTransfer(tx)}
         className="text-sm font-bold"
       />
     </button>
