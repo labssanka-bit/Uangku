@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from 'recharts'
+import { BarChart3 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { useTransactionsBetween } from '@/hooks/useTransactions'
 import { txFlow } from '@/lib/summary'
@@ -52,7 +53,11 @@ export function MonitoringChart({ refDate }: { refDate: Date }) {
       </div>
 
       {kosong ? (
-        <p className="py-10 text-center text-sm text-gray-400">Belum ada data 6 bulan terakhir.</p>
+        <div className="flex flex-col items-center gap-1.5 py-6 text-center">
+          <BarChart3 size={24} className="text-gray-300" />
+          <p className="text-sm text-gray-400">Grafik tren muncul setelah ada transaksi.</p>
+          <p className="text-xs text-gray-400">Catat beberapa transaksi untuk melihat 6 bulan terakhir.</p>
+        </div>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={data} margin={{ top: 5, right: 6, left: -6, bottom: 0 }}>
