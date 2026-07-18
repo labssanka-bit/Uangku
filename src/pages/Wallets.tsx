@@ -166,9 +166,10 @@ export function Wallets() {
           <div className="space-y-2">
             {wallets.filter((w) => w.group === g).map((w) => (
               <Card key={w.id} onClick={() => openEdit(w)} className="flex items-center gap-3">
+                <span className="-my-1 -ml-1 h-11 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: w.color }} />
                 <CategoryIcon icon={w.icon} color={w.color} />
-                <span className="flex-1 font-semibold">{w.name}</span>
-                <Amount value={w.balance} className="font-bold" />
+                <span className="flex-1 truncate font-semibold">{w.name}</span>
+                <Amount value={w.balance} className={clsx('font-bold', w.balance < 0 && 'text-wine-500')} />
               </Card>
             ))}
             {wallets.filter((w) => w.group === g).length === 0 && (

@@ -6,14 +6,15 @@
 @layer base {
   /* ── Neumorphic CSS variables (tint dusty pink) ── */
   :root {
-    --nm-shadow:       8px  8px 20px rgba(228,179,193,0.55), -8px -8px 20px rgba(255,255,255,0.95);
-    --nm-shadow-sm:    4px  4px 12px rgba(228,179,193,0.45), -4px -4px 12px rgba(255,255,255,0.90);
-    --nm-shadow-inset: inset 4px 4px 10px rgba(228,179,193,0.45), inset -4px -4px 10px rgba(255,255,255,0.80);
+    /* Soft floating shadow — modern, premium, tetap hangat (tint maroon) */
+    --nm-shadow:       0 2px 6px rgba(92,26,43,0.06), 0 14px 34px rgba(92,26,43,0.11);
+    --nm-shadow-sm:    0 1px 3px rgba(92,26,43,0.05), 0 6px 18px rgba(92,26,43,0.08);
+    --nm-shadow-inset: inset 0 2px 6px rgba(92,26,43,0.10), inset 0 1px 2px rgba(92,26,43,0.06);
   }
   .dark {
-    --nm-shadow:       8px  8px 20px rgba(0,0,0,0.65), -8px -8px 20px rgba(90,30,46,0.40);
-    --nm-shadow-sm:    4px  4px 12px rgba(0,0,0,0.55), -4px -4px 12px rgba(90,30,46,0.35);
-    --nm-shadow-inset: inset 4px 4px 10px rgba(0,0,0,0.55), inset -4px -4px 10px rgba(90,30,46,0.30);
+    --nm-shadow:       0 2px 6px rgba(0,0,0,0.45), 0 14px 34px rgba(0,0,0,0.55);
+    --nm-shadow-sm:    0 1px 3px rgba(0,0,0,0.40), 0 6px 18px rgba(0,0,0,0.45);
+    --nm-shadow-inset: inset 0 2px 6px rgba(0,0,0,0.50), inset 0 1px 2px rgba(0,0,0,0.40);
   }
 
   html {
