@@ -64,6 +64,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen lg:pl-60" style={{ background: 'inherit' }}>
+      {/* Ornamen ambient di latar — blob gradasi lembut warna brand */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-maroon-400/[0.08] blur-3xl dark:bg-maroon-500/[0.10]" />
+        <div className="absolute -right-24 top-1/4 h-[32rem] w-[32rem] rounded-full bg-dusty-400/[0.10] blur-3xl dark:bg-dusty-500/[0.10]" />
+        <div className="absolute -bottom-24 left-1/3 h-[26rem] w-[26rem] rounded-full bg-sage-400/[0.08] blur-3xl dark:bg-sage-500/[0.10]" />
+        <div className="absolute inset-0 opacity-[0.5] dark:opacity-[0.35]" style={{ backgroundImage: 'radial-gradient(rgba(120,80,95,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+      </div>
       {demo && (
         <div className="fixed inset-x-0 top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-gradient-to-r from-maroon-700 to-maroon-900 px-4 py-2 text-center text-xs font-semibold text-white lg:pl-60">
           <span>👀 MODE DEMO — cuma contoh untuk coba fitur. Data yang kamu isi <u>TIDAK tersimpan</u>.</span>
