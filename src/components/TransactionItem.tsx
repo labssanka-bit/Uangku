@@ -31,7 +31,14 @@ export function TransactionItem({ tx, showDate = true, onClick }: Props) {
     >
       <CategoryIcon icon={tx.category?.icon} color={tx.category?.color} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold">{title}</p>
+        <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+          <span className="truncate">{title}</span>
+          {tx.reason && (
+            <span className="shrink-0 rounded-full bg-dusty-100 px-1.5 py-0.5 text-[9px] font-semibold text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200">
+              {tx.reason}
+            </span>
+          )}
+        </p>
         <p className="truncate text-xs text-gray-400">{sub}</p>
       </div>
       <Amount

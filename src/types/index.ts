@@ -60,6 +60,7 @@ export interface Profile {
   currency: string
   opening_balance: number
   is_admin?: boolean
+  spending_reasons?: string[] | null
   created_at: string
 }
 
@@ -97,6 +98,7 @@ export interface Transaction {
   receipt_url: string | null
   merchant: string | null
   items: ReceiptItem[] | null
+  reason?: string | null
   created_at: string
   /** Hasil join kategori (opsional) */
   category?: Category | null
@@ -141,4 +143,5 @@ export interface TransactionInput {
   receipt_url?: string | null
   merchant?: string | null
   items?: ReceiptItem[] | null
+  reason?: string | null
 }

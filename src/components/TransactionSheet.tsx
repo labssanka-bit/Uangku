@@ -6,6 +6,7 @@ import { CategoryIcon } from './ui/CategoryIcon'
 import { useCategories } from '@/hooks/useCategories'
 import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
+import { useProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
 import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { parseReceipt, uploadReceipt, parseVoiceAudio } from '@/lib/receipt'
@@ -42,6 +43,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null)
   const [merchant, setMerchant] = useState<string | null>(null)
   const [items, setItems] = useState<ReceiptItem[] | null>(null)
+  const [reason, setReason] = useState<string | null>(null)
   const [busy, setBusy] = useState<null | 'ocr' | 'voice' | 'recording'>(null)
   const [hint, setHint] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -50,6 +52,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const recorderRef = useRef<{ stop: () => Promise<RecordedAudio> } | null>(null)
 
   const { user } = useAuth()
+  const { data: profile } = useProfile()
+  const reasons = profile?.spending_reasons ?? []
   const { data: categories = [] } = useCategories(type)
   const { data: wallets = [] } = useWallets()
   const { create, update, remove } = useTransactionMutations()
@@ -69,6 +73,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setReceiptUrl(editing.receipt_url)
       setMerchant(editing.merchant)
       setItems(editing.items)
+      setReason(editing.reason ?? null)
     } else {
       setType(preset?.type ?? 'expense')
       setAmount(0)
@@ -80,6 +85,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setReceiptUrl(null)
       setMerchant(null)
       setItems(null)
+      setReason(null)
     }
   }, [open, editing, preset])
 
@@ -231,6 +237,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       receipt_url: receiptUrl,
       merchant,
       items,
+      reason: type === 'expense' ? reason : null,
     }
     try {
       if (editing) await update.mutateAsync({ id: editing.id, ...payload })
@@ -397,6 +404,27 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
           </button>
         ))}
       </div>
+
+      {/* Keterangan Belanja (alasan) — hanya untuk Pengeluaran */}
+      {type === 'expense' && reasons.length > 0 && (
+        <>
+          <p className="mb-2 text-xs font-medium text-gray-400">Keterangan Belanja <span className="text-gray-300">(opsional)</span></p>
+          <div className="no-scrollbar mb-4 flex flex-wrap gap-2">
+            {reasons.map((r) => (
+              <button
+                key={r}
+                onClick={() => setReason((cur) => (cur === r ? null : r))}
+                className={clsx(
+                  'rounded-full px-3 py-1.5 text-xs font-semibold transition',
+                  reason === r ? 'bg-maroon-700 text-white' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                )}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Dompet */}
       {wallets.length > 0 && (

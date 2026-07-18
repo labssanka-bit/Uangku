@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset, Eraser, BookOpen } from 'lucide-react'
+import { User, Coins, Download, Trash2, LogOut, Moon, Sun, ChevronRight, Wallet, Palette, Check, Headset, Eraser, BookOpen, PiggyBank, Tag, Plus, X } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
@@ -39,6 +39,10 @@ export function Settings() {
   const [opening, setOpening] = useState('')
   const [busy, setBusy] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [reasonsOpen, setReasonsOpen] = useState(false)
+  const [reasonList, setReasonList] = useState<string[]>([])
+  const [newReason, setNewReason] = useState('')
+  const reasons = profile?.spending_reasons ?? []
 
   const errMsg = (e: unknown, fallback: string) =>
     e instanceof Error ? e.message : (e as { message?: string })?.message || fallback
@@ -161,8 +165,62 @@ export function Settings() {
           }
         />
         <Row icon={Coins} label="Mata Uang" right={<span className="text-sm text-gray-400">{profile?.currency ?? 'IDR'}</span>} />
+        <Row icon={PiggyBank} label="Anggaran (otomatis sama tiap bulan)" onClick={() => nav('/anggaran')} right={<ChevronRight size={18} className="text-gray-300" />} />
+        <Row
+          icon={Tag}
+          label="Keterangan Belanja"
+          onClick={() => { setReasonList(reasons); setNewReason(''); setReasonsOpen(true) }}
+          right={<span className="text-sm text-gray-400">{reasons.length} label</span>}
+        />
         <Row icon={Download} label={busy ? 'Mengekspor…' : 'Ekspor Data (CSV)'} onClick={handleExport} right={<ChevronRight size={18} className="text-gray-300" />} />
       </Card>
+
+      {/* Sheet: kelola Keterangan Belanja */}
+      <Sheet open={reasonsOpen} onClose={() => setReasonsOpen(false)} title="Keterangan Belanja">
+        <p className="mb-3 text-center text-xs text-gray-400">
+          Label alasan belanja (mis. Impulsif, Self-reward). Muncul sebagai pilihan saat catat Pengeluaran.
+        </p>
+        <div className="mb-3 flex flex-wrap gap-2">
+          {reasonList.map((r) => (
+            <span key={r} className="flex items-center gap-1 rounded-full bg-gray-100 py-1.5 pl-3 pr-2 text-sm font-medium dark:bg-gray-800">
+              {r}
+              <button onClick={() => setReasonList((l) => l.filter((x) => x !== r))} className="text-gray-400 hover:text-wine-500" aria-label="Hapus">
+                <X size={14} />
+              </button>
+            </span>
+          ))}
+          {reasonList.length === 0 && <p className="text-sm text-gray-400">Belum ada label.</p>}
+        </div>
+        <div className="mb-4 flex gap-2">
+          <input
+            value={newReason}
+            onChange={(e) => setNewReason(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const v = newReason.trim()
+                if (v && !reasonList.includes(v)) setReasonList((l) => [...l, v])
+                setNewReason('')
+              }
+            }}
+            placeholder="Tambah label baru…"
+            className="flex-1 rounded-xl bg-gray-100 px-3 py-2.5 text-sm outline-none dark:bg-gray-800"
+          />
+          <button
+            onClick={() => { const v = newReason.trim(); if (v && !reasonList.includes(v)) setReasonList((l) => [...l, v]); setNewReason('') }}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-maroon-700 dark:bg-gray-800"
+            aria-label="Tambah"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
+        <button
+          onClick={async () => { try { await updateProfile.mutateAsync({ spending_reasons: reasonList }); setReasonsOpen(false) } catch (e) { alert((e as Error).message) } }}
+          disabled={updateProfile.isPending}
+          className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
+        >
+          {updateProfile.isPending ? 'Menyimpan…' : 'Simpan'}
+        </button>
+      </Sheet>
 
       {/* Admin (hanya untuk akun admin) */}
       <Card className="mb-4 p-0">

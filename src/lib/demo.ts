@@ -56,6 +56,7 @@ export const DEMO_SESSION = {
 // ── Seed data ────────────────────────────────────────────────────────────────
 export const DEMO_PROFILE: Profile = {
   id: 'demo-user', full_name: 'Sanka', currency: 'IDR', opening_balance: 0, created_at: NOW,
+  spending_reasons: ['Kebutuhan', 'Impulsif', 'Self-reward', 'Sosial', 'Darurat', 'Langganan'],
 }
 
 const C = (id: string, name: string, icon: string, color: string, type: 'income' | 'expense'): Category =>

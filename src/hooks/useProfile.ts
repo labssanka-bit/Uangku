@@ -28,7 +28,7 @@ export function useUpdateProfile() {
   const { user } = useAuth()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (patch: Partial<Pick<Profile, 'full_name' | 'currency' | 'opening_balance'>>) => {
+    mutationFn: async (patch: Partial<Pick<Profile, 'full_name' | 'currency' | 'opening_balance' | 'spending_reasons'>>) => {
       if (isDemo()) return demoBlock()
       // Upsert agar baris profil dibuat bila belum ada (mis. trigger tak jalan)
       const { error } = await supabase
