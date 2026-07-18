@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Plus, Wallet as WalletIcon, ArrowRightLeft } from 'lucide-react'
+import { Plus, Wallet as WalletIcon, ArrowRightLeft, Pencil, ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { Amount } from '@/components/ui/Amount'
 import { Sheet } from '@/components/ui/Sheet'
-import { useWalletBalances, useWalletMutations } from '@/hooks/useWallets'
+import { TransactionItem } from '@/components/TransactionItem'
+import { useWalletBalances, useWalletMutations, type WalletBalance } from '@/hooks/useWallets'
+import { useWalletTransactions } from '@/hooks/useTransactions'
 import { ICON_NAMES, COLOR_OPTIONS } from '@/lib/icons'
 import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
@@ -40,6 +42,9 @@ export function Wallets() {
   const [transferNote, setTransferNote] = useState('')
   const [transferDate, setTransferDate] = useState(toISODate(new Date()))
   const [transferError, setTransferError] = useState<string | null>(null)
+
+  // Sheet detail/mutasi dompet
+  const [detailWallet, setDetailWallet] = useState<WalletBalance | null>(null)
 
   function openNew(g: WalletGroup) {
     setEditing(null)
@@ -167,7 +172,7 @@ export function Wallets() {
             {wallets.filter((w) => w.group === g).map((w) => (
               <button
                 key={w.id}
-                onClick={() => openEdit(w)}
+                onClick={() => setDetailWallet(w)}
                 className="relative flex min-h-[116px] flex-col justify-between overflow-hidden rounded-2xl p-3.5 text-left text-white shadow-nm-sm ring-1 ring-black/5 transition active:scale-[.98] lg:hover:-translate-y-0.5"
                 style={{ backgroundColor: w.color }}
               >
@@ -352,6 +357,69 @@ export function Wallets() {
         </div>
         {editing?.is_default && <p className="mt-2 text-center text-xs text-gray-400"><WalletIcon size={12} className="mb-0.5 inline" /> Dompet default tak bisa dihapus.</p>}
       </Sheet>
+
+      {/* Sheet detail / mutasi dompet */}
+      <WalletDetailSheet
+        wallet={detailWallet}
+        onClose={() => setDetailWallet(null)}
+        onEdit={(w) => { setDetailWallet(null); openEdit(w) }}
+      />
     </div>
+  )
+}
+
+/** Detail 1 dompet: saldo, ringkas masuk/keluar, daftar mutasi transaksi. */
+function WalletDetailSheet({ wallet, onClose, onEdit }: { wallet: WalletBalance | null; onClose: () => void; onEdit: (w: WalletBalance) => void }) {
+  const { data: txs = [], isLoading } = useWalletTransactions(wallet?.id ?? null)
+  const masuk = txs.reduce((s, t) => s + (t.type === 'income' ? t.amount : 0), 0)
+  const keluar = txs.reduce((s, t) => s + (t.type === 'expense' ? t.amount : 0), 0)
+
+  return (
+    <Sheet open={!!wallet} onClose={onClose} title={wallet?.name ?? 'Dompet'}>
+      {wallet && (
+        <>
+          {/* Kartu saldo mini */}
+          <div className="relative mb-3 overflow-hidden rounded-2xl p-4 text-white" style={{ backgroundColor: wallet.color }}>
+            <span className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(150deg, rgba(255,255,255,0.2), transparent 45%, rgba(0,0,0,0.32))' }} />
+            <div className="relative flex items-center gap-3">
+              <CategoryIcon icon={wallet.icon} color="#ffffff" size="sm" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs opacity-90">Saldo</p>
+                <Amount value={wallet.balance} className="block text-2xl font-extrabold [text-shadow:0_1px_2px_rgba(0,0,0,0.25)]" />
+              </div>
+              <button onClick={() => onEdit(wallet)} className="flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold active:scale-95">
+                <Pencil size={13} /> Edit
+              </button>
+            </div>
+          </div>
+
+          {/* Ringkas masuk/keluar */}
+          <div className="mb-4 grid grid-cols-2 gap-2">
+            <div className="rounded-2xl bg-sage-50 p-3 dark:bg-sage-500/10">
+              <span className="flex items-center gap-1 text-xs font-medium text-sage-600"><ArrowDownLeft size={13} /> Masuk</span>
+              <Amount value={masuk} className="nums mt-0.5 block font-bold text-sage-600" />
+            </div>
+            <div className="rounded-2xl bg-wine-50 p-3 dark:bg-wine-500/10">
+              <span className="flex items-center gap-1 text-xs font-medium text-wine-500"><ArrowUpRight size={13} /> Keluar</span>
+              <Amount value={keluar} className="nums mt-0.5 block font-bold text-wine-500" />
+            </div>
+          </div>
+
+          {/* Daftar mutasi */}
+          <h3 className="mb-1 px-1 text-sm font-bold">Mutasi ({txs.length})</h3>
+          {isLoading ? (
+            <p className="py-8 text-center text-sm text-gray-400">Memuat…</p>
+          ) : txs.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-400">Belum ada transaksi di dompet ini.</p>
+          ) : (
+            <div className="max-h-[46vh] divide-y divide-gray-100 overflow-y-auto rounded-2xl bg-gray-50 px-3 no-scrollbar dark:divide-gray-800 dark:bg-gray-900/50">
+              {txs.map((t) => (
+                <TransactionItem key={t.id} tx={t} showDate />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </Sheet>
   )
 }

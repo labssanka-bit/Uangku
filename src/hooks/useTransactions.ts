@@ -50,6 +50,27 @@ export function useRecentTransactions(limit = 5) {
   })
 }
 
+/** Semua transaksi (mutasi) satu dompet, terbaru dulu. */
+export function useWalletTransactions(walletId: string | null) {
+  const { user } = useAuth()
+  return useQuery({
+    queryKey: [KEY, 'wallet', user?.id, walletId],
+    enabled: !!user && !!walletId,
+    queryFn: async (): Promise<Transaction[]> => {
+      if (isDemo()) return DEMO_TRANSACTIONS.filter((t) => t.wallet_id === walletId).sort(demoSortDesc)
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*, category:categories(*), wallet:wallets(*)')
+        .eq('wallet_id', walletId!)
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(300)
+      if (error) throw error
+      return data as Transaction[]
+    },
+  })
+}
+
 export function useTransactionMutations() {
   const { user } = useAuth()
   const qc = useQueryClient()
