@@ -116,8 +116,8 @@ export function Assets() {
     setBuyPrice('')
     setCurrentValue('')
     setDate(toISODate(new Date()))
-    setDeductFromWallet(false)
-    setDeductWalletId(wallets[0]?.id ?? '')
+    setDeductFromWallet(true) // beli aset otomatis potong dari dompet + tambah aset
+    setDeductWalletId(wallets.find((w) => w.group === 'cashflow')?.id ?? wallets[0]?.id ?? '')
     setPriceHint(null)
     setOpen(true)
   }

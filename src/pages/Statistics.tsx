@@ -11,7 +11,7 @@ import {
   Line,
   Legend,
 } from 'recharts'
-import { TrendingDown, TrendingUp, Wallet, PiggyBank, Calendar } from 'lucide-react'
+import { TrendingDown, TrendingUp, Wallet, PiggyBank, Calendar, ChevronDown } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Amount } from '@/components/ui/Amount'
 import { MonthSelector } from '@/components/MonthSelector'
@@ -87,6 +87,25 @@ export function Statistics() {
   }, [txs, summary.expense])
   const REASON_COLORS = ['#5C1A2B', '#B23A48', '#C9A86A', '#3E7A66', '#8b5cf6', '#06b6d4', '#f59e0b', '#94a3b8']
 
+  // Rincian per catatan di dalam tiap kategori (mis. Beauty Care → Skincare, Body Care)
+  const notesByCat = useMemo(() => {
+    const outer = new Map<string, { note: string; total: number }[]>()
+    const tmp = new Map<string, Map<string, number>>()
+    for (const t of txs) {
+      if (txFlow(t).expense <= 0) continue
+      const cid = t.category_id ?? 'lain'
+      const n = t.note?.trim() || 'Tanpa catatan'
+      if (!tmp.has(cid)) tmp.set(cid, new Map())
+      const m = tmp.get(cid)!
+      m.set(n, (m.get(n) ?? 0) + t.amount)
+    }
+    for (const [cid, m] of tmp) {
+      outer.set(cid, Array.from(m.entries()).map(([note, total]) => ({ note, total })).sort((a, b) => b.total - a.total))
+    }
+    return outer
+  }, [txs])
+  const [expandedCat, setExpandedCat] = useState<string | null>(null)
+
   return (
     <div className="px-4 pt-5">
       <h1 className="mb-3 text-xl font-extrabold">Statistik</h1>
@@ -142,23 +161,46 @@ export function Statistics() {
         <Card className="mb-3">
           <h2 className="mb-3 font-bold">Rincian per Kategori</h2>
           <div className="space-y-3">
-            {summary.byCategory.map((c) => (
-              <div key={c.id}>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <CategoryIcon icon={c.icon} color={c.color} size="sm" />
-                    {c.name}
-                  </span>
-                  <span className="nums text-xs text-gray-500">
-                    {formatRupiah(c.total)} · {Math.round(c.pct * 100)}%
-                  </span>
+            {summary.byCategory.map((c) => {
+              const notes = notesByCat.get(c.id) ?? []
+              const hasDetail = notes.length > 0
+              const open = expandedCat === c.id
+              return (
+                <div key={c.id}>
+                  <button
+                    onClick={() => hasDetail && setExpandedCat(open ? null : c.id)}
+                    className="w-full text-left"
+                  >
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon icon={c.icon} color={c.color} size="sm" />
+                        {c.name}
+                        {hasDetail && <ChevronDown size={14} className={clsx('text-gray-400 transition-transform', open && 'rotate-180')} />}
+                      </span>
+                      <span className="nums text-xs text-gray-500">
+                        {formatRupiah(c.total)} · {Math.round(c.pct * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                      <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, c.pct * 100)}%`, backgroundColor: c.color }} />
+                    </div>
+                  </button>
+                  {open && (
+                    <div className="mt-2 space-y-1.5 pl-11">
+                      {notes.map((n) => (
+                        <div key={n.note} className="flex items-center gap-2">
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
+                          <span className="min-w-0 flex-1 truncate text-xs text-gray-600 dark:text-gray-300">{n.note}</span>
+                          <span className="nums text-[11px] text-gray-400">{formatRupiah(n.total)} · {Math.round((n.total / c.total) * 100)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                  <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, c.pct * 100)}%`, backgroundColor: c.color }} />
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
+          <p className="mt-3 text-center text-[11px] text-gray-400">Ketuk kategori untuk lihat rincian per catatan.</p>
         </Card>
       )}
 
