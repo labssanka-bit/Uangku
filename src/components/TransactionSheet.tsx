@@ -393,10 +393,10 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
             key={c.id}
             onClick={() => setCategoryId(c.id)}
             className={clsx(
-              'flex flex-col items-center gap-1 rounded-2xl p-2 transition',
+              'flex flex-col items-center gap-1 rounded-2xl p-2 transition active:scale-95',
               resolvedCategoryId === c.id
-                ? 'bg-gray-100 ring-2 ring-maroon-600 dark:bg-gray-800'
-                : 'active:bg-gray-50 dark:active:bg-gray-800'
+                ? 'bg-maroon-50 ring-2 ring-maroon-600 dark:bg-maroon-500/15'
+                : 'hover:bg-gray-50 active:bg-gray-50 dark:hover:bg-gray-800/60 dark:active:bg-gray-800'
             )}
           >
             <CategoryIcon icon={c.icon} color={c.color} size="sm" />
