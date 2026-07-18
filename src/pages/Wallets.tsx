@@ -163,17 +163,28 @@ export function Wallets() {
               <Plus size={16} /> Tambah
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
             {wallets.filter((w) => w.group === g).map((w) => (
-              <Card key={w.id} onClick={() => openEdit(w)} className="flex items-center gap-3">
-                <span className="-my-1 -ml-1 h-11 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: w.color }} />
-                <CategoryIcon icon={w.icon} color={w.color} />
-                <span className="flex-1 truncate font-semibold">{w.name}</span>
-                <Amount value={w.balance} className={clsx('font-bold', w.balance < 0 && 'text-wine-500')} />
-              </Card>
+              <button
+                key={w.id}
+                onClick={() => openEdit(w)}
+                className="relative flex min-h-[116px] flex-col justify-between overflow-hidden rounded-2xl p-3.5 text-left text-white shadow-nm-sm ring-1 ring-black/5 transition active:scale-[.98] lg:hover:-translate-y-0.5"
+                style={{ backgroundColor: w.color }}
+              >
+                <span className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(150deg, rgba(255,255,255,0.22), transparent 42%, rgba(0,0,0,0.34))' }} />
+                <span className="pointer-events-none absolute -right-6 -top-8 h-20 w-20 rounded-full bg-white/15" />
+                <div className="relative flex items-start justify-between">
+                  <CategoryIcon icon={w.icon} color="#ffffff" size="sm" />
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide">{GROUP_LABEL[g]}</span>
+                </div>
+                <div className="relative">
+                  <p className="truncate text-xs font-medium opacity-90">{w.name}</p>
+                  <Amount value={w.balance} className="block text-base font-extrabold [text-shadow:0_1px_2px_rgba(0,0,0,0.25)]" />
+                </div>
+              </button>
             ))}
             {wallets.filter((w) => w.group === g).length === 0 && (
-              <p className="py-3 text-center text-sm text-gray-400">Belum ada dompet.</p>
+              <p className="col-span-2 py-3 text-center text-sm text-gray-400 lg:col-span-3">Belum ada dompet.</p>
             )}
           </div>
         </div>
