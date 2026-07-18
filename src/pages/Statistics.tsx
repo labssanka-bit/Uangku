@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/Card'
 import { Amount } from '@/components/ui/Amount'
 import { MonthSelector } from '@/components/MonthSelector'
 import { CalendarHeatmap } from '@/components/CalendarHeatmap'
+import { SpendingDonut } from '@/components/SpendingDonut'
 import { useUIStore } from '@/store/uiStore'
 import { useTransactions, useTransactionsBetween } from '@/hooks/useTransactions'
 import { buildPeriode } from '@/lib/dateRange'
@@ -68,6 +69,24 @@ export function Statistics() {
 
   const net = summary.net
 
+  // Belanja per Keterangan (reason)
+  const byReason = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const t of txs) {
+      if (txFlow(t).expense > 0) {
+        const r = t.reason || 'Tanpa keterangan'
+        m.set(r, (m.get(r) ?? 0) + t.amount)
+      }
+    }
+    const arr = Array.from(m.entries()).map(([name, total]) => ({
+      name,
+      total,
+      pct: summary.expense > 0 ? total / summary.expense : 0,
+    }))
+    return arr.sort((a, b) => b.total - a.total)
+  }, [txs, summary.expense])
+  const REASON_COLORS = ['#5C1A2B', '#B23A48', '#C9A86A', '#3E7A66', '#8b5cf6', '#06b6d4', '#f59e0b', '#94a3b8']
+
   return (
     <div className="px-4 pt-5">
       <h1 className="mb-3 text-xl font-extrabold">Statistik</h1>
@@ -115,13 +134,13 @@ export function Statistics() {
         )}
       </Card>
 
-      {/* Rekap pengeluaran per kategori */}
+      {/* Donut pengeluaran per kategori */}
+      <SpendingDonut cats={summary.byCategory} total={summary.expense} />
+
+      {/* Rincian pengeluaran per kategori (dgn nominal) */}
       {summary.byCategory.length > 0 && (
         <Card className="mb-3">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold">Pengeluaran per Kategori</h2>
-            <span className="nums text-sm font-bold text-wine-600">{formatRupiah(summary.expense)}</span>
-          </div>
+          <h2 className="mb-3 font-bold">Rincian per Kategori</h2>
           <div className="space-y-3">
             {summary.byCategory.map((c) => (
               <div key={c.id}>
@@ -135,7 +154,30 @@ export function Statistics() {
                   </span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(3, c.pct * 100)}%`, backgroundColor: c.color }} />
+                  <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, c.pct * 100)}%`, backgroundColor: c.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Belanja per Keterangan (Impulsif, Self-reward, dll) */}
+      {byReason.length > 0 && summary.expense > 0 && (
+        <Card className="mb-3">
+          <h2 className="mb-3 font-bold">Belanja per Keterangan</h2>
+          <div className="space-y-3">
+            {byReason.map((r, i) => (
+              <div key={r.name}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: REASON_COLORS[i % REASON_COLORS.length] }} />
+                    {r.name}
+                  </span>
+                  <span className="nums text-xs text-gray-500">{formatRupiah(r.total)} · {Math.round(r.pct * 100)}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, r.pct * 100)}%`, backgroundColor: REASON_COLORS[i % REASON_COLORS.length] }} />
                 </div>
               </div>
             ))}
