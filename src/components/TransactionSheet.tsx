@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Trash2, Repeat, Camera, Mic, Loader2, ImageIcon } from 'lucide-react'
+import { Trash2, Repeat, Camera, Mic, Loader2, ImageIcon, Gem } from 'lucide-react'
 import { Sheet } from './ui/Sheet'
 import { Numpad } from './ui/Numpad'
 import { CategoryIcon } from './ui/CategoryIcon'
 import { useCategories } from '@/hooks/useCategories'
 import { useTransactionMutations } from '@/hooks/useTransactions'
+import { useAssetMutations } from '@/hooks/useAssets'
 import { useWallets } from '@/hooks/useWallets'
 import { useProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
@@ -44,6 +45,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [merchant, setMerchant] = useState<string | null>(null)
   const [items, setItems] = useState<ReceiptItem[] | null>(null)
   const [reason, setReason] = useState<string | null>(null)
+  const [assetMode, setAssetMode] = useState(false)
   const [busy, setBusy] = useState<null | 'ocr' | 'voice' | 'recording'>(null)
   const [hint, setHint] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -57,6 +59,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const { data: categories = [] } = useCategories(type)
   const { data: wallets = [] } = useWallets()
   const { create, update, remove } = useTransactionMutations()
+  const { create: createAsset } = useAssetMutations()
 
   useEffect(() => {
     if (!open) return
@@ -87,6 +90,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setItems(null)
       setReason(null)
     }
+    setAssetMode(false)
   }, [open, editing, preset])
 
   const resolvedCategoryId = useMemo(() => {
@@ -240,8 +244,16 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       reason: type === 'expense' ? reason : null,
     }
     try {
-      if (editing) await update.mutateAsync({ id: editing.id, ...payload })
-      else await create.mutateAsync(payload)
+      if (editing) {
+        await update.mutateAsync({ id: editing.id, ...payload })
+      } else if (assetMode && type === 'expense') {
+        // Beli aset: tambah aset + potong dari dompet (tercatat sbg investasi)
+        const nama = note.trim() || 'Aset'
+        await createAsset.mutateAsync({ name: nama, type: 'lainnya', quantity: 1, buy_price: amount, current_value: amount, date, note: null })
+        await create.mutateAsync({ ...payload, note: `Beli aset: ${nama}`, category_id: null, reason: null })
+      } else {
+        await create.mutateAsync(payload)
+      }
       onClose()
     } catch (e) {
       setSaveError(errMsg(e, 'Gagal menyimpan transaksi.'))
@@ -490,6 +502,29 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
           <span className={clsx('block h-4 w-4 rounded-full bg-white transition', recurring && 'translate-x-4')} />
         </span>
       </button>
+
+      {/* Beli Aset — potong dari dompet + tambah ke daftar Aset (hanya pengeluaran, transaksi baru) */}
+      {type === 'expense' && !editing && (
+        <>
+          <button
+            onClick={() => setAssetMode((v) => !v)}
+            className={clsx(
+              'mb-2 flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm',
+              assetMode ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15' : 'bg-gray-100 text-gray-500 dark:bg-gray-800'
+            )}
+          >
+            <span className="flex items-center gap-2"><Gem size={16} /> Ini pembelian Aset</span>
+            <span className={clsx('h-5 w-9 rounded-full p-0.5 transition', assetMode ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600')}>
+              <span className={clsx('block h-4 w-4 rounded-full bg-white transition', assetMode && 'translate-x-4')} />
+            </span>
+          </button>
+          {assetMode && (
+            <p className="mb-4 -mt-1 px-1 text-[11px] text-gray-400">
+              Nominal dipotong dari dompet (sbg investasi) &amp; otomatis ditambahkan ke daftar <b>Aset</b> (nama = Catatan). Atur jenis/harga terkini nanti di menu Aset.
+            </p>
+          )}
+        </>
+      )}
 
       {/* Numpad */}
       <Numpad onInput={handleDigit} onBackspace={handleBackspace} />
