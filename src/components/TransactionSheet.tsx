@@ -7,7 +7,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { useAuth } from '@/hooks/useAuth'
-import { formatRupiah, toISODate } from '@/lib/format'
+import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { parseReceipt, uploadReceipt, parseVoiceAudio } from '@/lib/receipt'
 import {
   listenOnce,
@@ -274,14 +274,18 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
             </button>
           ))}
         </div>
-        <p
-          className={clsx(
-            'nums mt-3 text-center text-4xl font-extrabold',
-            type === 'income' ? 'text-sage-600' : 'text-wine-500'
-          )}
-        >
-          {formatRupiah(amount)}
-        </p>
+        {/* Nominal: bisa DIKETIK keyboard (PC/HP) atau lewat Numpad di bawah */}
+        <div className={clsx('mt-3 flex items-center justify-center gap-1', type === 'income' ? 'text-sage-600' : 'text-wine-500')}>
+          <span className="text-2xl font-bold opacity-70">Rp</span>
+          <input
+            inputMode="numeric"
+            value={amount ? formatRupiah(amount, false) : ''}
+            onChange={(e) => setAmount(parseRupiah(e.target.value.slice(0, 17)))}
+            placeholder="0"
+            aria-label="Nominal"
+            className="nums w-full max-w-[75%] bg-transparent text-center text-4xl font-extrabold outline-none placeholder:opacity-40"
+          />
+        </div>
       </div>
 
       {/* Foto struk & Suara */}
