@@ -12,7 +12,8 @@ export interface ReceiptItem {
 export type WalletGroup = 'cashflow' | 'saving'
 export type DebtType = 'hutang' | 'piutang' // hutang=aku pinjam, piutang=aku beri pinjam
 export type DebtStatus = 'belum' | 'lunas'
-export type AssetType = 'emas' | 'properti' | 'saham' | 'reksadana' | 'lainnya'
+// Tipe bawaan + tipe kustom (mis. "Tring by Pegadaian"). (string & {}) jaga autocomplete literal.
+export type AssetType = 'emas' | 'properti' | 'saham' | 'reksadana' | 'lainnya' | (string & {})
 
 export interface Wallet {
   id: string

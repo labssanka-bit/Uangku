@@ -16,12 +16,22 @@ import { formatRupiah, formatRupiahRingkas, parseRupiah, toISODate } from '@/lib
 import { clsx } from '@/lib/clsx'
 import type { Asset, AssetType } from '@/types'
 
-const TYPE_META: Record<AssetType, { label: string; icon: string; color: string }> = {
+interface TypeMeta { label: string; icon: string; color: string }
+const TYPE_META: Record<string, TypeMeta> = {
   emas: { label: 'Emas', icon: 'gem', color: '#f59e0b' },
   properti: { label: 'Properti', icon: 'building-2', color: '#8b5cf6' },
   saham: { label: 'Saham', icon: 'trending-up', color: '#3E7A66' },
   reksadana: { label: 'Reksadana', icon: 'coins', color: '#06b6d4' },
   lainnya: { label: 'Lainnya', icon: 'tag', color: '#64748b' },
+}
+const BUILTIN_TYPES = ['emas', 'saham', 'reksadana', 'properti', 'lainnya']
+// Warna stabil untuk tipe kustom (hash nama → palet)
+const CUSTOM_COLORS = ['#B23A48', '#5C1A2B', '#C9A86A', '#0ea5e9', '#8b5cf6', '#3E7A66', '#f59e0b', '#db2777']
+function metaOf(t: string): TypeMeta {
+  if (TYPE_META[t]) return TYPE_META[t]
+  let h = 0
+  for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) >>> 0
+  return { label: t, icon: 'sparkles', color: CUSTOM_COLORS[h % CUSTOM_COLORS.length] }
 }
 
 export function Assets() {
@@ -35,6 +45,7 @@ export function Assets() {
   const [editing, setEditing] = useState<Asset | null>(null)
   const [name, setName] = useState('')
   const [type, setType] = useState<AssetType>('emas')
+  const [customType, setCustomType] = useState('') // jenis kustom saat "Lainnya"
   const [quantity, setQuantity] = useState('1')
   // Emas: harga/gram saat beli & harga/gram sekarang
   const [buyPricePerGram, setBuyPricePerGram] = useState('')
@@ -68,21 +79,21 @@ export function Assets() {
   const totalAsset = useMemo(() => assets.reduce((a, x) => a + x.current_value, 0), [assets])
   const netWorth = walletTotal + totalAsset
 
-  // Filter kategori + rekap per kategori
-  const [filter, setFilter] = useState<'semua' | AssetType>('semua')
-  const TYPE_ORDER: AssetType[] = ['emas', 'saham', 'reksadana', 'properti', 'lainnya']
+  // Filter kategori + rekap per kategori (tipe bawaan + kustom)
+  const [filter, setFilter] = useState<string>('semua')
   const groups = useMemo(() => {
-    return TYPE_ORDER
-      .map((t) => {
-        const items = assets.filter((a) => a.type === t)
-        if (items.length === 0) return null
-        const qty = items.reduce((s, a) => s + a.quantity, 0)
-        const buy = items.reduce((s, a) => s + a.buy_price, 0)
-        const now = items.reduce((s, a) => s + a.current_value, 0)
-        return { type: t, meta: TYPE_META[t], items, qty, buy, now, profit: now - buy }
-      })
-      .filter(Boolean) as { type: AssetType; meta: (typeof TYPE_META)[AssetType]; items: Asset[]; qty: number; buy: number; now: number; profit: number }[]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const present = Array.from(new Set(assets.map((a) => a.type)))
+    const order = [
+      ...BUILTIN_TYPES.filter((t) => present.includes(t)),
+      ...present.filter((t) => !BUILTIN_TYPES.includes(t)).sort(),
+    ]
+    return order.map((t) => {
+      const items = assets.filter((a) => a.type === t)
+      const qty = items.reduce((s, a) => s + a.quantity, 0)
+      const buy = items.reduce((s, a) => s + a.buy_price, 0)
+      const now = items.reduce((s, a) => s + a.current_value, 0)
+      return { type: t, meta: metaOf(t), items, qty, buy, now, profit: now - buy }
+    })
   }, [assets])
 
   // Reset filter kalau kategori terpilih sudah tak punya aset
@@ -110,6 +121,7 @@ export function Assets() {
     setEditing(null)
     setName('')
     setType('emas')
+    setCustomType('')
     setQuantity('1')
     setBuyPricePerGram('')
     setCurrentPricePerGram('')
@@ -125,7 +137,9 @@ export function Assets() {
   function openEdit(a: Asset) {
     setEditing(a)
     setName(a.name)
-    setType(a.type)
+    // tipe kustom → tampilkan sbg "Lainnya" + isi input kustom
+    if (BUILTIN_TYPES.includes(a.type)) { setType(a.type); setCustomType('') }
+    else { setType('lainnya'); setCustomType(a.type) }
     setQuantity(String(a.quantity))
     if ((a.type === 'emas' || a.type === 'saham') && a.quantity > 0) {
       const mult = a.type === 'saham' ? 100 : 1
@@ -148,9 +162,10 @@ export function Assets() {
   async function handleSave() {
     if (!name.trim()) return
     if (isDemo()) { demoBlock(); setOpen(false); return }
+    const finalType = type === 'lainnya' && customType.trim() ? customType.trim() : type
     const payload = {
       name: name.trim(),
-      type,
+      type: finalType,
       quantity: isPerUnit ? qtyNum || 1 : 1,
       buy_price: computedBuyTotal,
       current_value: computedCurrentTotal,
@@ -269,7 +284,7 @@ export function Assets() {
       ) : (
         <div className="space-y-3">
           {visibleAssets.map((a) => {
-            const meta = TYPE_META[a.type]
+            const meta = metaOf(a.type)
             const gain = a.current_value - a.buy_price
             const up = gain >= 0
             const goldBuyPPG = a.type === 'emas' && a.quantity > 0 ? Math.round(a.buy_price / a.quantity) : 0
@@ -320,6 +335,19 @@ export function Assets() {
             </button>
           ))}
         </div>
+
+        {/* Jenis kustom saat "Lainnya" (mis. Tring by Pegadaian) → jadi tipe aset baru */}
+        {type === 'lainnya' && (
+          <label className="mb-3 block">
+            <span className="text-xs text-gray-400">Jenis aset (mis. Tring by Pegadaian) — opsional</span>
+            <input
+              value={customType}
+              onChange={(e) => setCustomType(e.target.value)}
+              placeholder="Ketik jenis baru, mis. Tring by Pegadaian"
+              className="mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-sm outline-none dark:bg-gray-800"
+            />
+          </label>
+        )}
 
         <input
           value={name}
@@ -536,7 +564,7 @@ export function Assets() {
               Hapus
             </button>
           )}
-          <button onClick={handleSave} className="h-12 flex-1 rounded-2xl bg-maroon-700 font-bold text-white shadow-soft">Simpan</button>
+          <button onClick={handleSave} disabled={create.isPending || update.isPending} className="h-12 flex-1 rounded-2xl bg-maroon-700 font-bold text-white shadow-soft disabled:opacity-50">{create.isPending || update.isPending ? 'Menyimpan…' : 'Simpan'}</button>
         </div>
       </Sheet>
     </div>
