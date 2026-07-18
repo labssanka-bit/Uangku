@@ -63,13 +63,18 @@ export default function App() {
   const demo = isDemo()
 
   return (
-    <div className="min-h-screen lg:pl-60" style={{ background: 'inherit' }}>
-      {/* Ornamen ambient di latar — blob gradasi lembut warna brand */}
+    <div className="relative isolate min-h-screen lg:pl-60">
+      {/* Ornamen ambient di latar — blob gradasi + ring + dot (warna brand, ikut tema) */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -left-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-maroon-400/[0.08] blur-3xl dark:bg-maroon-500/[0.10]" />
-        <div className="absolute -right-24 top-1/4 h-[32rem] w-[32rem] rounded-full bg-dusty-400/[0.10] blur-3xl dark:bg-dusty-500/[0.10]" />
-        <div className="absolute -bottom-24 left-1/3 h-[26rem] w-[26rem] rounded-full bg-sage-400/[0.08] blur-3xl dark:bg-sage-500/[0.10]" />
-        <div className="absolute inset-0 opacity-[0.5] dark:opacity-[0.35]" style={{ backgroundImage: 'radial-gradient(rgba(120,80,95,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div className="absolute -left-40 -top-32 h-[34rem] w-[34rem] rounded-full bg-maroon-400/25 blur-3xl dark:bg-maroon-500/20" />
+        <div className="absolute -right-40 top-10 h-[32rem] w-[32rem] rounded-full bg-dusty-400/25 blur-3xl dark:bg-dusty-500/20" />
+        <div className="absolute -bottom-40 left-1/4 h-[34rem] w-[34rem] rounded-full bg-sage-400/20 blur-3xl dark:bg-sage-500/15" />
+        <div className="absolute bottom-0 right-1/4 h-[26rem] w-[26rem] rounded-full bg-maroon-300/20 blur-3xl dark:bg-maroon-400/10" />
+        {/* ring garis samar */}
+        <div className="absolute right-24 top-1/3 h-80 w-80 rounded-full border-2 border-maroon-300/25 dark:border-maroon-500/15" />
+        <div className="absolute -bottom-24 left-10 h-[26rem] w-[26rem] rounded-full border-2 border-dusty-300/25 dark:border-dusty-500/15" />
+        {/* dot grid */}
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(currentColor 1.3px, transparent 1.3px)', backgroundSize: '26px 26px', color: 'rgba(92,26,43,0.06)' }} />
       </div>
       {demo && (
         <div className="fixed inset-x-0 top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-gradient-to-r from-maroon-700 to-maroon-900 px-4 py-2 text-center text-xs font-semibold text-white lg:pl-60">
