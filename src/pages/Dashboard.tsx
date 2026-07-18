@@ -19,6 +19,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { useTransactions, useRecentTransactions, useTransactionDates } from '@/hooks/useTransactions'
 import { useBudgets } from '@/hooks/useBudgets'
 import { useWalletBalances } from '@/hooks/useWallets'
+import { useAssets } from '@/hooks/useAssets'
 import { buildPeriode, bulanSebelum, sisaHari } from '@/lib/dateRange'
 import { summarize, buildInsight, buildComparison, txFlow } from '@/lib/summary'
 import { buildQuickChips } from '@/lib/quickadd'
@@ -42,7 +43,19 @@ export function Dashboard() {
   const { data: recentMany = [] } = useRecentTransactions(50)
   const { data: budgets = [] } = useBudgets(periode)
   const { data: txDates = [] } = useTransactionDates()
-  const { cashflowTotal, savingTotal } = useWalletBalances()
+  const { data: assets = [] } = useAssets()
+  const { cashflowTotal } = useWalletBalances()
+
+  // Nilai per bulan terpilih (ikut filter): aset dibeli & uang ditabung bulan ini
+  const monthKey = `${periode.year}-${String(periode.month).padStart(2, '0')}`
+  const assetThisMonth = useMemo(
+    () => assets.filter((a) => (a.date ?? '').slice(0, 7) === monthKey).reduce((s, a) => s + a.buy_price, 0),
+    [assets, monthKey]
+  )
+  const nabungThisMonth = useMemo(
+    () => txs.filter((t) => (t.note ?? '').startsWith('⇄ Menabung')).reduce((s, t) => s + t.amount, 0),
+    [txs]
+  )
 
   const streak = useMemo(() => computeStreak(txDates), [txDates])
   const balance = cashflowTotal
@@ -89,6 +102,9 @@ export function Dashboard() {
         </div>
         <ThemeToggles />
       </div>
+
+      {/* Selector bulan — di atas biar gampang & tak terpotong */}
+      <MonthSelector className="mb-4" />
 
       <div className="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
       <div className="contents lg:col-span-2 lg:block">
@@ -141,26 +157,23 @@ export function Dashboard() {
         <StatTile icon={Coins} tint="#3E7A66" label="Transaksi bln ini" value={String(summary.count)} />
       </div>
 
-      {/* Ringkasan dompet per grup */}
+      {/* Aset & Nabung — ikut bulan terpilih */}
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <Link to="/dompet" className="flex items-center justify-between rounded-2xl bg-white p-3 shadow-card active:scale-[.98] dark:bg-gray-900">
-          <div>
-            <span className="flex items-center gap-1 text-xs font-medium text-maroon-700 dark:text-dusty-300"><Landmark size={13} /> Cashflow</span>
-            <p className={clsx('nums mt-0.5 font-bold', privacy && 'privacy-blur')}>{formatRupiah(cashflowTotal)}</p>
+        <Link to="/aset" className="flex items-center justify-between rounded-2xl bg-white p-3 shadow-card active:scale-[.98] dark:bg-gray-900">
+          <div className="min-w-0">
+            <span className="flex items-center gap-1 text-xs font-medium text-amber-600"><Gem size={13} /> Aset dibeli</span>
+            <p className={clsx('nums mt-0.5 font-bold', privacy && 'privacy-blur')}>{formatRupiah(assetThisMonth)}</p>
           </div>
-          <ChevronRight size={16} className="text-gray-300" />
+          <ChevronRight size={16} className="shrink-0 text-gray-300" />
         </Link>
         <Link to="/dompet?aksi=nabung" className="rounded-2xl bg-white p-3 shadow-card active:scale-[.98] dark:bg-gray-900">
           <span className="flex items-center justify-between text-xs font-medium text-sage-700">
-            <span className="flex items-center gap-1"><PiggyBank size={13} /> Saving</span>
+            <span className="flex items-center gap-1"><PiggyBank size={13} /> Ditabung</span>
             <span className="flex items-center gap-0.5 rounded-full bg-sage-100 px-1.5 py-0.5 text-[10px] font-semibold text-sage-700 dark:bg-sage-500/20"><Plus size={10} /> Nabung</span>
           </span>
-          <p className={clsx('nums mt-0.5 font-bold', privacy && 'privacy-blur')}>{formatRupiah(savingTotal)}</p>
+          <p className={clsx('nums mt-0.5 font-bold', privacy && 'privacy-blur')}>{formatRupiah(nabungThisMonth)}</p>
         </Link>
       </div>
-
-      {/* Selector bulan */}
-      <MonthSelector className="my-4" />
 
       {/* Kartu insight */}
       <div className="mb-4 rounded-2xl bg-dusty-100 p-4 dark:bg-dusty-500/10">
