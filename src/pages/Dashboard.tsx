@@ -11,6 +11,7 @@ import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { MonthSelector } from '@/components/MonthSelector'
 import { MonitoringChart } from '@/components/MonitoringChart'
+import { SpendingDonut } from '@/components/SpendingDonut'
 import { ThemeToggles } from '@/components/layout/ThemeToggles'
 import { TransactionItem } from '@/components/TransactionItem'
 import { useUIStore } from '@/store/uiStore'
@@ -174,33 +175,8 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* Pengeluaran per kategori (interaktif) */}
-      {summary.byCategory.length > 0 && (
-        <Card className="mb-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold">Pengeluaran per Kategori</h2>
-            <Link to="/statistik" className="text-xs font-semibold text-maroon-700">Detail</Link>
-          </div>
-          <div className="space-y-3">
-            {summary.byCategory.slice(0, 5).map((c) => (
-              <Link key={c.id} to="/statistik" className="block active:opacity-70">
-                <div className="mb-1 flex items-center gap-2 text-sm">
-                  <CategoryIcon icon={c.icon} color={c.color} size="sm" />
-                  <span className="flex-1 truncate font-medium">{c.name}</span>
-                  <span className={clsx('nums text-xs text-gray-500', privacy && 'privacy-blur')}>{formatRupiah(c.total)}</span>
-                  <span className="nums w-9 text-right text-[11px] font-semibold text-gray-400">{Math.round(c.pct * 100)}%</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                  <div
-                    className="h-full rounded-full transition-[width] duration-700"
-                    style={{ width: `${Math.max(3, Math.min(100, c.pct * 100))}%`, backgroundColor: c.color }}
-                  />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Card>
-      )}
+      {/* Pengeluaran per kategori — donut interaktif */}
+      <SpendingDonut cats={summary.byCategory} total={summary.expense} blur={privacy} />
 
       {/* Grafik pemantauan arus 6 bulan */}
       <MonitoringChart refDate={ref} />

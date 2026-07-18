@@ -79,7 +79,7 @@ export default function App() {
       )}
       <Sidebar onAdd={() => openAdd()} />
 
-      <main className={`mx-auto min-h-screen max-w-md pb-32 lg:max-w-5xl lg:px-8 lg:pb-10 ${demo ? 'pt-9' : ''}`}>
+      <main className={`mx-auto min-h-screen max-w-md pb-32 lg:max-w-6xl lg:px-10 lg:pb-10 xl:max-w-[1400px] xl:px-14 ${demo ? 'pt-9' : ''}`}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/transaksi" element={<Transactions />} />
