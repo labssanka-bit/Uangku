@@ -19,6 +19,15 @@ export interface Periode {
   end: string
 }
 
+/** Periode "Semua Data" — akumulasi lintas bulan/tahun. month/year=0 = sentinel. */
+export const ALL_PERIODE: Periode = {
+  ref: new Date('2000-01-01'),
+  month: 0,
+  year: 0,
+  start: '1970-01-01',
+  end: '2999-12-31',
+}
+
 export function buildPeriode(ref: Date): Periode {
   return {
     ref,

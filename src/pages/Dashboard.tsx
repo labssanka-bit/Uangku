@@ -20,6 +20,7 @@ import { useTransactions, useRecentTransactions, useTransactionDates } from '@/h
 import { useBudgets } from '@/hooks/useBudgets'
 import { useWalletBalances } from '@/hooks/useWallets'
 import { useAssets } from '@/hooks/useAssets'
+import { useActivePeriode } from '@/hooks/useActivePeriode'
 import { buildPeriode, bulanSebelum, sisaHari } from '@/lib/dateRange'
 import { summarize, buildInsight, buildComparison, txFlow } from '@/lib/summary'
 import { buildQuickChips } from '@/lib/quickadd'
@@ -32,8 +33,9 @@ export function Dashboard() {
   const privacy = useUIStore((s) => s.privacy)
   const togglePrivacy = useUIStore((s) => s.togglePrivacy)
   const openAdd = useUIStore((s) => s.openAdd)
+  const allTime = useUIStore((s) => s.allTime)
   const ref = new Date(iso)
-  const periode = useMemo(() => buildPeriode(ref), [iso]) // eslint-disable-line react-hooks/exhaustive-deps
+  const periode = useActivePeriode()
   const prevPeriode = useMemo(() => buildPeriode(bulanSebelum(ref)), [iso]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: profile } = useProfile()
@@ -49,8 +51,8 @@ export function Dashboard() {
   // Nilai per bulan terpilih (ikut filter): aset dibeli & uang ditabung bulan ini
   const monthKey = `${periode.year}-${String(periode.month).padStart(2, '0')}`
   const assetThisMonth = useMemo(
-    () => assets.filter((a) => (a.date ?? '').slice(0, 7) === monthKey).reduce((s, a) => s + a.buy_price, 0),
-    [assets, monthKey]
+    () => (allTime ? assets : assets.filter((a) => (a.date ?? '').slice(0, 7) === monthKey)).reduce((s, a) => s + a.buy_price, 0),
+    [assets, monthKey, allTime]
   )
   const nabungThisMonth = useMemo(
     () => txs.filter((t) => (t.note ?? '').startsWith('⇄ Menabung')).reduce((s, t) => s + t.amount, 0),
@@ -67,9 +69,10 @@ export function Dashboard() {
   const insight = useMemo(() => buildInsight(summary, balance, ref), [summary, balance]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const comparison = useMemo(() => {
+    if (allTime) return null
     const prevExpense = prevTxs.reduce((a, t) => a + txFlow(t).expense, 0)
     return buildComparison(summary.expense, prevExpense)
-  }, [prevTxs, summary.expense])
+  }, [prevTxs, summary.expense, allTime])
 
   const quickChips = useMemo(() => buildQuickChips(recentMany, 4), [recentMany])
 

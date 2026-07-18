@@ -90,7 +90,7 @@ export function Budget() {
   return (
     <div className="px-4 pt-5">
       <PageHeader title="Anggaran" />
-      <MonthSelector className="mb-4" />
+      <MonthSelector className="mb-4" hideAllTime />
       <p className="mb-3 text-sm text-gray-400">
         Anggaran otomatis <b className="text-maroon-700 dark:text-dusty-200">sama tiap bulan</b> (tersimpan sbg default).
         Ketuk kategori untuk atur/ubah. Mau beda di 1 bulan saja? Matikan “berlaku semua bulan” saat di bulan itu.

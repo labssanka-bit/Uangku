@@ -19,7 +19,7 @@ import { CalendarHeatmap } from '@/components/CalendarHeatmap'
 import { SpendingDonut } from '@/components/SpendingDonut'
 import { useUIStore } from '@/store/uiStore'
 import { useTransactions, useTransactionsBetween } from '@/hooks/useTransactions'
-import { buildPeriode } from '@/lib/dateRange'
+import { useActivePeriode } from '@/hooks/useActivePeriode'
 import { summarize, txFlow } from '@/lib/summary'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { formatRupiah, formatRupiahRingkas } from '@/lib/format'
@@ -33,7 +33,7 @@ type Granularity = 'harian' | 'mingguan' | 'bulanan'
 export function Statistics() {
   const iso = useUIStore((s) => s.activeMonthISO)
   const ref = new Date(iso)
-  const periode = useMemo(() => buildPeriode(ref), [iso]) // eslint-disable-line react-hooks/exhaustive-deps
+  const periode = useActivePeriode()
   const { data: txs = [] } = useTransactions(periode)
   const summary = useMemo(() => summarize(txs, ref), [txs]) // eslint-disable-line react-hooks/exhaustive-deps
 

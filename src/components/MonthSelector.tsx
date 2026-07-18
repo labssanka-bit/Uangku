@@ -9,10 +9,13 @@ import { clsx } from '@/lib/clsx'
 const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 
 /** Selector bulan: panah + label yang bisa diketuk → picker bulan/tahun (lompat langsung). */
-export function MonthSelector({ className }: { className?: string }) {
+export function MonthSelector({ className, hideAllTime = false }: { className?: string; hideAllTime?: boolean }) {
   const iso = useUIStore((s) => s.activeMonthISO)
   const setMonth = useUIStore((s) => s.setActiveMonth)
+  const allTime = useUIStore((s) => s.allTime)
+  const setAllTime = useUIStore((s) => s.setAllTime)
   const ref = new Date(iso)
+  const showingAll = allTime && !hideAllTime
 
   const [open, setOpen] = useState(false)
   const [pickYear, setPickYear] = useState(ref.getFullYear())
@@ -45,9 +48,9 @@ export function MonthSelector({ className }: { className?: string }) {
         </button>
         <button
           onClick={openPicker}
-          className="min-w-[140px] rounded-full px-3 py-1.5 text-center text-sm font-semibold capitalize active:scale-95"
+          className={clsx('min-w-[140px] rounded-full px-3 py-1.5 text-center text-sm font-semibold capitalize active:scale-95', showingAll && 'text-maroon-700 dark:text-dusty-200')}
         >
-          {formatBulanTahun(ref)}
+          {showingAll ? '📊 Semua Data' : formatBulanTahun(ref)}
         </button>
         <button
           onClick={() => setMonth(bulanBerikut(ref).toISOString())}
@@ -140,10 +143,21 @@ export function MonthSelector({ className }: { className?: string }) {
           </div>
         )}
 
+        {/* Semua Data — akumulasi lintas bulan/tahun */}
+        {!hideAllTime && (
+          <button
+            onClick={() => { setAllTime(true); setOpen(false) }}
+            className={clsx('mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-2.5 text-sm font-semibold active:scale-95',
+              allTime ? 'bg-maroon-700 text-white shadow-soft' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300')}
+          >
+            📊 Semua Data (akumulasi lintas bulan &amp; tahun)
+          </button>
+        )}
+
         {/* Lompat ke bulan ini */}
         <button
           onClick={() => jump(now.getFullYear(), now.getMonth())}
-          className="mt-4 w-full rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 active:scale-95 dark:bg-dusty-500/10 dark:text-dusty-200"
+          className="mt-2 w-full rounded-2xl bg-dusty-100 py-2.5 text-sm font-semibold text-maroon-700 active:scale-95 dark:bg-dusty-500/10 dark:text-dusty-200"
         >
           Ke bulan ini
         </button>

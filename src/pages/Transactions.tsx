@@ -5,8 +5,7 @@ import { TransactionItem } from '@/components/TransactionItem'
 import { TransactionSheet } from '@/components/TransactionSheet'
 import { Amount } from '@/components/ui/Amount'
 import { useTransactions } from '@/hooks/useTransactions'
-import { useUIStore } from '@/store/uiStore'
-import { buildPeriode } from '@/lib/dateRange'
+import { useActivePeriode } from '@/hooks/useActivePeriode'
 import { txFlow } from '@/lib/summary'
 import { formatHeaderHari } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
@@ -15,8 +14,7 @@ import type { Transaction, TxType } from '@/types'
 type Filter = 'all' | TxType
 
 export function Transactions() {
-  const iso = useUIStore((s) => s.activeMonthISO)
-  const periode = useMemo(() => buildPeriode(new Date(iso)), [iso])
+  const periode = useActivePeriode()
   const { data: txs = [], isLoading } = useTransactions(periode)
 
   const [filter, setFilter] = useState<Filter>('all')

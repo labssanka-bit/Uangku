@@ -26,6 +26,10 @@ interface UIState {
   activeMonthISO: string
   setActiveMonth: (iso: string) => void
 
+  // "Semua Data" — akumulasi lintas bulan/tahun (abaikan filter bulan)
+  allTime: boolean
+  setAllTime: (v: boolean) => void
+
   // Sheet tambah transaksi (global, agar bisa dibuka dari mana saja + prefill)
   addOpen: boolean
   addPreset: AddPreset | null
@@ -51,7 +55,10 @@ export const useUIStore = create<UIState>()(
       togglePrivacy: () => set((s) => ({ privacy: !s.privacy })),
 
       activeMonthISO: firstOfThisMonth(),
-      setActiveMonth: (iso) => set({ activeMonthISO: iso }),
+      setActiveMonth: (iso) => set({ activeMonthISO: iso, allTime: false }),
+
+      allTime: false,
+      setAllTime: (v) => set({ allTime: v }),
 
       addOpen: false,
       addPreset: null,
