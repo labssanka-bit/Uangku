@@ -200,7 +200,7 @@ export function Dashboard() {
           <div className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-gray-500">
             <Zap size={14} className="text-dusty-600" /> Catat Cepat
           </div>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
             {quickChips.map((c, i) => (
               <button
                 key={i}

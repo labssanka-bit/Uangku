@@ -21,6 +21,7 @@ export function buildQuickChips(transactions: Transaction[], limit = 4): QuickCh
     const note = t.note?.trim()
     if (!note) continue // hanya yang punya nama jelas
     if (note.startsWith('⇄')) continue // transfer internal, bukan transaksi rutin
+    if (note.startsWith('Beli aset:')) continue // pembelian aset, bukan belanja rutin
     const key = `${t.type}|${t.category_id ?? ''}|${note.toLowerCase()}`
     const prev = map.get(key)
     if (prev) prev.count++
