@@ -56,6 +56,9 @@ export function Dashboard() {
     () => txs.filter((t) => (t.note ?? '').startsWith('⇄ Menabung')).reduce((s, t) => s + t.amount, 0),
     [txs]
   )
+  // Aset (total nilai sekarang + untung/rugi)
+  const assetValue = useMemo(() => assets.reduce((s, a) => s + a.current_value, 0), [assets])
+  const assetGain = useMemo(() => assets.reduce((s, a) => s + (a.current_value - a.buy_price), 0), [assets])
 
   const streak = useMemo(() => computeStreak(txDates), [txDates])
   const balance = cashflowTotal
@@ -84,6 +87,22 @@ export function Dashboard() {
   const sisa = sisaHari(ref)
   const amanHari = balance > 0 && sisa > 0 ? balance / sisa : 0
   const savingsPct = summary.savingsRatio
+  // Belanja per keterangan (bulan ini, top 5)
+  const topReasons = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const t of txs) {
+      if (txFlow(t).expense > 0) {
+        const r = t.reason || 'Tanpa keterangan'
+        m.set(r, (m.get(r) ?? 0) + t.amount)
+      }
+    }
+    return Array.from(m.entries())
+      .map(([name, total]) => ({ name, total, pct: summary.expense > 0 ? total / summary.expense : 0 }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txs, summary.expense])
+  const REASON_COLORS = ['#5C1A2B', '#B23A48', '#C9A86A', '#3E7A66', '#8b5cf6', '#06b6d4', '#f59e0b', '#94a3b8']
 
   return (
     <div className="px-4 pt-5">
@@ -235,6 +254,52 @@ export function Dashboard() {
 
       </div>{/* /kolom utama */}
       <div className="contents lg:col-span-1 lg:block">
+
+      {/* Aset & kekayaan */}
+      {assets.length > 0 && (
+        <Link to="/aset" className="mb-4 block">
+          <Card className="relative overflow-hidden">
+            <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-amber-400/10 blur-2xl" />
+            <div className="relative mb-1 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-sm font-bold"><Gem size={15} className="text-amber-500" /> Aset</span>
+              <span className="text-xs font-semibold text-maroon-700">Lihat</span>
+            </div>
+            <p className={clsx('nums text-2xl font-extrabold', privacy && 'privacy-blur')}>{formatRupiah(assetValue)}</p>
+            {assetValue > 0 && (
+              <p className={clsx('mt-0.5 flex items-center gap-1 text-xs font-semibold', assetGain >= 0 ? 'text-sage-600' : 'text-wine-500')}>
+                {assetGain >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                {assetGain >= 0 ? 'Untung' : 'Rugi'} <span className={clsx('nums', privacy && 'privacy-blur')}>{formatRupiah(Math.abs(assetGain))}</span>
+              </p>
+            )}
+          </Card>
+        </Link>
+      )}
+
+      {/* Belanja per keterangan */}
+      {topReasons.length > 0 && summary.expense > 0 && (
+        <Card className="mb-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-bold">Belanja per Keterangan</h2>
+            <Link to="/statistik" className="text-xs font-semibold text-maroon-700">Detail</Link>
+          </div>
+          <div className="space-y-2.5">
+            {topReasons.map((r, i) => (
+              <div key={r.name}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: REASON_COLORS[i % REASON_COLORS.length] }} />
+                    {r.name}
+                  </span>
+                  <span className="nums text-xs text-gray-400">{Math.round(r.pct * 100)}%</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, r.pct * 100)}%`, backgroundColor: REASON_COLORS[i % REASON_COLORS.length] }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Ringkasan anggaran */}
       {budgets.length > 0 && (
