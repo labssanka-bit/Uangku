@@ -91,7 +91,16 @@ details p{margin-top:8px;font-size:.95rem}
 .final p{color:rgba(255,255,255,.88)}
 .final .btn-main{background:#fff;color:var(--maroon);margin-top:20px}
 .final .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.6);margin-top:10px}
-footer{padding:26px 0;text-align:center;font-size:.84rem;color:var(--ink-3)}
+footer{padding:26px 0 90px;text-align:center;font-size:.84rem;color:var(--ink-3)}
+
+/* Sticky CTA — muncul hanya setelah pengunjung paham value */
+.scta{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;align-items:center;justify-content:center;gap:14px;
+  background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:12px 18px;
+  transform:translateY(115%);transition:transform .25s ease;box-shadow:0 -10px 26px -16px rgba(92,26,43,.4)}
+.scta.show{transform:translateY(0)}
+.scta b{font-size:.95rem;color:var(--ink)}
+.scta a{background:var(--maroon);color:#fff;text-decoration:none;font-weight:800;border-radius:999px;padding:12px 24px;font-size:.95rem;white-space:nowrap}
+@media(max-width:560px){.scta b{display:none}.scta{padding:10px 14px}.scta a{width:100%;text-align:center}}
 </style>
 </head>
 <body>
@@ -167,6 +176,8 @@ footer{padding:26px 0;text-align:center;font-size:.84rem;color:var(--ink-3)}
       Harga naik tiap tahun. Yang diatur — bertumbuh.</p>
   </div>
 </section>
+<!-- penanda: sticky CTA baru muncul setelah titik ini (value sudah tersampaikan) -->
+<div id="cta-start" aria-hidden="true"></div>
 
 <!-- ══ 3 LANGKAH ══ -->
 <section>
@@ -283,5 +294,31 @@ footer{padding:26px 0;text-align:center;font-size:.84rem;color:var(--ink-3)}
 </section>
 
 <footer>Finplan Sanka · finplansanka.com · Bantuan: DM Instagram @finplan.bysanka</footer>
+
+<!-- Sticky CTA -->
+<div class="scta" id="scta">
+  <b>Siap rapiin keuanganmu?</b>
+  <a href="#harga">Lihat Pilihan Paket →</a>
+</div>
+<script>
+(function(){
+  var bar=document.getElementById('scta'),
+      start=document.getElementById('cta-start'),
+      harga=document.getElementById('harga');
+  if(!bar||!start||!harga)return;
+  function upd(){
+    var y=window.scrollY||window.pageYOffset;
+    // tampil setelah pengunjung melewati seksi value
+    var lewat = y > (start.offsetTop - window.innerHeight * 0.6);
+    // sembunyi saat seksi Harga sedang terlihat (tak perlu dobel CTA)
+    var r = harga.getBoundingClientRect();
+    var diHarga = r.top < window.innerHeight && r.bottom > 0;
+    bar.classList.toggle('show', lewat && !diHarga);
+  }
+  window.addEventListener('scroll', upd, {passive:true});
+  window.addEventListener('resize', upd, {passive:true});
+  upd();
+})();
+</script>
 </body>
 </html>
