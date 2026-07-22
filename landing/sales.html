@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finplan Sanka — Berhenti Bingung Uangmu Lari Ke Mana</title>
+<meta name="description" content="Aplikasi catatan keuangan paling simpel. Catat 3 detik, tahu persis uangmu ke mana. Sekali bayar Rp149.000 akses selamanya, atau Rp99.000/bulan.">
+<meta name="theme-color" content="#5C1A2B">
+<style>
+/* ── Ringan: tanpa font eksternal, tanpa animasi berat, CSS minim ── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --maroon:#5C1A2B; --maroon-d:#3E0F1C; --maroon-l:#7B2540;
+  --gold:#C9A86A; --sage:#3E7A66; --wine:#B23A48;
+  --cream:#FBF7F3; --card:#fff; --line:#EADFD6;
+  --ink:#1B1418; --ink-2:#4A4048; --ink-3:#7A7079;
+  --r:18px;
+}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink); background:var(--cream);
+  font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+section{padding:56px 0}
+h1,h2,h3{line-height:1.18; letter-spacing:-.02em; font-weight:800}
+h1{font-size:clamp(1.9rem,6vw,3rem); font-weight:900}
+h2{font-size:clamp(1.5rem,4.5vw,2.1rem)}
+h3{font-size:1.12rem;font-weight:800}
+p{color:var(--ink-2)}
+.lead{font-size:1.1rem;color:var(--ink-2)}
+.center{text-align:center}
+.eyebrow{display:inline-block;font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--maroon-l);margin-bottom:12px}
+.hl{color:var(--maroon);font-weight:900}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:800;font-size:1.05rem;border-radius:999px;padding:16px 22px}
+.btn-main{background:var(--maroon);color:#fff}
+.btn-ghost{background:#fff;color:var(--maroon);border:2px solid var(--maroon)}
+.muted{font-size:.86rem;color:var(--ink-3)}
+
+/* Hero */
+.hero{background:linear-gradient(165deg,#fff 0%,var(--cream) 55%,#F4E9E4 100%);padding:60px 0 48px;border-bottom:1px solid var(--line)}
+.badge{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:.8rem;font-weight:700;color:var(--maroon);margin-bottom:16px}
+.hero h1 em{font-style:normal;color:var(--maroon)}
+.hero .sub{font-size:1.12rem;margin:16px 0 24px;max-width:620px}
+.trust{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;font-size:.86rem;font-weight:700;color:var(--ink-2)}
+
+/* Pain */
+.pain{background:#fff}
+.pain .card{border-left:4px solid var(--wine);padding:16px 18px}
+.pain .card b{display:block;color:var(--ink);font-size:1rem;margin-bottom:2px}
+.pain .card span{font-size:.92rem;color:var(--ink-2)}
+.quote{margin-top:22px;background:var(--cream);border-left:4px solid var(--maroon);border-radius:12px;padding:18px 20px;font-size:1.02rem;color:var(--ink-2);font-style:italic}
+.quote b{color:var(--ink);font-style:normal}
+
+/* Fitur */
+.feat .card b{display:block;font-size:1rem;color:var(--ink);margin:8px 0 3px}
+.feat .card span{font-size:.9rem}
+.ic{font-size:1.6rem;line-height:1}
+
+/* Langkah */
+.step{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px;text-align:center}
+.step .n{width:38px;height:38px;border-radius:50%;background:var(--maroon);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+
+/* Harga */
+.pricing{background:linear-gradient(170deg,#fff,var(--cream))}
+.plan{background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:26px 22px;position:relative}
+.plan.best{border:2.5px solid var(--maroon);box-shadow:0 18px 40px -22px rgba(92,26,43,.45)}
+.tagbest{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--maroon);color:#fff;font-size:.74rem;font-weight:800;letter-spacing:.06em;padding:6px 14px;border-radius:999px;white-space:nowrap}
+.plan h3{font-size:1.15rem;color:var(--maroon)}
+.price{font-size:2.5rem;font-weight:900;color:var(--ink);letter-spacing:-.03em;margin:8px 0 2px}
+.price small{font-size:1rem;font-weight:700;color:var(--ink-3)}
+.plan ul{list-style:none;margin:16px 0 20px}
+.plan li{font-size:.95rem;color:var(--ink-2);padding:6px 0 6px 26px;position:relative}
+.plan li::before{content:"✓";position:absolute;left:0;color:var(--sage);font-weight:900}
+.plan li.no::before{content:"–";color:var(--ink-3)}
+
+/* FAQ */
+details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}
+summary{font-weight:800;cursor:pointer;color:var(--ink);font-size:1rem}
+details p{margin-top:8px;font-size:.95rem}
+
+/* Penutup */
+.final{background:var(--maroon);color:#fff;text-align:center}
+.final h2{color:#fff}
+.final p{color:rgba(255,255,255,.88)}
+.final .btn-main{background:#fff;color:var(--maroon);margin-top:20px}
+.final .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.6);margin-top:10px}
+footer{padding:26px 0;text-align:center;font-size:.84rem;color:var(--ink-3)}
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">📱 Aplikasi catatan keuangan · Bahasa Indonesia</span>
+    <h1>Gaji masuk tanggal 25.<br>Tanggal 5 <em>udah ludes.</em><br>Ke mana perginya?</h1>
+    <p class="sub">Masalahnya bukan kamu boros — kamu cuma <b>nggak pernah tahu</b> uangmu lari ke mana.
+      <b>Finplan Sanka</b> mencatatnya untukmu dalam <b>3 detik</b>, lalu menunjukkan dengan jujur
+      ke mana setiap rupiah pergi.</p>
+    <div class="grid g2" style="max-width:520px">
+      <a class="btn btn-main" href="https://digital-store-27.myscalev.com/lifetimefinplansanka">Ambil Akses Selamanya — Rp149.000</a>
+      <a class="btn btn-ghost" href="https://digital-store-27.myscalev.com/monthlyfinplansanka">Coba Bulanan — Rp99.000</a>
+    </div>
+    <div class="trust"><span>✓ Langsung pakai</span><span>✓ Data pribadi & aman</span><span>✓ Tanpa iklan</span></div>
+  </div>
+</header>
+
+<!-- ══ MASALAH ══ -->
+<section class="pain">
+  <div class="wrap">
+    <span class="eyebrow">Mungkin kamu pernah ngalamin</span>
+    <h2>Bukan kamu nggak bisa nabung.<br>Kamu cuma nggak punya <span class="hl">catatannya.</span></h2>
+    <div class="grid g3" style="margin-top:24px">
+      <div class="card"><b>“Kok udah habis aja?”</b><span>Saldo tinggal sedikit, tapi nggak inget belanja apa saja.</span></div>
+      <div class="card"><b>Catat di Notes, lupa terus</b><span>Niat rajin 3 hari, minggu depan hilang semangat.</span></div>
+      <div class="card"><b>Nggak punya tabungan</b><span>Tiap bulan habis. Dana darurat cuma wacana.</span></div>
+      <div class="card"><b>Hutang lupa, ditagih kaget</b><span>Siapa pinjam berapa, jatuh tempo kapan — buyar.</span></div>
+      <div class="card"><b>Nggak tahu posisi keuangan</b><span>Ditanya “punya berapa?” — cuma bisa nebak.</span></div>
+      <div class="card"><b>Nunda terus, nyesal nanti</b><span>“Bulan depan deh” — dan bulan depan sama saja.</span></div>
+    </div>
+    <p class="quote">Yang bikin capek bukan uangnya habis. Tapi <b>nggak tahu habisnya ke mana</b> —
+      jadi tiap bulan mengulang kesalahan yang sama, tanpa sadar.</p>
+  </div>
+</section>
+
+<!-- ══ SOLUSI ══ -->
+<section>
+  <div class="wrap center">
+    <span class="eyebrow">Titik baliknya</span>
+    <h2>Satu aplikasi. Semua uangmu <span class="hl">rapi & terkendali.</span></h2>
+    <p class="lead" style="max-width:640px;margin:14px auto 0">
+      Bukan spreadsheet ribet. Bukan Excel penuh rumus. Cukup buka, tap, selesai —
+      lalu app-nya yang menghitung, merapikan, dan mengingatkan.</p>
+  </div>
+</section>
+
+<!-- ══ FITUR ══ -->
+<section class="feat" style="padding-top:0">
+  <div class="wrap">
+    <div class="grid g3">
+      <div class="card"><div class="ic">⚡</div><b>Catat 3 detik</b><span>Ketik, <b>foto struk</b> (dibaca AI), atau tinggal <b>ngomong</b> — langsung tercatat.</span></div>
+      <div class="card"><div class="ic">🏦</div><b>Dompet & Tabungan</b><span>Cash, bank, e-wallet — saldo tiap dompet selalu akurat.</span></div>
+      <div class="card"><div class="ic">🤝</div><b>Hutang & Piutang</b><span>Siapa, berapa, jatuh tempo kapan. Nggak ada lagi yang kelupaan.</span></div>
+      <div class="card"><div class="ic">💎</div><b>Aset & Emas</b><span>Emas, saham, properti — untung-ruginya kehitung otomatis.</span></div>
+      <div class="card"><div class="ic">✨</div><b>Insight cerdas</b><span>“Uang aman harianmu Rp250rb/hari.” Jelas, tiap hari.</span></div>
+      <div class="card"><div class="ic">📊</div><b>Grafik & laporan</b><span>Lihat pola belanjamu — ketahuan bocornya di mana.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EMOSIONAL ══ -->
+<section style="background:#fff">
+  <div class="wrap">
+    <span class="eyebrow">Lebih dari sekadar angka</span>
+    <h2>Pernah belanja pas lagi <span class="hl">bad mood?</span></h2>
+    <p class="lead" style="margin-top:12px;max-width:660px">
+      Finplan punya <b>Keterangan Belanja</b> — tandai tiap pengeluaran: <i>Kebutuhan, Impulsif,
+      Self-reward, Sosial.</i> Akhir bulan kamu lihat sendiri: <b>“ternyata 40% belanjaku impulsif.”</b>
+      Sadar dulu — baru bisa berubah. Ini yang nggak diberikan catatan biasa.</p>
+    <p class="quote" style="margin-top:20px">Uang yang didiamkan, diam-diam <b>menyusut</b>.
+      Harga naik tiap tahun. Yang diatur — bertumbuh.</p>
+  </div>
+</section>
+
+<!-- ══ 3 LANGKAH ══ -->
+<section>
+  <div class="wrap">
+    <div class="center"><span class="eyebrow">Gampang banget</span>
+      <h2>Dari bingung ke terkendali — <span class="hl">3 langkah.</span></h2></div>
+    <div class="grid g3" style="margin-top:24px">
+      <div class="step"><div class="n">1</div><h3>Catat</h3><p style="font-size:.93rem;margin-top:4px">Tiap jajan, tap tombol +. Atau foto struknya. 3 detik.</p></div>
+      <div class="step"><div class="n">2</div><h3>Lihat</h3><p style="font-size:.93rem;margin-top:4px">Grafik & rekap otomatis. Ketahuan bocornya di mana.</p></div>
+      <div class="step"><div class="n">3</div><h3>Kendalikan</h3><p style="font-size:.93rem;margin-top:4px">Pasang anggaran, sisihkan tabungan. Uang jadi nurut.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HARGA ══ -->
+<section class="pricing" id="harga">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">Pilih yang cocok</span>
+      <h2>Sekali ngopi cantik, atau <span class="hl">atur uang seumur hidup?</span></h2>
+      <p class="lead" style="max-width:600px;margin:12px auto 0">
+        Rp149.000 itu sekali bayar — kira-kira harga 3× nongkrong. Bedanya, yang ini
+        menemani keuanganmu <b>selamanya</b>.</p>
+    </div>
+
+    <div class="grid g2" style="margin-top:34px">
+      <div class="plan best">
+        <span class="tagbest">⭐ PALING HEMAT — SEKALI BAYAR</span>
+        <h3>Akses Selamanya</h3>
+        <div class="price">Rp149.000 <small>/ sekali</small></div>
+        <p class="muted">Bayar sekali, milik kamu seterusnya.</p>
+        <ul>
+          <li>Semua fitur kebuka <b>selamanya</b></li>
+          <li>Update fitur baru <b>gratis terus</b></li>
+          <li>Foto struk AI &amp; input suara</li>
+          <li>Dompet, hutang, aset, anggaran</li>
+          <li>17 tema tampilan</li>
+          <li><b>Tanpa tagihan bulanan</b></li>
+        </ul>
+        <a class="btn btn-main" href="https://digital-store-27.myscalev.com/lifetimefinplansanka">Ambil Akses Selamanya →</a>
+        <p class="muted center" style="margin-top:10px">Hemat jangka panjang — balik modal &lt; 2 bulan.</p>
+      </div>
+
+      <div class="plan">
+        <h3>Bulanan</h3>
+        <div class="price">Rp99.000 <small>/ bulan</small></div>
+        <p class="muted">Mau coba dulu sebelum komit.</p>
+        <ul>
+          <li>Semua fitur kebuka</li>
+          <li>Foto struk AI &amp; input suara</li>
+          <li>Dompet, hutang, aset, anggaran</li>
+          <li>17 tema tampilan</li>
+          <li class="no">Bayar lagi tiap bulan</li>
+          <li class="no">Berhenti bayar = akses berhenti</li>
+        </ul>
+        <a class="btn btn-ghost" href="https://digital-store-27.myscalev.com/monthlyfinplansanka">Mulai Bulanan →</a>
+        <p class="muted center" style="margin-top:10px">2 bulan saja sudah Rp198.000 — lebih mahal dari lifetime.</p>
+      </div>
+    </div>
+
+    <p class="center muted" style="margin-top:22px">
+      💳 Pembayaran aman lewat Scalev · Kode akses dikirim ke email &amp; WhatsApp setelah bayar
+    </p>
+  </div>
+</section>
+
+<!-- ══ SETELAH BAYAR ══ -->
+<section style="background:#fff">
+  <div class="wrap center">
+    <span class="eyebrow">Setelah bayar</span>
+    <h2>Dalam hitungan menit, kamu sudah mulai.</h2>
+    <div class="grid g3" style="margin-top:24px;text-align:left">
+      <div class="card"><b>1. Kode akses masuk</b><span>Dikirim ke email &amp; WhatsApp kamu.</span></div>
+      <div class="card"><b>2. Daftar 1 menit</b><span>Buka finplansanka.com → Daftar → tempel kode.</span></div>
+      <div class="card"><b>3. Pasang jadi aplikasi</b><span>Add to Home Screen — buka sekali tap, tanpa browser.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section>
+  <div class="wrap">
+    <div class="center"><span class="eyebrow">Masih ragu?</span><h2>Pertanyaan yang sering ditanya</h2></div>
+    <div style="margin-top:24px">
+      <details><summary>Ini aplikasi atau file?</summary><p>Aplikasi web. Buka finplansanka.com, bisa dipasang ke layar HP (Android &amp; iPhone) jadi seperti aplikasi biasa — sekali tap, tanpa browser.</p></details>
+      <details><summary>Bedanya lifetime dan bulanan apa?</summary><p>Fiturnya <b>sama persis</b>. Lifetime bayar sekali Rp149.000 dan milik kamu selamanya. Bulanan Rp99.000 tiap bulan — kalau berhenti bayar, akses berhenti. Dua bulan bulanan saja sudah lebih mahal dari lifetime.</p></details>
+      <details><summary>Datanya aman?</summary><p>Aman. Data tersimpan di akunmu sendiri dan hanya bisa dibuka olehmu. Kami tidak menjual data, tidak ada iklan.</p></details>
+      <details><summary>Saya gaptek, bisa pakai?</summary><p>Bisa. Dirancang untuk yang paling gaptek: tap tombol +, isi angka, selesai. Ada menu <b>Panduan</b> di dalam aplikasi, dan admin siap bantu lewat chat di app.</p></details>
+      <details><summary>Bisa dipakai di HP dan laptop?</summary><p>Bisa, dengan akun yang sama. Data langsung sinkron di semua perangkat.</p></details>
+      <details><summary>Kode akses belum masuk?</summary><p>Cek email (termasuk Spam/Promosi) dan WhatsApp. Kalau belum juga, DM Instagram <b>@finplan.bysanka</b> — dibantu kirim ulang.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PENUTUP ══ -->
+<section class="final">
+  <div class="wrap">
+    <h2>Setahun lagi kamu akan berterima kasih<br>pada dirimu yang mulai hari ini.</h2>
+    <p style="max-width:600px;margin:14px auto 0">
+      Atau… tetap bertanya “kok udah habis lagi?” tiap tanggal 5.
+      Bedanya cuma satu keputusan kecil, sekarang.</p>
+    <div style="max-width:460px;margin:0 auto">
+      <a class="btn btn-main" href="https://digital-store-27.myscalev.com/lifetimefinplansanka">Ambil Akses Selamanya — Rp149.000</a>
+      <a class="btn btn-ghost" href="https://digital-store-27.myscalev.com/monthlyfinplansanka">Atau mulai bulanan — Rp99.000</a>
+    </div>
+  </div>
+</section>
+
+<footer>Finplan Sanka · finplansanka.com · Bantuan: DM Instagram @finplan.bysanka</footer>
+</body>
+</html>

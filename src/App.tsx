@@ -77,12 +77,20 @@ export default function App() {
             Perpanjang untuk lanjut memakai Finplan Sanka. Datamu aman & tetap tersimpan.
           </p>
           <a
-            href="https://digital-store-27.myscalev.com/landing-page-baru-8"
+            href="https://digital-store-27.myscalev.com/lifetimefinplansanka"
             target="_blank"
             rel="noreferrer"
             className="mt-5 block rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
           >
-            Perpanjang Sekarang →
+            Upgrade Selamanya — Rp149.000 →
+          </a>
+          <a
+            href="https://digital-store-27.myscalev.com/monthlyfinplansanka"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 block rounded-2xl border-2 border-maroon-700 py-3 font-bold text-maroon-700 dark:text-dusty-200"
+          >
+            Perpanjang Bulanan — Rp99.000 →
           </a>
           <p className="mt-3 text-xs text-gray-400">
             Sudah perpanjang? Hubungi admin lewat WhatsApp/Instagram untuk aktivasi ulang.
@@ -113,7 +121,7 @@ export default function App() {
         <div className="fixed inset-x-0 top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-gradient-to-r from-maroon-700 to-maroon-900 px-4 py-2 text-center text-xs font-semibold text-white lg:pl-60">
           <span>👀 MODE DEMO — cuma contoh untuk coba fitur. Data yang kamu isi <u>TIDAK tersimpan</u>.</span>
           <a
-            href="https://digital-store-27.myscalev.com/landing-page-baru-8"
+            href="https://digital-store-27.myscalev.com/lifetimefinplansanka"
             target="_blank"
             rel="noreferrer"
             className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-maroon-800"

@@ -58,7 +58,7 @@ export function Login() {
         <>
           <p className="mb-3 rounded-2xl bg-maroon-50 px-4 py-3 text-center text-xs text-maroon-700 dark:bg-maroon-500/10 dark:text-dusty-200">
             🔑 Daftar butuh <b>Kode Akses</b> dari pembelian. Belum punya?{' '}
-            <a href="https://digital-store-27.myscalev.com/landing-page-baru-8" target="_blank" rel="noreferrer" className="font-bold underline">Beli di sini</a>.
+            <a href="https://digital-store-27.myscalev.com/lifetimefinplansanka" target="_blank" rel="noreferrer" className="font-bold underline">Beli di sini</a>.
           </p>
           <div className="mb-3 flex items-start gap-2 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-left text-xs text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
             <span className="text-base leading-none">📩</span>
