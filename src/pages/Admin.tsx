@@ -151,11 +151,20 @@ function UsersTab() {
                       : lastLogin ? <span>login {lastLogin}</span> : <span>belum pernah aktif</span>}
                   {(u.tx_count ?? 0) > 0 && <span>· {u.tx_count} tx · {fmtBytes(u.est_bytes ?? 0)}</span>}
                 </p>
-                <p className="mt-0.5 text-[11px]">
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
                   {u.code
                     ? <span className="nums rounded bg-dusty-100 px-1.5 py-0.5 font-semibold tracking-wider text-maroon-700 dark:bg-dusty-500/15 dark:text-dusty-200">🔑 {u.code}</span>
                     : <span className="text-gray-400">{u.is_admin ? 'admin (tanpa kode)' : 'tanpa kode'}</span>}
-                  <span className="ml-2 text-gray-400">daftar {formatTanggal(u.created_at)}</span>
+                  {(() => {
+                    if (!u.access_until) return <span className="rounded bg-sage-100 px-1.5 py-0.5 font-semibold text-sage-700 dark:bg-sage-500/15">♾️ Lifetime</span>
+                    const exp = new Date(u.access_until) < new Date()
+                    return (
+                      <span className={clsx('rounded px-1.5 py-0.5 font-semibold', exp ? 'bg-wine-100 text-wine-600 dark:bg-wine-500/15' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15')}>
+                        {exp ? '⛔ Habis' : '⏳ s/d'} {formatTanggal(u.access_until)}
+                      </span>
+                    )
+                  })()}
+                  <span className="text-gray-400">daftar {formatTanggal(u.created_at)}</span>
                 </p>
               </div>
               {!u.is_admin && (
@@ -187,18 +196,21 @@ function CodesTab() {
   const [q, setQ] = useState('')
   const [reserveFor, setReserveFor] = useState<string | null>(null)
   const [reserveLabel, setReserveLabel] = useState('')
+  const [genMonths, setGenMonths] = useState<number | null>(null)
+  const [reserveMonths, setReserveMonths] = useState<number | null>(null)
 
   async function doGen() {
     const n = parseInt(count) || 0
     if (n < 1) return
-    const res = await gen.mutateAsync(n)
+    const res = await gen.mutateAsync({ count: n, months: genMonths })
     setJustGen(res.generated)
   }
 
   const copy = (txt: string) => navigator.clipboard?.writeText(txt)
 
-  function tandaiDikasih(code: string) {
+  function tandaiDikasih(code: string, months: number | null) {
     setReserveLabel('')
+    setReserveMonths(months ?? null)
     setReserveFor(code)
   }
 
@@ -208,7 +220,7 @@ function CodesTab() {
     if (!code || !lbl) return
     setBusy(code)
     try {
-      await reserve.mutateAsync({ code, label: lbl })
+      await reserve.mutateAsync({ code, label: lbl, months: reserveMonths })
       copy(code)
       setReserveFor(null)
     } catch (e) {
@@ -250,6 +262,8 @@ function CodesTab() {
       {/* Generate */}
       <Card className="mb-4">
         <p className="mb-2 text-sm font-semibold">Generate Kode Baru</p>
+        <p className="mb-1.5 text-xs text-gray-400">Masa aktif kode</p>
+        <div className="mb-3"><DurationPicker value={genMonths} onChange={setGenMonths} /></div>
         <div className="flex gap-2">
           <input
             inputMode="numeric"
@@ -308,6 +322,9 @@ function CodesTab() {
                   <div className="min-w-0 flex-1">
                     <button onClick={() => copy(k.code)} className="nums flex items-center gap-1 font-semibold tracking-wider text-maroon-700 dark:text-dusty-200">
                       {k.code} <Copy size={12} className="text-gray-300" />
+                      <span className={clsx('rounded-full px-1.5 py-0.5 text-[9px] font-bold tracking-normal', k.duration_months ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15' : 'bg-sage-100 text-sage-700 dark:bg-sage-500/15')}>
+                        {durLabel(k.duration_months)}
+                      </span>
                     </button>
                     <p className="truncate text-xs text-gray-500">
                       <UserCheck size={11} className="mr-1 inline text-amber-500" />
@@ -348,9 +365,12 @@ function CodesTab() {
             <div key={k.code} className="flex items-center gap-2 px-4 py-3">
               <button onClick={() => copy(k.code)} className="nums flex flex-1 items-center gap-1.5 text-left font-semibold tracking-wider text-maroon-700 dark:text-dusty-200">
                 {k.code} <Copy size={13} className="text-gray-300" />
+                <span className={clsx('rounded-full px-1.5 py-0.5 text-[9px] font-bold tracking-normal', k.duration_months ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15' : 'bg-sage-100 text-sage-700 dark:bg-sage-500/15')}>
+                  {durLabel(k.duration_months)}
+                </span>
               </button>
               <button
-                onClick={() => tandaiDikasih(k.code)}
+                onClick={() => tandaiDikasih(k.code, k.duration_months ?? null)}
                 disabled={busy === k.code}
                 className="flex h-8 items-center gap-1 rounded-lg bg-amber-100 px-2.5 text-xs font-semibold text-amber-700 disabled:opacity-50 dark:bg-amber-500/15"
               >
@@ -373,6 +393,9 @@ function CodesTab() {
           <p className="mt-3 text-sm text-gray-500">Kode akses</p>
           <p className="nums text-lg font-extrabold tracking-wider text-maroon-700 dark:text-dusty-200">{reserveFor}</p>
         </div>
+
+        <p className="mb-1.5 text-xs font-medium text-gray-400">Masa aktif untuk pembeli ini</p>
+        <div className="mb-4"><DurationPicker value={reserveMonths} onChange={setReserveMonths} /></div>
 
         <label className="mb-1 block text-sm font-semibold">Dikasih ke siapa?</label>
         <input
@@ -406,12 +429,13 @@ function CodesTab() {
   )
 }
 
-function buildEmailPreview(nama: string, kode: string) {
+function buildEmailPreview(nama: string, kode: string, masaAktif: string) {
   return `Halo ${nama} 👋 Terima kasih sudah membeli Finplan Sanka 🎉
 
-Ini akses seumur hidupmu:
+Ini akses kamu:
 
 🔑 Kode Akses: ${kode}
+⏳ Masa aktif: ${masaAktif}
 🌐 Aplikasi: https://finplansanka.com
 
 Cara aktifkan (1 menit):
@@ -431,22 +455,24 @@ function EmailTab() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [sent, setSent] = useState<string | null>(null)
+  const [emailMonths, setEmailMonths] = useState<number | null>(null)
 
   if (isLoading) return <Loading />
   if (error) return <ErrMsg msg={(error as Error).message} />
 
   const available = data!.codes.unused
   const selected = code || available[0]?.code || ''
-  const preview = buildEmailPreview(nama.trim() || '[nama pembeli]', selected || 'FS-XXXX-XXXX')
+  const masaAktifLabel = emailMonths ? `${emailMonths} bulan` : 'Selamanya (lifetime)'
+  const preview = buildEmailPreview(nama.trim() || '[nama pembeli]', selected || 'FS-XXXX-XXXX', masaAktifLabel)
   const copy = (t: string) => navigator.clipboard?.writeText(t)
 
   async function kirim() {
     if (!nama.trim()) { alert('Isi nama pembeli.'); return }
     if (!email.trim() || !email.includes('@')) { alert('Isi email pembeli yang valid.'); return }
     if (!selected) { alert('Tidak ada kode tersedia. Generate dulu di tab Kode.'); return }
-    if (!confirm(`Kirim email ke ${email.trim()} berisi kode ${selected}?`)) return
+    if (!confirm(`Kirim email ke ${email.trim()} berisi kode ${selected} (masa aktif: ${masaAktifLabel})?`)) return
     try {
-      await send.mutateAsync({ code: selected, email: email.trim(), name: nama.trim() })
+      await send.mutateAsync({ code: selected, email: email.trim(), name: nama.trim(), months: emailMonths })
       setSent(email.trim())
       setNama(''); setEmail(''); setCode('')
     } catch (e) {
@@ -495,11 +521,15 @@ function EmailTab() {
               className="nums mt-1 w-full rounded-xl bg-gray-100 px-3 py-2.5 text-sm font-semibold tracking-wider outline-none dark:bg-gray-800"
             >
               {available.map((k) => (
-                <option key={k.code} value={k.code}>{k.code}</option>
+                <option key={k.code} value={k.code}>{k.code} — {durLabel(k.duration_months)}</option>
               ))}
             </select>
           )}
         </label>
+        <div>
+          <span className="text-xs font-medium text-gray-400">Masa aktif paket pembeli ini</span>
+          <div className="mt-1.5"><DurationPicker value={emailMonths} onChange={setEmailMonths} /></div>
+        </div>
       </Card>
 
       {/* Pratinjau */}
@@ -521,6 +551,34 @@ function EmailTab() {
       </button>
       <p className="mt-3 text-center text-[11px] text-gray-400">Setelah terkirim, kode otomatis masuk daftar “Sudah Dikasih” di tab Kode.</p>
     </>
+  )
+}
+
+/** Pilihan masa aktif lisensi. null = selamanya (lifetime). */
+const DURATIONS: { label: string; months: number | null }[] = [
+  { label: '♾️ Selamanya', months: null },
+  { label: '1 bulan', months: 1 },
+  { label: '3 bulan', months: 3 },
+  { label: '6 bulan', months: 6 },
+  { label: '12 bulan', months: 12 },
+]
+function durLabel(m?: number | null) { return m ? `${m} bln` : 'Lifetime' }
+function DurationPicker({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {DURATIONS.map((d) => (
+        <button
+          key={String(d.months)}
+          onClick={() => onChange(d.months)}
+          className={clsx(
+            'rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95',
+            value === d.months ? 'bg-maroon-700 text-white shadow-card' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+          )}
+        >
+          {d.label}
+        </button>
+      ))}
+    </div>
   )
 }
 

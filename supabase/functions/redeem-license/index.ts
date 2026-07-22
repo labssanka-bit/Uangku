@@ -33,6 +33,14 @@ serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
+    // 0) Ambil masa aktif kode (null = lifetime)
+    const { data: keyRow } = await admin
+      .from('license_keys')
+      .select('duration_months')
+      .eq('code', kode)
+      .maybeSingle()
+    const durationMonths: number | null = keyRow?.duration_months ?? null
+
     // 1) Klaim kode (atomik)
     const { data: ok, error: rErr } = await admin.rpc('redeem_license', { p_code: kode })
     if (rErr) return json({ error: 'Gagal memvalidasi kode.' }, 500)
@@ -56,6 +64,16 @@ serve(async (req) => {
 
     // 3) Catat pemilik kode (utk panel admin)
     await admin.from('license_keys').update({ used_by: created.user?.id, used_email: mail }).eq('code', kode)
+
+    // 4) Set masa aktif akun (null = selamanya/lifetime)
+    if (durationMonths && created.user?.id) {
+      const until = new Date()
+      until.setMonth(until.getMonth() + durationMonths)
+      await admin.from('profiles').upsert(
+        { id: created.user.id, access_until: until.toISOString() },
+        { onConflict: 'id' }
+      )
+    }
 
     return json({ ok: true })
   } catch (e) {

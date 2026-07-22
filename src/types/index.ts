@@ -62,6 +62,8 @@ export interface Profile {
   opening_balance: number
   is_admin?: boolean
   spending_reasons?: string[] | null
+  /** Batas masa aktif akun. null = selamanya (lifetime). */
+  access_until?: string | null
   created_at: string
 }
 

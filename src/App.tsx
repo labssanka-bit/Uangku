@@ -6,6 +6,7 @@ import { isDemo } from '@/lib/demo'
 import { applyTheme } from '@/lib/themes'
 import { useAutoPostRecurring } from '@/hooks/useAutoPostRecurring'
 import { useHeartbeat } from '@/hooks/useHeartbeat'
+import { useProfile } from '@/hooks/useProfile'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TransactionSheet } from '@/components/TransactionSheet'
@@ -29,7 +30,8 @@ export default function App() {
   const dark = useUIStore((s) => s.dark)
   const theme = useUIStore((s) => s.theme)
   const { addOpen, addPreset, openAdd, closeAdd } = useUIStore()
-  const { session, loading, recovery } = useAuth()
+  const { session, loading, recovery, signOut } = useAuth()
+  const { data: profile } = useProfile()
 
   // Auto-post transaksi berulang yang jatuh tempo (sekali per sesi)
   useAutoPostRecurring()
@@ -59,6 +61,37 @@ export default function App() {
   if (recovery) return <ResetPassword />
 
   if (!session) return <Login />
+
+  // Masa aktif habis (paket bulanan) → blokir sampai perpanjang. Admin & lifetime bebas.
+  const expired = !!profile?.access_until && !profile?.is_admin && new Date(profile.access_until) < new Date()
+  if (expired) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 text-center">
+        <img src="/logo.png" alt="Finplan Sanka" className="mx-auto mb-6 w-40" />
+        <div className="rounded-3xl bg-white p-6 shadow-nm-sm dark:bg-[#251A1F]">
+          <p className="text-4xl">⏳</p>
+          <h1 className="mt-3 text-xl font-extrabold text-maroon-800 dark:text-dusty-200">Masa Aktif Berakhir</h1>
+          <p className="mt-2 text-sm text-gray-500">
+            Paket kamu berlaku sampai{' '}
+            <b>{new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(profile!.access_until!))}</b>.
+            Perpanjang untuk lanjut memakai Finplan Sanka. Datamu aman & tetap tersimpan.
+          </p>
+          <a
+            href="https://digital-store-27.myscalev.com/landing-page-baru-8"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 block rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft"
+          >
+            Perpanjang Sekarang →
+          </a>
+          <p className="mt-3 text-xs text-gray-400">
+            Sudah perpanjang? Hubungi admin lewat WhatsApp/Instagram untuk aktivasi ulang.
+          </p>
+          <button onClick={signOut} className="mt-4 text-sm font-semibold text-gray-500">Keluar</button>
+        </div>
+      </div>
+    )
+  }
 
   const demo = isDemo()
 

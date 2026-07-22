@@ -10,6 +10,8 @@ export interface AdminCode {
   last_used_at: string | null
   reserved_email?: string | null
   reserved_at?: string | null
+  /** Masa aktif: null = lifetime, angka = jumlah bulan */
+  duration_months?: number | null
 }
 export interface AdminUser {
   id: string
@@ -20,6 +22,7 @@ export interface AdminUser {
   created_at: string
   last_sign_in_at: string | null
   last_seen?: string | null
+  access_until?: string | null
   tx_count?: number
   est_bytes?: number
 }
@@ -69,7 +72,8 @@ export function useAdminOverview(enabled: boolean) {
 export function useGenerateCodes() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (count: number) => callAdmin<{ generated: string[] }>({ action: 'gen', count }),
+    mutationFn: ({ count, months }: { count: number; months: number | null }) =>
+      callAdmin<{ generated: string[] }>({ action: 'gen', count, months }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
   })
 }
@@ -86,8 +90,8 @@ export function useDeleteUser() {
 export function useReserveCode() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ code, label }: { code: string; label: string }) =>
-      callAdmin<{ ok: boolean }>({ action: 'reserve', code, label }),
+    mutationFn: ({ code, label, months }: { code: string; label: string; months: number | null }) =>
+      callAdmin<{ ok: boolean }>({ action: 'reserve', code, label, months }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
   })
 }
@@ -105,8 +109,8 @@ export function useUnreserveCode() {
 export function useSendCodeEmail() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ code, email, name }: { code: string; email: string; name: string }) =>
-      callAdmin<{ ok: boolean }>({ action: 'send_email', code, email, name }),
+    mutationFn: ({ code, email, name, months }: { code: string; email: string; name: string; months: number | null }) =>
+      callAdmin<{ ok: boolean }>({ action: 'send_email', code, email, name, months }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
   })
 }

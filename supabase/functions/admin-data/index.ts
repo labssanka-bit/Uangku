@@ -23,7 +23,7 @@ function esc(s: string) {
 }
 
 /** Email pembeli (HTML) — mengikuti template WA. */
-function buyerEmailHtml(nama: string, kode: string) {
+function buyerEmailHtml(nama: string, kode: string, masaAktif = 'Selamanya (lifetime)') {
   const APP = 'https://finplansanka.com'
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:auto;color:#2b2b2b;line-height:1.6">
@@ -33,7 +33,8 @@ function buyerEmailHtml(nama: string, kode: string) {
     <div style="background:#F2ECE2;border-radius:14px;padding:16px 18px;margin:12px 0">
       <p style="margin:0 0 6px;font-size:13px;color:#6b5b4b">🔑 KODE AKSES</p>
       <p style="margin:0;font-size:24px;font-weight:800;letter-spacing:2px;color:#5C1A2B">${esc(kode)}</p>
-      <p style="margin:10px 0 0;font-size:13px;color:#6b5b4b">🌐 Aplikasi: <a href="${APP}" style="color:#5C1A2B">${APP}</a></p>
+      <p style="margin:10px 0 0;font-size:13px;color:#6b5b4b">⏳ Masa aktif: <b>${esc(masaAktif)}</b></p>
+      <p style="margin:4px 0 0;font-size:13px;color:#6b5b4b">🌐 Aplikasi: <a href="${APP}" style="color:#5C1A2B">${APP}</a></p>
     </div>
     <p style="margin:0 0 4px"><b>Cara aktifkan (1 menit):</b></p>
     <ol style="margin:0 0 14px;padding-left:20px">
@@ -66,7 +67,10 @@ serve(async (req) => {
     const { data: prof } = await admin.from('profiles').select('is_admin').eq('id', ures.user.id).single()
     if (!prof?.is_admin) return json({ error: 'Khusus admin.' }, 403)
 
-    const { action, count, userId, code, label, email, name } = await req.json().catch(() => ({ action: 'overview' }))
+    const { action, count, userId, code, label, email, name, months } = await req.json().catch(() => ({ action: 'overview' }))
+    // Masa aktif: null/0 = lifetime, angka = jumlah bulan
+    const dur: number | null = months === null || months === undefined || Number(months) <= 0 ? null : Number(months)
+    const durLabel = dur ? `${dur} bulan` : 'Selamanya (lifetime)'
 
     if (action === 'send_email') {
       // Kirim email kode + cara aktivasi ke pembeli (template WA) via Resend.
@@ -83,16 +87,16 @@ serve(async (req) => {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: FROM, to: mail, subject: '🎉 Akses Finplan Sanka kamu — kode & cara aktivasi', html: buyerEmailHtml(nama, kode) }),
+        body: JSON.stringify({ from: FROM, to: mail, subject: '🎉 Akses Finplan Sanka kamu — kode & cara aktivasi', html: buyerEmailHtml(nama, kode, durLabel) }),
       })
       if (!res.ok) {
         const detail = await res.text()
         return json({ error: 'Gagal kirim email: ' + detail.slice(0, 300) }, 500)
       }
-      // Tandai kode "sudah dikasih" (reserved) supaya tercatat & tak dobel — hanya jika belum terpakai
+      // Tandai kode "sudah dikasih" (reserved) + simpan masa aktifnya
       await admin
         .from('license_keys')
-        .update({ reserved_email: `${nama} <${mail}>`, reserved_at: new Date().toISOString() })
+        .update({ reserved_email: `${nama} <${mail}>`, reserved_at: new Date().toISOString(), duration_months: dur })
         .eq('code', kode)
         .lt('uses', 1)
       return json({ ok: true })
@@ -100,7 +104,7 @@ serve(async (req) => {
 
     if (action === 'gen') {
       const n = Math.min(Math.max(parseInt(String(count)) || 0, 1), 200)
-      const rows = Array.from({ length: n }, () => ({ code: `FS-${rand4()}-${rand4()}`, note: 'admin' }))
+      const rows = Array.from({ length: n }, () => ({ code: `FS-${rand4()}-${rand4()}`, note: 'admin', duration_months: dur }))
       const { data, error } = await admin
         .from('license_keys')
         .upsert(rows, { onConflict: 'code', ignoreDuplicates: true })
@@ -117,7 +121,7 @@ serve(async (req) => {
       if (!lbl) return json({ error: 'Isi nama/no WA penerima.' }, 400)
       const { data, error } = await admin
         .from('license_keys')
-        .update({ reserved_email: lbl, reserved_at: new Date().toISOString() })
+        .update({ reserved_email: lbl, reserved_at: new Date().toISOString(), duration_months: dur })
         .eq('code', kode)
         .lt('uses', 1)
         .select('code')
@@ -152,7 +156,7 @@ serve(async (req) => {
     // overview
     const { data: codes } = await admin
       .from('license_keys')
-      .select('code, uses, max_uses, note, created_at, last_used_at, used_by, used_email, reserved_email, reserved_at')
+      .select('code, uses, max_uses, note, created_at, last_used_at, used_by, used_email, reserved_email, reserved_at, duration_months')
       .order('created_at', { ascending: false })
     type Code = { uses: number; max_uses: number; reserved_email: string | null }
     const total = codes?.length ?? 0
@@ -166,8 +170,8 @@ serve(async (req) => {
     for (const c of codes ?? []) if (c.used_by) codeByUser.set(c.used_by, c.code)
 
     const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    const { data: profs } = await admin.from('profiles').select('id, full_name, is_admin, last_seen')
-    type Prof = { id: string; full_name: string | null; is_admin: boolean; last_seen: string | null }
+    const { data: profs } = await admin.from('profiles').select('id, full_name, is_admin, last_seen, access_until')
+    type Prof = { id: string; full_name: string | null; is_admin: boolean; last_seen: string | null; access_until: string | null }
     const pmap = new Map((profs ?? []).map((p: Prof) => [p.id, p]))
 
     // Statistik kuota DB + jumlah transaksi per pengguna
@@ -194,6 +198,7 @@ serve(async (req) => {
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at,
         last_seen: pmap.get(u.id)?.last_seen ?? null,
+        access_until: pmap.get(u.id)?.access_until ?? null,
         tx_count: n,
         est_bytes: Math.round(n * bytesPerTx),
       }
