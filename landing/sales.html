@@ -93,6 +93,55 @@ details p{margin-top:8px;font-size:.95rem}
 .final .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.6);margin-top:10px}
 footer{padding:26px 0 90px;text-align:center;font-size:.84rem;color:var(--ink-3)}
 
+/* ── Interaktif: checklist self-diagnosa ── */
+.chk{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-left:4px solid var(--wine);
+  border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;user-select:none}
+.chk:hover{transform:translateX(3px);box-shadow:0 10px 24px -18px rgba(92,26,43,.5)}
+.chk input{appearance:none;-webkit-appearance:none;flex:0 0 24px;width:24px;height:24px;border-radius:8px;border:2.5px solid #D8C7BC;
+  background:#fff;display:grid;place-items:center;cursor:pointer;margin-top:2px;transition:background .15s,border-color .15s}
+.chk input:checked{background:var(--maroon);border-color:var(--maroon)}
+.chk input:checked::after{content:"✓";color:#fff;font-weight:900;font-size:14px;line-height:1}
+.chk:has(input:checked){border-color:var(--maroon);border-left-color:var(--maroon);background:#FFF9F7}
+.chk b{display:block;color:var(--ink);font-size:1rem}
+.chk span{font-size:.9rem;color:var(--ink-2)}
+#verdict{margin-top:20px;background:var(--maroon);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;display:none}
+#verdict.on{display:block}
+#verdict b{font-size:1.15rem;display:block;margin-bottom:4px}
+#verdict span{color:rgba(255,255,255,.9);font-size:.95rem}
+
+/* ── Mockup app (CSS murni, tanpa gambar) ── */
+.phone{width:250px;margin:0 auto;background:#fff;border:9px solid #241B20;border-radius:34px;padding:12px 10px 16px;
+  box-shadow:0 30px 60px -28px rgba(43,20,28,.6)}
+.ph-top{font-size:.72rem;font-weight:800;color:var(--ink-3);margin-bottom:8px;padding:0 4px}
+.ph-bal{background:linear-gradient(150deg,var(--maroon-l),var(--maroon-d));color:#fff;border-radius:16px;padding:14px}
+.ph-bal small{font-size:.68rem;opacity:.85}
+.ph-bal .v{font-size:1.35rem;font-weight:900;letter-spacing:-.02em}
+.ph-row{display:flex;gap:6px;margin-top:10px}
+.ph-row div{flex:1;background:rgba(255,255,255,.16);border-radius:10px;padding:6px 8px;font-size:.62rem}
+.ph-row b{display:block;font-size:.78rem}
+.ph-cards{display:flex;gap:6px;margin-top:10px}
+.ph-cards div{flex:1;background:#F7F1EE;border-radius:12px;padding:8px;font-size:.6rem;color:var(--ink-3)}
+.ph-cards b{display:block;font-size:.8rem;color:var(--ink)}
+.ph-bars{margin-top:10px;background:#F7F1EE;border-radius:12px;padding:10px}
+.ph-bars .bl{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:.62rem;color:var(--ink-2)}
+.ph-bars .bt{flex:1;height:6px;border-radius:99px;background:#E6DAD4;overflow:hidden}
+.ph-bars .bf{height:100%;border-radius:99px}
+
+/* ── Kalkulator kebocoran ── */
+.calc{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:24px;max-width:600px;margin:24px auto 0}
+.calc input[type=range]{width:100%;margin:14px 0 6px;accent-color:var(--maroon);height:6px}
+.calc .now{font-size:1.05rem;font-weight:800;color:var(--maroon)}
+.calc .big{font-size:clamp(2rem,7vw,2.8rem);font-weight:900;color:var(--wine);letter-spacing:-.03em;line-height:1.1;margin:10px 0 4px}
+.calc .cmp{font-size:.95rem;color:var(--ink-2)}
+.calc .scale{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-3);font-weight:700}
+
+/* ── Reveal on scroll (halus, murah) ── */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+.card,.step,.plan{transition:transform .15s ease,box-shadow .15s ease}
+.card:hover,.step:hover{transform:translateY(-3px);box-shadow:0 16px 32px -22px rgba(92,26,43,.45)}
+
 /* Sticky CTA — muncul hanya setelah pengunjung paham value */
 .scta{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;align-items:center;justify-content:center;gap:14px;
   background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:12px 18px;
@@ -125,14 +174,16 @@ footer{padding:26px 0 90px;text-align:center;font-size:.84rem;color:var(--ink-3)
   <div class="wrap">
     <span class="eyebrow">Mungkin kamu pernah ngalamin</span>
     <h2>Bukan kamu nggak bisa nabung.<br>Kamu cuma nggak punya <span class="hl">catatannya.</span></h2>
-    <div class="grid g3" style="margin-top:24px">
-      <div class="card"><b>“Kok udah habis aja?”</b><span>Saldo tinggal sedikit, tapi nggak inget belanja apa saja.</span></div>
-      <div class="card"><b>Catat di Notes, lupa terus</b><span>Niat rajin 3 hari, minggu depan hilang semangat.</span></div>
-      <div class="card"><b>Nggak punya tabungan</b><span>Tiap bulan habis. Dana darurat cuma wacana.</span></div>
-      <div class="card"><b>Hutang lupa, ditagih kaget</b><span>Siapa pinjam berapa, jatuh tempo kapan — buyar.</span></div>
-      <div class="card"><b>Nggak tahu posisi keuangan</b><span>Ditanya “punya berapa?” — cuma bisa nebak.</span></div>
-      <div class="card"><b>Nunda terus, nyesal nanti</b><span>“Bulan depan deh” — dan bulan depan sama saja.</span></div>
+    <p class="muted" style="margin-top:6px">👇 Centang yang pernah kamu alami — jujur aja, nggak ada yang lihat.</p>
+    <div class="grid g2" id="checklist" style="margin-top:18px">
+      <label class="chk"><input type="checkbox"><span><b>“Kok udah habis aja?”</b><span>Saldo tinggal sedikit, tapi nggak inget belanja apa saja.</span></span></label>
+      <label class="chk"><input type="checkbox"><span><b>Catat di Notes, lupa terus</b><span>Niat rajin 3 hari, minggu depan hilang semangat.</span></span></label>
+      <label class="chk"><input type="checkbox"><span><b>Nggak punya tabungan</b><span>Tiap bulan habis. Dana darurat cuma wacana.</span></span></label>
+      <label class="chk"><input type="checkbox"><span><b>Hutang lupa, ditagih kaget</b><span>Siapa pinjam berapa, jatuh tempo kapan — buyar.</span></span></label>
+      <label class="chk"><input type="checkbox"><span><b>Nggak tahu posisi keuangan</b><span>Ditanya “punya berapa?” — cuma bisa nebak.</span></span></label>
+      <label class="chk"><input type="checkbox"><span><b>Nunda terus, nyesal nanti</b><span>“Bulan depan deh” — dan bulan depan sama saja.</span></span></label>
     </div>
+    <div id="verdict"><b></b><span></span></div>
     <p class="quote">Yang bikin capek bukan uangnya habis. Tapi <b>nggak tahu habisnya ke mana</b> —
       jadi tiap bulan mengulang kesalahan yang sama, tanpa sadar.</p>
   </div>
@@ -146,6 +197,28 @@ footer{padding:26px 0 90px;text-align:center;font-size:.84rem;color:var(--ink-3)
     <p class="lead" style="max-width:640px;margin:14px auto 0">
       Bukan spreadsheet ribet. Bukan Excel penuh rumus. Cukup buka, tap, selesai —
       lalu app-nya yang menghitung, merapikan, dan mengingatkan.</p>
+
+    <div class="phone rv" style="margin-top:30px">
+      <div class="ph-top">Hai, Sanka 👋</div>
+      <div class="ph-bal">
+        <small>Total Saldo</small>
+        <div class="v">Rp 8.450.000</div>
+        <div class="ph-row">
+          <div>↙ Pemasukan<b>Rp9,2jt</b></div>
+          <div>↗ Pengeluaran<b>Rp750rb</b></div>
+        </div>
+      </div>
+      <div class="ph-cards">
+        <div>Aman/hari<b>Rp250rb</b></div>
+        <div>Ditabung<b>Rp1,5jt</b></div>
+      </div>
+      <div class="ph-bars">
+        <div class="bl"><span style="width:52px">Makanan</span><span class="bt"><span class="bf" style="width:64%;background:#F2784B"></span></span><b>38%</b></div>
+        <div class="bl"><span style="width:52px">Belanja</span><span class="bt"><span class="bf" style="width:44%;background:#7C5CCC"></span></span><b>26%</b></div>
+        <div class="bl"><span style="width:52px">Transport</span><span class="bt"><span class="bf" style="width:28%;background:#1A7B7E"></span></span><b>17%</b></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:12px">Tampilan asli aplikasi — sederhana, langsung kelihatan intinya.</p>
   </div>
 </section>
 
@@ -176,6 +249,28 @@ footer{padding:26px 0 90px;text-align:center;font-size:.84rem;color:var(--ink-3)
       Harga naik tiap tahun. Yang diatur — bertumbuh.</p>
   </div>
 </section>
+<!-- ══ KALKULATOR KEBOCORAN (interaktif) ══ -->
+<section>
+  <div class="wrap center">
+    <span class="eyebrow">Coba hitung sendiri</span>
+    <h2>Kebocoran kecilmu, <span class="hl">setahun jadi berapa?</span></h2>
+    <p class="lead" style="max-width:560px;margin:12px auto 0">
+      Geser sesuai jajan harianmu — kopi, ngemil, ongkir. Yang terasa receh tiap hari.</p>
+
+    <div class="calc">
+      <div class="now">Jajan harian: <span id="cHari">Rp25.000</span></div>
+      <input id="cRange" type="range" min="5000" max="150000" step="5000" value="25000" aria-label="Jajan harian">
+      <div class="scale"><span>Rp5rb</span><span>Rp150rb</span></div>
+      <p class="muted" style="margin-top:18px">Setahun kamu keluarkan…</p>
+      <div class="big" id="cTahun">Rp9.125.000</div>
+      <p class="cmp" id="cBanding">Cukup buat <b>dana darurat 3 bulan</b> — atau 1 gram emas × 4.</p>
+      <p class="muted" style="margin-top:14px">
+        Bukan berarti nggak boleh jajan. Tapi kalau <b>nggak tercatat</b>, kamu nggak akan pernah tahu
+        angkanya sebesar ini — dan nggak bisa memilih.</p>
+    </div>
+  </div>
+</section>
+
 <!-- penanda: sticky CTA baru muncul setelah titik ini (value sudah tersampaikan) -->
 <div id="cta-start" aria-hidden="true"></div>
 
@@ -318,6 +413,52 @@ footer{padding:26px 0 90px;text-align:center;font-size:.84rem;color:var(--ink-3)
   window.addEventListener('scroll', upd, {passive:true});
   window.addEventListener('resize', upd, {passive:true});
   upd();
+})();
+
+/* ── Checklist self-diagnosa ── */
+(function(){
+  var box=document.getElementById('checklist'), v=document.getElementById('verdict');
+  if(!box||!v)return;
+  var judul=v.querySelector('b'), teks=v.querySelector('span');
+  box.addEventListener('change',function(){
+    var n=box.querySelectorAll('input:checked').length;
+    if(!n){v.classList.remove('on');return}
+    v.classList.add('on');
+    judul.textContent = n + ' dari 6 — kamu nggak sendirian.';
+    teks.textContent = n<=2
+      ? 'Masih awal, dan justru ini waktu terbaik merapikan sebelum menumpuk.'
+      : n<=4
+        ? 'Ini pola yang bikin gaji terasa numpang lewat. Kabar baiknya: semuanya bisa dibereskan satu aplikasi.'
+        : 'Berat memang. Tapi kelimanya berakar dari satu hal: nggak ada catatan. Itu yang Finplan selesaikan.';
+  });
+})();
+
+/* ── Kalkulator kebocoran ── */
+(function(){
+  var r=document.getElementById('cRange'), h=document.getElementById('cHari'),
+      t=document.getElementById('cTahun'), b=document.getElementById('cBanding');
+  if(!r)return;
+  var rp=function(n){return 'Rp'+n.toLocaleString('id-ID')};
+  function upd(){
+    var d=+r.value, y=d*365;
+    h.textContent=rp(d); t.textContent=rp(y);
+    b.innerHTML = y<5e6 ? 'Cukup buat <b>1 HP baru</b> — atau modal dana darurat pertamamu.'
+      : y<12e6 ? 'Cukup buat <b>dana darurat 3 bulan</b> — atau ±4 gram emas.'
+      : y<25e6 ? 'Cukup buat <b>liburan keluarga</b> — atau DP motor, tiap tahun.'
+      : 'Cukup buat <b>DP rumah</b> dalam beberapa tahun. Ini bukan receh lagi.';
+  }
+  r.addEventListener('input',upd); upd();
+})();
+
+/* ── Reveal on scroll ── */
+(function(){
+  var els=document.querySelectorAll('.card,.step,.plan,.chk,.calc,.phone,.quote');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}
+  els.forEach(function(e){e.classList.add('rv')});
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  els.forEach(function(e){io.observe(e)});
 })();
 </script>
 </body>
