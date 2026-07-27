@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Trash2, Repeat, Camera, Mic, Loader2, ImageIcon, Gem } from 'lucide-react'
+import { Trash2, Repeat, Camera, Mic, Loader2, ImageIcon, Gem, Plus } from 'lucide-react'
 import { Sheet } from './ui/Sheet'
 import { Numpad } from './ui/Numpad'
 import { CategoryIcon } from './ui/CategoryIcon'
@@ -7,7 +7,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useAssetMutations } from '@/hooks/useAssets'
 import { useWallets } from '@/hooks/useWallets'
-import { useProfile } from '@/hooks/useProfile'
+import { useProfile, useUpdateProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
 import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { parseReceipt, uploadReceipt, parseVoiceAudio } from '@/lib/receipt'
@@ -45,7 +45,20 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const [merchant, setMerchant] = useState<string | null>(null)
   const [items, setItems] = useState<ReceiptItem[] | null>(null)
   const [reason, setReason] = useState<string | null>(null)
+  const [addingReason, setAddingReason] = useState(false)
+  const [newReason, setNewReason] = useState('')
   const [assetMode, setAssetMode] = useState(false)
+
+  async function addReason() {
+    const v = newReason.trim()
+    if (!v) { setAddingReason(false); return }
+    if (!reasons.includes(v)) {
+      try { await updateProfile.mutateAsync({ spending_reasons: [...reasons, v] }) } catch { /* diamkan */ }
+    }
+    setReason(v)
+    setNewReason('')
+    setAddingReason(false)
+  }
   const [busy, setBusy] = useState<null | 'ocr' | 'voice' | 'recording'>(null)
   const [hint, setHint] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -55,6 +68,7 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
 
   const { user } = useAuth()
   const { data: profile } = useProfile()
+  const updateProfile = useUpdateProfile()
   const reasons = profile?.spending_reasons ?? []
   const { data: categories = [] } = useCategories(type)
   const { data: wallets = [] } = useWallets()
@@ -91,6 +105,8 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       setReason(null)
     }
     setAssetMode(false)
+    setAddingReason(false)
+    setNewReason('')
   }, [open, editing, preset])
 
   const resolvedCategoryId = useMemo(() => {
@@ -418,22 +434,45 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
       </div>
 
       {/* Keterangan Belanja (alasan) — hanya untuk Pengeluaran */}
-      {type === 'expense' && reasons.length > 0 && (
+      {type === 'expense' && (
         <>
-          <p className="mb-2 text-xs font-medium text-gray-400">Keterangan Belanja <span className="text-gray-300">(opsional)</span></p>
-          <div className="no-scrollbar mb-4 flex flex-wrap gap-2">
+          <p className="mb-2 text-xs font-medium text-gray-400">
+            Keterangan Belanja <span className="text-gray-300">(opsional)</span>
+            <span className="ml-1 text-[10px] text-gray-300">— alasan kamu belanja</span>
+          </p>
+          <div className="no-scrollbar mb-4 flex flex-wrap items-center gap-2">
             {reasons.map((r) => (
               <button
                 key={r}
                 onClick={() => setReason((cur) => (cur === r ? null : r))}
                 className={clsx(
-                  'rounded-full px-3 py-1.5 text-xs font-semibold transition',
-                  reason === r ? 'bg-maroon-700 text-white' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                  'rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95',
+                  reason === r ? 'bg-maroon-700 text-white shadow-card' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
                 )}
               >
                 {r}
               </button>
             ))}
+            {addingReason ? (
+              <span className="flex items-center gap-1">
+                <input
+                  autoFocus
+                  value={newReason}
+                  onChange={(e) => setNewReason(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addReason() } if (e.key === 'Escape') { setAddingReason(false); setNewReason('') } }}
+                  placeholder="mis. FOMO, Traktir…"
+                  className="w-32 rounded-full border border-maroon-300 bg-white px-3 py-1.5 text-xs outline-none dark:border-maroon-700/50 dark:bg-gray-800"
+                />
+                <button onClick={addReason} className="rounded-full bg-maroon-700 px-2.5 py-1.5 text-xs font-bold text-white">✓</button>
+              </span>
+            ) : (
+              <button
+                onClick={() => { setNewReason(''); setAddingReason(true) }}
+                className="flex items-center gap-1 rounded-full border border-dashed border-maroon-300 px-3 py-1.5 text-xs font-semibold text-maroon-700 active:scale-95 dark:border-maroon-700/50 dark:text-dusty-200"
+              >
+                <Plus size={13} /> Tambah
+              </button>
+            )}
           </div>
         </>
       )}
