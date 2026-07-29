@@ -131,6 +131,41 @@ export function Settings() {
         </div>
       </Card>
 
+      {/* Paket & Langganan */}
+      {!profile?.is_admin && (() => {
+        const lifetime = !profile?.access_until
+        const exp = profile?.access_until ? new Date(profile.access_until) : null
+        const habis = exp ? exp < new Date() : false
+        return (
+          <Card className="mb-4">
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-bold">Paket Kamu</h2>
+              <span className={clsx('rounded-full px-2.5 py-1 text-xs font-bold',
+                lifetime ? 'bg-sage-100 text-sage-700 dark:bg-sage-500/15'
+                  : habis ? 'bg-wine-100 text-wine-600 dark:bg-wine-500/15'
+                    : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15')}>
+                {lifetime ? '♾️ Selamanya' : habis ? '⛔ Berakhir' : '⏳ Bulanan'}
+              </span>
+            </div>
+            {lifetime ? (
+              <p className="text-sm text-gray-500">Kamu punya <b>akses selamanya</b>. Semua fitur &amp; update masa depan sudah termasuk — tak perlu bayar lagi. 🎉</p>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500">
+                  Berlaku sampai <b>{exp ? new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(exp) : '-'}</b>.
+                  {habis ? ' Sudah berakhir — perpanjang untuk lanjut.' : ' Mau bebas tagihan bulanan? Upgrade ke Selamanya.'}
+                </p>
+                <div className="mt-3 grid grid-cols-1 gap-2">
+                  <a href="https://digital-store-27.myscalev.com/lifetimefinplansanka" target="_blank" rel="noreferrer" className="rounded-2xl bg-maroon-700 py-2.5 text-center text-sm font-bold text-white shadow-soft">♾️ Upgrade Selamanya — Rp149.000</a>
+                  <a href="https://digital-store-27.myscalev.com/monthlyfinplansanka" target="_blank" rel="noreferrer" className="rounded-2xl border-2 border-maroon-700 py-2.5 text-center text-sm font-bold text-maroon-700 dark:text-dusty-200">Perpanjang Bulanan — Rp99.000</a>
+                </div>
+                <p className="mt-2 text-center text-[11px] text-gray-400">Sudah bayar? Masa aktif diperbarui otomatis oleh admin — atau hubungi via chat 💬 / IG @finplan.bysanka.</p>
+              </>
+            )}
+          </Card>
+        )
+      })()}
+
       {/* Daftar setting */}
       <Card className="mb-4 divide-y divide-gray-100 p-0 dark:divide-gray-800">
         <Row icon={dark ? Sun : Moon} label="Mode Gelap" onClick={toggleDark} right={
