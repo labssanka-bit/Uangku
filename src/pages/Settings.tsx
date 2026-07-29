@@ -156,7 +156,7 @@ export function Settings() {
                   {habis ? ' Sudah berakhir — perpanjang untuk lanjut.' : ' Mau bebas tagihan bulanan? Upgrade ke Selamanya.'}
                 </p>
                 <div className="mt-3 grid grid-cols-1 gap-2">
-                  <a href="https://digital-store-27.myscalev.com/lifetimefinplansanka" target="_blank" rel="noreferrer" className="rounded-2xl bg-maroon-700 py-2.5 text-center text-sm font-bold text-white shadow-soft">♾️ Upgrade Selamanya — Rp149.000</a>
+                  <a href="https://digital-store-27.myscalev.com/lifetimefinplann" target="_blank" rel="noreferrer" className="rounded-2xl bg-maroon-700 py-2.5 text-center text-sm font-bold text-white shadow-soft">♾️ Upgrade Selamanya — Rp149.000</a>
                   <a href="https://digital-store-27.myscalev.com/monthlyfinplansanka" target="_blank" rel="noreferrer" className="rounded-2xl border-2 border-maroon-700 py-2.5 text-center text-sm font-bold text-maroon-700 dark:text-dusty-200">Perpanjang Bulanan — Rp99.000</a>
                 </div>
                 <p className="mt-2 text-center text-[11px] text-gray-400">Sudah bayar? Masa aktif diperbarui otomatis oleh admin — atau hubungi via chat 💬 / IG @finplan.bysanka.</p>

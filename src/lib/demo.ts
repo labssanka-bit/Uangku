@@ -27,7 +27,7 @@ export function initDemoFromUrl() {
 }
 
 /** Paket lifetime Rp149.000 (utama) & bulanan Rp99.000. */
-export const CHECKOUT_URL = 'https://digital-store-27.myscalev.com/lifetimefinplansanka'
+export const CHECKOUT_URL = 'https://digital-store-27.myscalev.com/lifetimefinplann'
 export const CHECKOUT_MONTHLY_URL = 'https://digital-store-27.myscalev.com/monthlyfinplansanka'
 
 /** Blok aksi simpan saat demo + arahkan beli akses (bukan daftar gratis). */

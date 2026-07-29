@@ -7,7 +7,7 @@ import { useUIStore } from '@/store/uiStore'
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 
-const LIFETIME_URL = 'https://digital-store-27.myscalev.com/lifetimefinplansanka'
+const LIFETIME_URL = 'https://digital-store-27.myscalev.com/lifetimefinplann'
 const MONTHLY_URL = 'https://digital-store-27.myscalev.com/monthlyfinplansanka'
 
 const ANN_META: Record<string, { emoji: string; color: string }> = {
