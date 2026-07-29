@@ -36,7 +36,24 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 // Daftarkan service worker → PWA installable (buka fullscreen tanpa bar browser)
 if ('serviceWorker' in navigator) {
+  // SW baru mengambil alih → reload sekali agar app terpasang ikut versi terbaru
+  let reloading = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return
+    reloading = true
+    window.location.reload()
+  })
+  // SW kirim sinyal update → reload
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data?.type === 'SW_UPDATED' && !reloading) {
+      reloading = true
+      window.location.reload()
+    }
+  })
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
+    navigator.serviceWorker
+      .register('/sw.js', { updateViaCache: 'none' })
+      .then((reg) => reg.update()) // cek versi baru tiap app dibuka
+      .catch(() => {})
   })
 }
