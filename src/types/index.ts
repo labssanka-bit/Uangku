@@ -67,11 +67,15 @@ export interface Profile {
   created_at: string
 }
 
+export type AnnType = 'info' | 'promo' | 'maintenance'
+export type AnnTarget = 'all' | 'monthly' | 'lifetime'
 export interface Announcement {
   id: string
   title: string
   body: string | null
   active: boolean
+  type: AnnType
+  target: AnnTarget
   created_at: string
 }
 

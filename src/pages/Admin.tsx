@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useProfile } from '@/hooks/useProfile'
-import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail, useAnnouncementsAdmin, usePostAnnouncement, useDeleteAnnouncement } from '@/hooks/useAdminData'
+import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail, useAnnouncementsAdmin, usePostAnnouncement, useDeleteAnnouncement, useExtendAccess } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
@@ -82,6 +82,7 @@ function isOnline(last_seen?: string | null) {
 function UsersTab() {
   const { data, isLoading, error } = useAdminOverview(true)
   const del = useDeleteUser()
+  const ext = useExtendAccess()
   if (isLoading) return <Loading />
   if (error) return <ErrMsg msg={(error as Error).message} />
   const users = data?.users ?? []
@@ -91,6 +92,11 @@ function UsersTab() {
   async function hapus(id: string, nama: string) {
     if (!confirm(`Hapus akun "${nama}"? Semua data (transaksi, dompet, dll) ikut terhapus permanen. Tindakan ini tidak bisa dibatalkan.`)) return
     try { await del.mutateAsync(id) } catch (e) { alert((e as Error).message) }
+  }
+  async function perpanjang(id: string, nama: string, months: number | null) {
+    const teks = months ? `Tambah ${months} bulan masa aktif` : 'Jadikan LIFETIME (selamanya)'
+    if (!confirm(`${teks} untuk "${nama}"?`)) return
+    try { await ext.mutateAsync({ userId: id, months }) } catch (e) { alert((e as Error).message) }
   }
 
   // Urutkan: online dulu, lalu paling baru aktif
@@ -168,6 +174,15 @@ function UsersTab() {
                   })()}
                   <span className="text-gray-400">daftar {formatTanggal(u.created_at)}</span>
                 </p>
+                {!u.is_admin && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] text-gray-400">Perpanjang:</span>
+                    <button onClick={() => perpanjang(u.id, u.full_name || u.email || 'user', 1)} disabled={ext.isPending} className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 disabled:opacity-50 dark:bg-amber-500/15">+1 bln</button>
+                    <button onClick={() => perpanjang(u.id, u.full_name || u.email || 'user', 6)} disabled={ext.isPending} className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 disabled:opacity-50 dark:bg-amber-500/15">+6 bln</button>
+                    <button onClick={() => perpanjang(u.id, u.full_name || u.email || 'user', 12)} disabled={ext.isPending} className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 disabled:opacity-50 dark:bg-amber-500/15">+12 bln</button>
+                    <button onClick={() => perpanjang(u.id, u.full_name || u.email || 'user', null)} disabled={ext.isPending} className="rounded-full bg-sage-100 px-2 py-0.5 text-[10px] font-bold text-sage-700 disabled:opacity-50 dark:bg-sage-500/15">♾️ Lifetime</button>
+                  </div>
+                )}
               </div>
               {!u.is_admin && (
                 <button
@@ -590,10 +605,14 @@ function AnnouncementTab() {
   const del = useDeleteAnnouncement()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [annType, setAnnType] = useState('info')
+  const [target, setTarget] = useState('all')
+  const TYPES = [{ k: 'info', l: '📢 Info' }, { k: 'promo', l: '🎁 Promo' }, { k: 'maintenance', l: '🔧 Maintenance' }]
+  const TARGETS = [{ k: 'all', l: 'Semua' }, { k: 'monthly', l: 'Paket bulanan' }, { k: 'lifetime', l: 'Lifetime' }]
 
   async function kirim() {
     if (!title.trim()) { alert('Isi judul pengumuman.'); return }
-    try { await post.mutateAsync({ title: title.trim(), body: body.trim() }); setTitle(''); setBody('') }
+    try { await post.mutateAsync({ title: title.trim(), body: body.trim(), type: annType, target }); setTitle(''); setBody('') }
     catch (e) { alert((e as Error).message) }
   }
   async function hapus(id: string) {
@@ -618,6 +637,22 @@ function AnnouncementTab() {
           placeholder="Isi pengumuman (opsional)…"
           className="w-full resize-none rounded-xl bg-gray-100 px-3 py-2.5 text-sm outline-none dark:bg-gray-800"
         />
+        <div>
+          <p className="mb-1 text-xs text-gray-400">Jenis</p>
+          <div className="flex flex-wrap gap-1.5">
+            {TYPES.map((t) => (
+              <button key={t.k} onClick={() => setAnnType(t.k)} className={clsx('rounded-full px-3 py-1.5 text-xs font-semibold', annType === t.k ? 'bg-maroon-700 text-white' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300')}>{t.l}</button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="mb-1 text-xs text-gray-400">Kirim ke</p>
+          <div className="flex flex-wrap gap-1.5">
+            {TARGETS.map((t) => (
+              <button key={t.k} onClick={() => setTarget(t.k)} className={clsx('rounded-full px-3 py-1.5 text-xs font-semibold', target === t.k ? 'bg-maroon-700 text-white' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300')}>{t.l}</button>
+            ))}
+          </div>
+        </div>
         <button
           onClick={kirim}
           disabled={post.isPending}
@@ -637,7 +672,11 @@ function AnnouncementTab() {
               <div className="min-w-0 flex-1">
                 <p className="font-bold">{a.title}</p>
                 {a.body && <p className="mt-0.5 whitespace-pre-line text-sm text-gray-500">{a.body}</p>}
-                <p className="mt-1 text-[11px] text-gray-400">{formatTanggal(a.created_at)}</p>
+                <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-gray-400">
+                  <span className="rounded-full bg-gray-100 px-1.5 py-0.5 font-semibold dark:bg-gray-800">{a.type === 'promo' ? '🎁 Promo' : a.type === 'maintenance' ? '🔧 Maintenance' : '📢 Info'}</span>
+                  <span className="rounded-full bg-gray-100 px-1.5 py-0.5 font-semibold dark:bg-gray-800">→ {a.target === 'monthly' ? 'Paket bulanan' : a.target === 'lifetime' ? 'Lifetime' : 'Semua'}</span>
+                  <span>{formatTanggal(a.created_at)}</span>
+                </p>
               </div>
               <button onClick={() => hapus(a.id)} disabled={del.isPending} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-wine-50 text-wine-500 disabled:opacity-50 dark:bg-wine-500/10" aria-label="Hapus">
                 {del.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}

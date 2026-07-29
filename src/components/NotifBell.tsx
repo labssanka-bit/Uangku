@@ -10,6 +10,12 @@ import { clsx } from '@/lib/clsx'
 const LIFETIME_URL = 'https://digital-store-27.myscalev.com/lifetimefinplansanka'
 const MONTHLY_URL = 'https://digital-store-27.myscalev.com/monthlyfinplansanka'
 
+const ANN_META: Record<string, { emoji: string; color: string }> = {
+  info: { emoji: '📢', color: '#5C1A2B' },
+  promo: { emoji: '🎁', color: '#C9A86A' },
+  maintenance: { emoji: '🔧', color: '#B23A48' },
+}
+
 function daysLeft(iso?: string | null): number | null {
   if (!iso) return null
   return Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000)
@@ -25,7 +31,12 @@ export function NotifBell() {
 
   const dleft = daysLeft(profile?.access_until)
   const expirySoon = dleft !== null && dleft <= 10 // paket bulanan hampir habis
-  const unseenAnn = anns.some((a) => !seenAt || new Date(a.created_at) > new Date(seenAt))
+  const isLifetime = !profile?.access_until
+  // Target: tampilkan sesuai paket user
+  const visible = anns.filter((a) =>
+    a.target === 'all' || (a.target === 'monthly' && !isLifetime) || (a.target === 'lifetime' && isLifetime)
+  )
+  const unseenAnn = visible.some((a) => !seenAt || new Date(a.created_at) > new Date(seenAt))
   const hasDot = unseenAnn || expirySoon
 
   function openPanel() {
@@ -75,19 +86,24 @@ export function NotifBell() {
         <h3 className="mb-2 flex items-center gap-1.5 px-1 text-sm font-bold text-gray-600 dark:text-gray-300">
           <Megaphone size={15} /> Pengumuman & Update
         </h3>
-        {anns.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="py-6 text-center text-sm text-gray-400">Belum ada pengumuman.</p>
         ) : (
           <div className="space-y-2">
-            {anns.map((a) => (
-              <div key={a.id} className="rounded-2xl bg-white p-3.5 shadow-card dark:bg-gray-900">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-bold">{a.title}</p>
-                  <span className="shrink-0 text-[11px] text-gray-400">{formatTanggal(a.created_at)}</span>
+            {visible.map((a) => {
+              const m = ANN_META[a.type] ?? ANN_META.info
+              return (
+                <div key={a.id} className="rounded-2xl border-l-4 bg-white p-3.5 shadow-card dark:bg-gray-900" style={{ borderLeftColor: m.color }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="flex items-center gap-1.5 font-bold">
+                      <span>{m.emoji}</span> {a.title}
+                    </p>
+                    <span className="shrink-0 text-[11px] text-gray-400">{formatTanggal(a.created_at)}</span>
+                  </div>
+                  {a.body && <p className="mt-1 whitespace-pre-line text-sm text-gray-500">{a.body}</p>}
                 </div>
-                {a.body && <p className="mt-1 whitespace-pre-line text-sm text-gray-500">{a.body}</p>}
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </Sheet>

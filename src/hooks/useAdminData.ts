@@ -105,7 +105,16 @@ export function useUnreserveCode() {
   })
 }
 
-export interface AdminAnnouncement { id: string; title: string; body: string | null; active: boolean; created_at: string }
+export interface AdminAnnouncement { id: string; title: string; body: string | null; active: boolean; type: string; target: string; created_at: string }
+/** Perpanjang/ubah masa aktif akun. months=null → Lifetime. */
+export function useExtendAccess() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, months }: { userId: string; months: number | null }) =>
+      callAdmin<{ ok: boolean }>({ action: 'extend', userId, months }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'overview'] }),
+  })
+}
 export function useAnnouncementsAdmin(enabled: boolean) {
   return useQuery({
     queryKey: ['admin', 'announcements'],
@@ -116,8 +125,8 @@ export function useAnnouncementsAdmin(enabled: boolean) {
 export function usePostAnnouncement() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ title, body }: { title: string; body: string }) =>
-      callAdmin<{ ok: boolean }>({ action: 'announce', name: title, label: body }),
+    mutationFn: ({ title, body, type, target }: { title: string; body: string; type: string; target: string }) =>
+      callAdmin<{ ok: boolean }>({ action: 'announce', name: title, label: body, annType: type, annTarget: target }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'announcements'] }),
   })
 }

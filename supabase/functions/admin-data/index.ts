@@ -67,7 +67,7 @@ serve(async (req) => {
     const { data: prof } = await admin.from('profiles').select('is_admin').eq('id', ures.user.id).single()
     if (!prof?.is_admin) return json({ error: 'Khusus admin.' }, 403)
 
-    const { action, count, userId, code, label, email, name, months } = await req.json().catch(() => ({ action: 'overview' }))
+    const { action, count, userId, code, label, email, name, months, annType, annTarget } = await req.json().catch(() => ({ action: 'overview' }))
     // Masa aktif: null/0 = lifetime, angka = jumlah bulan
     const dur: number | null = months === null || months === undefined || Number(months) <= 0 ? null : Number(months)
     const durLabel = dur ? `${dur} bulan` : 'Selamanya (lifetime)'
@@ -146,9 +146,30 @@ serve(async (req) => {
       const t = String(name || '').trim() // pakai 'name' = judul
       const b = String(label || '').trim() // pakai 'label' = isi
       if (!t) return json({ error: 'Judul pengumuman wajib.' }, 400)
-      const { error } = await admin.from('announcements').insert({ title: t, body: b || null })
+      const at = ['info', 'promo', 'maintenance'].includes(String(annType)) ? String(annType) : 'info'
+      const ag = ['all', 'monthly', 'lifetime'].includes(String(annTarget)) ? String(annTarget) : 'all'
+      const { error } = await admin.from('announcements').insert({ title: t, body: b || null, type: at, target: ag })
       if (error) return json({ error: error.message }, 500)
       return json({ ok: true })
+    }
+
+    if (action === 'extend') {
+      // Perpanjang/ubah masa aktif akun. months=null → Lifetime (selamanya).
+      const uid = String(userId || '')
+      if (!uid) return json({ error: 'userId wajib.' }, 400)
+      const { data: prof } = await admin.from('profiles').select('access_until').eq('id', uid).maybeSingle()
+      let until: string | null
+      if (dur === null) {
+        until = null // lifetime
+      } else {
+        // mulai dari sisa masa aktif kalau masih berlaku, kalau habis mulai dari sekarang
+        const base = prof?.access_until && new Date(prof.access_until) > new Date() ? new Date(prof.access_until) : new Date()
+        base.setMonth(base.getMonth() + dur)
+        until = base.toISOString()
+      }
+      const { error } = await admin.from('profiles').upsert({ id: uid, access_until: until }, { onConflict: 'id' })
+      if (error) return json({ error: error.message }, 500)
+      return json({ ok: true, access_until: until })
     }
     if (action === 'announce_list') {
       const { data } = await admin.from('announcements').select('*').order('created_at', { ascending: false }).limit(50)
