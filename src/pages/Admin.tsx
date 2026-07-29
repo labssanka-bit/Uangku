@@ -1,16 +1,16 @@
 import { useState } from 'react'
-import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw, Search, X, Mail, Send } from 'lucide-react'
+import { MessageCircle, Users, KeyRound, Copy, Plus, Loader2, ShieldCheck, RefreshCw, Trash2, UserPlus, UserCheck, RotateCcw, Search, X, Mail, Send, Megaphone } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Sheet } from '@/components/ui/Sheet'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useProfile } from '@/hooks/useProfile'
-import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail } from '@/hooks/useAdminData'
+import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail, useAnnouncementsAdmin, usePostAnnouncement, useDeleteAnnouncement } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
 import { formatTanggal } from '@/lib/format'
 import { clsx } from '@/lib/clsx'
 
-type Tab = 'chat' | 'users' | 'codes' | 'email'
+type Tab = 'chat' | 'users' | 'codes' | 'email' | 'ann'
 
 export function Admin() {
   const { data: profile } = useProfile()
@@ -30,6 +30,7 @@ export function Admin() {
     { id: 'users', label: 'User', icon: Users },
     { id: 'codes', label: 'Kode', icon: KeyRound },
     { id: 'email', label: 'Email', icon: Mail },
+    { id: 'ann', label: 'Info', icon: Megaphone },
   ]
 
   return (
@@ -52,6 +53,7 @@ export function Admin() {
       {tab === 'users' && <UsersTab />}
       {tab === 'codes' && <CodesTab />}
       {tab === 'email' && <EmailTab />}
+      {tab === 'ann' && <AnnouncementTab />}
     </div>
   )
 }
@@ -579,6 +581,72 @@ function DurationPicker({ value, onChange }: { value: number | null; onChange: (
         </button>
       ))}
     </div>
+  )
+}
+
+function AnnouncementTab() {
+  const { data: anns = [], isLoading } = useAnnouncementsAdmin(true)
+  const post = usePostAnnouncement()
+  const del = useDeleteAnnouncement()
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+
+  async function kirim() {
+    if (!title.trim()) { alert('Isi judul pengumuman.'); return }
+    try { await post.mutateAsync({ title: title.trim(), body: body.trim() }); setTitle(''); setBody('') }
+    catch (e) { alert((e as Error).message) }
+  }
+  async function hapus(id: string) {
+    if (!confirm('Hapus pengumuman ini?')) return
+    try { await del.mutateAsync(id) } catch (e) { alert((e as Error).message) }
+  }
+
+  return (
+    <>
+      <p className="mb-3 text-sm text-gray-400">Kirim pengumuman/update — muncul di lonceng 🔔 notifikasi semua pengguna.</p>
+      <Card className="mb-4 space-y-2">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Judul (mis. Fitur Baru: Keterangan Belanja)"
+          className="w-full rounded-xl bg-gray-100 px-3 py-2.5 text-sm font-semibold outline-none dark:bg-gray-800"
+        />
+        <textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          rows={3}
+          placeholder="Isi pengumuman (opsional)…"
+          className="w-full resize-none rounded-xl bg-gray-100 px-3 py-2.5 text-sm outline-none dark:bg-gray-800"
+        />
+        <button
+          onClick={kirim}
+          disabled={post.isPending}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-maroon-700 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+        >
+          {post.isPending ? <Loader2 size={16} className="animate-spin" /> : <Megaphone size={16} />} Kirim Pengumuman
+        </button>
+      </Card>
+
+      <h2 className="mb-2 font-bold">Terkirim ({anns.length})</h2>
+      {isLoading ? <Loading /> : anns.length === 0 ? (
+        <p className="py-6 text-center text-sm text-gray-400">Belum ada pengumuman.</p>
+      ) : (
+        <div className="space-y-2">
+          {anns.map((a) => (
+            <Card key={a.id} className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-bold">{a.title}</p>
+                {a.body && <p className="mt-0.5 whitespace-pre-line text-sm text-gray-500">{a.body}</p>}
+                <p className="mt-1 text-[11px] text-gray-400">{formatTanggal(a.created_at)}</p>
+              </div>
+              <button onClick={() => hapus(a.id)} disabled={del.isPending} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-wine-50 text-wine-500 disabled:opacity-50 dark:bg-wine-500/10" aria-label="Hapus">
+                {del.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
+    </>
   )
 }
 

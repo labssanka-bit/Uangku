@@ -105,6 +105,30 @@ export function useUnreserveCode() {
   })
 }
 
+export interface AdminAnnouncement { id: string; title: string; body: string | null; active: boolean; created_at: string }
+export function useAnnouncementsAdmin(enabled: boolean) {
+  return useQuery({
+    queryKey: ['admin', 'announcements'],
+    enabled,
+    queryFn: () => callAdmin<{ announcements: AdminAnnouncement[] }>({ action: 'announce_list' }).then((r) => r.announcements),
+  })
+}
+export function usePostAnnouncement() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ title, body }: { title: string; body: string }) =>
+      callAdmin<{ ok: boolean }>({ action: 'announce', name: title, label: body }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'announcements'] }),
+  })
+}
+export function useDeleteAnnouncement() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => callAdmin<{ ok: boolean }>({ action: 'announce_del', code: id }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'announcements'] }),
+  })
+}
+
 /** Kirim email kode + cara aktivasi ke pembeli. Menandai kode "sudah dikasih". */
 export function useSendCodeEmail() {
   const qc = useQueryClient()

@@ -142,6 +142,26 @@ serve(async (req) => {
       return json({ ok: true })
     }
 
+    if (action === 'announce') {
+      const t = String(name || '').trim() // pakai 'name' = judul
+      const b = String(label || '').trim() // pakai 'label' = isi
+      if (!t) return json({ error: 'Judul pengumuman wajib.' }, 400)
+      const { error } = await admin.from('announcements').insert({ title: t, body: b || null })
+      if (error) return json({ error: error.message }, 500)
+      return json({ ok: true })
+    }
+    if (action === 'announce_list') {
+      const { data } = await admin.from('announcements').select('*').order('created_at', { ascending: false }).limit(50)
+      return json({ announcements: data ?? [] })
+    }
+    if (action === 'announce_del') {
+      const id = String(code || '') // pakai 'code' = id
+      if (!id) return json({ error: 'id wajib.' }, 400)
+      const { error } = await admin.from('announcements').delete().eq('id', id)
+      if (error) return json({ error: error.message }, 500)
+      return json({ ok: true })
+    }
+
     if (action === 'delete') {
       const uid = String(userId || '')
       if (!uid) return json({ error: 'userId wajib.' }, 400)

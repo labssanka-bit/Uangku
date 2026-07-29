@@ -30,6 +30,10 @@ interface UIState {
   allTime: boolean
   setAllTime: (v: boolean) => void
 
+  // Notifikasi: ISO waktu terakhir user membuka panel notifikasi
+  notifSeenAt: string | null
+  markNotifSeen: () => void
+
   // Sheet tambah transaksi (global, agar bisa dibuka dari mana saja + prefill)
   addOpen: boolean
   addPreset: AddPreset | null
@@ -59,6 +63,9 @@ export const useUIStore = create<UIState>()(
 
       allTime: false,
       setAllTime: (v) => set({ allTime: v }),
+
+      notifSeenAt: null,
+      markNotifSeen: () => set({ notifSeenAt: new Date().toISOString() }),
 
       addOpen: false,
       addPreset: null,

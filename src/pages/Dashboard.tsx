@@ -13,6 +13,7 @@ import { MonthSelector } from '@/components/MonthSelector'
 import { MonitoringChart } from '@/components/MonitoringChart'
 import { SpendingDonut } from '@/components/SpendingDonut'
 import { ThemeToggles } from '@/components/layout/ThemeToggles'
+import { NotifBell } from '@/components/NotifBell'
 import { TransactionItem } from '@/components/TransactionItem'
 import { useUIStore } from '@/store/uiStore'
 import { useProfile } from '@/hooks/useProfile'
@@ -122,7 +123,10 @@ export function Dashboard() {
             )}
           </div>
         </div>
-        <ThemeToggles />
+        <div className="flex items-center gap-2">
+          <NotifBell />
+          <ThemeToggles />
+        </div>
       </div>
 
       {/* Selector bulan — di atas biar gampang & tak terpotong */}

@@ -67,6 +67,14 @@ export interface Profile {
   created_at: string
 }
 
+export interface Announcement {
+  id: string
+  title: string
+  body: string | null
+  active: boolean
+  created_at: string
+}
+
 export interface SupportMessage {
   id: string
   user_id: string
