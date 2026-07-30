@@ -62,22 +62,27 @@ export function Budget() {
   async function handleSave() {
     if (!editCat) return
     const amount = parseRupiah(input)
-    if (amount <= 0) {
-      const b = budgetByCat.get(editCat)
-      if (b) await remove.mutateAsync(b.id)
-    } else {
-      await save.mutateAsync({
-        category_id: editCat,
-        amount,
-        month: allMonths ? 0 : periode.month,
-        year: allMonths ? 0 : periode.year,
-      })
-      // Simpan sbg template semua-bulan → buang override bulan ini biar nilai template langsung terlihat
-      if (allMonths) {
-        await removeOverride.mutateAsync({ category_id: editCat, month: periode.month, year: periode.year })
+    try {
+      if (amount <= 0) {
+        const b = budgetByCat.get(editCat)
+        if (b) await remove.mutateAsync(b.id)
+      } else {
+        await save.mutateAsync({
+          category_id: editCat,
+          amount,
+          month: allMonths ? 0 : periode.month,
+          year: allMonths ? 0 : periode.year,
+        })
+        // Simpan sbg template semua-bulan → buang override bulan ini biar nilai template langsung terlihat
+        if (allMonths) {
+          await removeOverride.mutateAsync({ category_id: editCat, month: periode.month, year: periode.year })
+        }
       }
+      setEditCat(null)
+    } catch (e) {
+      // Jangan gagal senyap — beri tahu user kalau simpan bermasalah
+      alert('Gagal menyimpan anggaran: ' + (e instanceof Error ? e.message : 'terjadi kesalahan.'))
     }
-    setEditCat(null)
   }
 
   /** Hapus pengecualian bulan ini → kembali ikut anggaran tiap-bulan. */
