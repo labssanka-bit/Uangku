@@ -8,6 +8,7 @@ import { Sheet } from '@/components/ui/Sheet'
 import { useDebts, useDebtMutations } from '@/hooks/useDebts'
 import { useWallets } from '@/hooks/useWallets'
 import { formatRupiah, parseRupiah, formatTanggalPanjang } from '@/lib/format'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import type { Debt, DebtType } from '@/types'
 
@@ -142,7 +143,7 @@ export function Debts() {
       note: `Cicilan ${cicilanN} bulan · ${cicilanR}%/thn · ${formatRupiah(monthly)}/bln`,
       wallet_id: null,
     })
-    alert('Disimpan sebagai hutang!')
+    toast('Disimpan sebagai hutang')
   }
 
   const tabs: { key: TabType; label: string }[] = [
@@ -342,7 +343,11 @@ export function Debts() {
                       Edit
                     </button>
                     <button
-                      onClick={() => confirm('Hapus catatan ini?') && remove.mutate(d.id)}
+                      onClick={async () => {
+                        const ok = await confirmDialog({ title: 'Hapus catatan ini?', message: 'Catatan hutang/piutang ini akan dihapus permanen.', confirmText: 'Hapus', tone: 'danger' })
+                        if (!ok) return
+                        remove.mutate(d.id, { onSuccess: () => toast('Catatan dihapus'), onError: (e) => errorDialog('Gagal menghapus', e) })
+                      }}
                       className="flex-1 rounded-xl bg-wine-50 py-1.5 text-xs font-medium text-wine-500 dark:bg-wine-500/10"
                     >
                       Hapus

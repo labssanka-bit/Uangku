@@ -4,6 +4,7 @@
  * statis; aksi simpan diblok (ajak daftar). Tidak menyentuh Supabase.
  */
 import type { Session, User } from '@supabase/supabase-js'
+import { confirmDialog } from '@/lib/dialog'
 import type { Profile, Category, Wallet, Transaction, Debt, Asset, Budget } from '@/types'
 
 const FLAG = 'fp_demo'
@@ -33,12 +34,20 @@ export const CHECKOUT_MONTHLY_URL = 'https://digital-store-27.myscalev.com/month
 /** Blok aksi simpan saat demo + arahkan beli akses (bukan daftar gratis). */
 export function demoBlock() {
   if (typeof window !== 'undefined') {
-    const ok = confirm(
-      '🔒 Ini cuma MODE DEMO untuk coba fitur.\n\n' +
-      'Datamu di sini TIDAK akan tersimpan. Untuk mulai catat keuanganmu sendiri & disimpan beneran, kamu perlu akses Finplan Sanka.\n\n' +
-      'Buka halaman beli akses sekarang?'
-    )
-    if (ok) window.open(CHECKOUT_URL, '_blank')
+    // Dialog bergaya app; tak di-await supaya pemanggil (mutationFn) tetap sinkron.
+    void confirmDialog({
+      title: 'Ini Mode Demo',
+      message: 'Datamu di sini tidak tersimpan — hanya contoh untuk mencoba fitur.',
+      bullets: [
+        'Untuk mencatat keuanganmu sendiri dan tersimpan beneran, kamu perlu akses Finplan Sanka.',
+        'Bayar sekali Rp149.000, akses selamanya.',
+      ],
+      confirmText: 'Lihat cara beli',
+      cancelText: 'Lanjut coba dulu',
+      tone: 'info',
+    }).then((ok) => {
+      if (ok) window.open(CHECKOUT_URL, '_blank')
+    })
   }
   return true
 }

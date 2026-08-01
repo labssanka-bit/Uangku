@@ -11,6 +11,7 @@ import { useWalletBalances, useWalletMutations, type WalletBalance } from '@/hoo
 import { useWalletTransactions } from '@/hooks/useTransactions'
 import { ICON_NAMES, COLOR_OPTIONS } from '@/lib/icons'
 import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import type { WalletGroup, Wallet } from '@/types'
 
@@ -345,7 +346,11 @@ export function Wallets() {
         <div className="flex gap-2">
           {editing && !editing.is_default && (
             <button
-              onClick={() => confirm('Hapus dompet ini? Transaksi terkait jadi tanpa dompet.') && remove.mutate(editing.id, { onSuccess: () => setOpen(false) })}
+              onClick={async () => {
+                const ok = await confirmDialog({ title: 'Hapus dompet ini?', message: 'Dompet akan dihapus dari daftar.', bullets: ['Transaksi yang memakainya tetap ada, tapi jadi tanpa dompet.', 'Tindakan ini tidak bisa dibatalkan.'], confirmText: 'Hapus', tone: 'danger' })
+                if (!ok) return
+                remove.mutate(editing.id, { onSuccess: () => { setOpen(false); toast('Dompet dihapus') }, onError: (e) => errorDialog('Gagal menghapus dompet', e) })
+              }}
               className="rounded-2xl bg-wine-50 px-4 font-semibold text-wine-500 dark:bg-wine-500/10"
             >
               Hapus

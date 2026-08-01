@@ -8,6 +8,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { useAdminOverview, useGenerateCodes, useDeleteUser, useReserveCode, useUnreserveCode, useSendCodeEmail, useAnnouncementsAdmin, usePostAnnouncement, useDeleteAnnouncement, useExtendAccess } from '@/hooks/useAdminData'
 import { AdminChat } from '@/pages/AdminChat'
 import { formatTanggal } from '@/lib/format'
+import { confirmDialog, alertDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 
 type Tab = 'chat' | 'users' | 'codes' | 'email' | 'ann'
@@ -90,13 +91,24 @@ function UsersTab() {
   const onlineCount = users.filter((u) => isOnline(u.last_seen)).length
 
   async function hapus(id: string, nama: string) {
-    if (!confirm(`Hapus akun "${nama}"? Semua data (transaksi, dompet, dll) ikut terhapus permanen. Tindakan ini tidak bisa dibatalkan.`)) return
-    try { await del.mutateAsync(id) } catch (e) { alert((e as Error).message) }
+    const ok = await confirmDialog({
+      title: `Hapus akun "${nama}"?`,
+      message: 'Akun ini beserta seluruh datanya akan dihapus permanen.',
+      bullets: ['Transaksi, dompet, kategori, aset — semuanya ikut terhapus.', 'Tindakan ini tidak bisa dibatalkan.'],
+      confirmText: 'Hapus akun',
+      tone: 'danger',
+    })
+    if (!ok) return
+    try { await del.mutateAsync(id); toast('Akun dihapus') } catch (e) { await errorDialog('Gagal menghapus akun', e) }
   }
   async function perpanjang(id: string, nama: string, months: number | null) {
-    const teks = months ? `Tambah ${months} bulan masa aktif` : 'Jadikan LIFETIME (selamanya)'
-    if (!confirm(`${teks} untuk "${nama}"?`)) return
-    try { await ext.mutateAsync({ userId: id, months }) } catch (e) { alert((e as Error).message) }
+    const teks = months ? `Tambah ${months} bulan masa aktif` : 'Jadikan Lifetime (selamanya)'
+    const ok = await confirmDialog({ title: `${teks}?`, message: `Untuk akun "${nama}".`, confirmText: 'Terapkan', tone: 'info' })
+    if (!ok) return
+    try {
+      await ext.mutateAsync({ userId: id, months })
+      toast(months ? `Masa aktif +${months} bulan` : 'Diubah jadi Lifetime')
+    } catch (e) { await errorDialog('Gagal memperbarui masa aktif', e) }
   }
 
   // Urutkan: online dulu, lalu paling baru aktif
@@ -241,17 +253,23 @@ function CodesTab() {
       copy(code)
       setReserveFor(null)
     } catch (e) {
-      alert((e as Error).message)
+      await errorDialog('Gagal menandai kode', e)
     } finally {
       setBusy(null)
     }
   }
 
   async function batalDikasih(code: string) {
-    if (!confirm(`Batalkan tanda "sudah dikasih" untuk ${code}? Kode kembali ke daftar Tersedia.`)) return
+    const ok = await confirmDialog({
+      title: 'Batalkan tanda "sudah dikasih"?',
+      message: `Kode ${code} akan kembali ke daftar Tersedia.`,
+      confirmText: 'Batalkan tanda',
+      tone: 'warning',
+    })
+    if (!ok) return
     setBusy(code)
-    try { await unreserve.mutateAsync(code) }
-    catch (e) { alert((e as Error).message) }
+    try { await unreserve.mutateAsync(code); toast('Kode kembali tersedia') }
+    catch (e) { await errorDialog('Gagal membatalkan', e) }
     finally { setBusy(null) }
   }
 
@@ -484,16 +502,24 @@ function EmailTab() {
   const copy = (t: string) => navigator.clipboard?.writeText(t)
 
   async function kirim() {
-    if (!nama.trim()) { alert('Isi nama pembeli.'); return }
-    if (!email.trim() || !email.includes('@')) { alert('Isi email pembeli yang valid.'); return }
-    if (!selected) { alert('Tidak ada kode tersedia. Generate dulu di tab Kode.'); return }
-    if (!confirm(`Kirim email ke ${email.trim()} berisi kode ${selected} (masa aktif: ${masaAktifLabel})?`)) return
+    if (!nama.trim()) { await alertDialog({ title: 'Nama pembeli belum diisi', tone: 'warning' }); return }
+    if (!email.trim() || !email.includes('@')) { await alertDialog({ title: 'Email belum valid', message: 'Isi email pembeli yang benar.', tone: 'warning' }); return }
+    if (!selected) { await alertDialog({ title: 'Tidak ada kode tersedia', message: 'Generate kode dulu di tab Kode.', tone: 'warning' }); return }
+    const ok = await confirmDialog({
+      title: 'Kirim email sekarang?',
+      message: `Ke ${email.trim()}`,
+      bullets: [`Kode akses: ${selected}`, `Masa aktif: ${masaAktifLabel}`],
+      confirmText: 'Kirim email',
+      tone: 'info',
+    })
+    if (!ok) return
     try {
       await send.mutateAsync({ code: selected, email: email.trim(), name: nama.trim(), months: emailMonths })
       setSent(email.trim())
       setNama(''); setEmail(''); setCode('')
+      toast('Email terkirim')
     } catch (e) {
-      alert((e as Error).message)
+      await errorDialog('Gagal mengirim email', e)
     }
   }
 
@@ -611,13 +637,17 @@ function AnnouncementTab() {
   const TARGETS = [{ k: 'all', l: 'Semua' }, { k: 'monthly', l: 'Paket bulanan' }, { k: 'lifetime', l: 'Lifetime' }]
 
   async function kirim() {
-    if (!title.trim()) { alert('Isi judul pengumuman.'); return }
-    try { await post.mutateAsync({ title: title.trim(), body: body.trim(), type: annType, target }); setTitle(''); setBody('') }
-    catch (e) { alert((e as Error).message) }
+    if (!title.trim()) { await alertDialog({ title: 'Judul pengumuman belum diisi', tone: 'warning' }); return }
+    try {
+      await post.mutateAsync({ title: title.trim(), body: body.trim(), type: annType, target })
+      setTitle(''); setBody('')
+      toast('Pengumuman terkirim')
+    } catch (e) { await errorDialog('Gagal mengirim pengumuman', e) }
   }
   async function hapus(id: string) {
-    if (!confirm('Hapus pengumuman ini?')) return
-    try { await del.mutateAsync(id) } catch (e) { alert((e as Error).message) }
+    const ok = await confirmDialog({ title: 'Hapus pengumuman ini?', message: 'Pengumuman akan hilang dari notifikasi semua user.', confirmText: 'Hapus', tone: 'danger' })
+    if (!ok) return
+    try { await del.mutateAsync(id); toast('Pengumuman dihapus') } catch (e) { await errorDialog('Gagal menghapus', e) }
   }
 
   return (

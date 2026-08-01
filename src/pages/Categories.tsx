@@ -6,6 +6,7 @@ import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { Sheet } from '@/components/ui/Sheet'
 import { useCategories, useCategoryMutations, useCategoryUsage } from '@/hooks/useCategories'
 import { ICON_NAMES, COLOR_OPTIONS } from '@/lib/icons'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import type { Category, TxType } from '@/types'
 
@@ -41,8 +42,6 @@ export function Categories() {
     setOpen(true)
   }
 
-  const errMsg = (e: unknown) => (e instanceof Error ? e.message : 'terjadi kesalahan.')
-
   async function handleSave() {
     if (!name.trim()) return
     const payload = { name: name.trim(), icon, color, type }
@@ -51,8 +50,9 @@ export function Categories() {
       if (editing) await update.mutateAsync({ id: editing.id, ...payload })
       else await create.mutateAsync(payload)
       setOpen(false)
+      toast(editing ? 'Kategori diperbarui' : 'Kategori ditambahkan')
     } catch (e) {
-      alert('Gagal menyimpan kategori: ' + errMsg(e))
+      await errorDialog('Gagal menyimpan kategori', e)
     } finally {
       setBusy(false)
     }
@@ -61,22 +61,35 @@ export function Categories() {
   /** Hapus permanen — konfirmasi menyebut dampak nyata sesuai jumlah pemakaian. */
   async function handleDelete() {
     if (!editing) return
-    const pesan =
+    const ok = await confirmDialog(
       dipakai > 0
-        ? `Hapus kategori "${editing.name}"?\n\n` +
-          `Kategori ini dipakai ${dipakai} transaksi.\n` +
-          `• Transaksinya TETAP ADA (nominal & tanggal aman), tapi kehilangan label kategori ini — di Statistik akan masuk "Lainnya".\n` +
-          `• Anggaran kategori ini ikut terhapus.\n` +
-          `• Tindakan ini TIDAK BISA dibatalkan.\n\n` +
-          `Kalau cuma ingin merapikan daftar, pilih "Sembunyikan" saja — riwayat tetap utuh.`
-        : `Hapus kategori "${editing.name}"?\n\nKategori ini belum dipakai transaksi apa pun, jadi aman dihapus.`
-    if (!confirm(pesan)) return
+        ? {
+            title: `Hapus kategori "${editing.name}"?`,
+            message: `Kategori ini dipakai ${dipakai} transaksi.`,
+            bullets: [
+              'Transaksinya tetap ada — nominal & tanggal aman, tapi kehilangan label ini dan masuk "Lainnya" di Statistik.',
+              'Anggaran kategori ini ikut terhapus.',
+              'Tindakan ini tidak bisa dibatalkan.',
+            ],
+            note: 'Kalau cuma ingin merapikan daftar, pilih "Sembunyikan" saja — riwayat tetap utuh.',
+            confirmText: 'Hapus permanen',
+            tone: 'danger',
+          }
+        : {
+            title: `Hapus kategori "${editing.name}"?`,
+            message: 'Kategori ini belum dipakai transaksi apa pun, jadi aman dihapus.',
+            confirmText: 'Hapus',
+            tone: 'danger',
+          }
+    )
+    if (!ok) return
     setBusy(true)
     try {
       await remove.mutateAsync(editing.id)
       setOpen(false)
+      toast('Kategori dihapus')
     } catch (e) {
-      alert('Gagal menghapus kategori: ' + errMsg(e))
+      await errorDialog('Gagal menghapus kategori', e)
     } finally {
       setBusy(false)
     }
@@ -85,12 +98,14 @@ export function Categories() {
   /** Sembunyikan / tampilkan lagi — tidak menyentuh data sama sekali. */
   async function handleToggleHidden() {
     if (!editing) return
+    const akanSembunyi = !editing.hidden
     setBusy(true)
     try {
-      await setHidden.mutateAsync({ id: editing.id, hidden: !editing.hidden })
+      await setHidden.mutateAsync({ id: editing.id, hidden: akanSembunyi })
       setOpen(false)
+      toast(akanSembunyi ? 'Kategori disembunyikan' : 'Kategori ditampilkan lagi')
     } catch (e) {
-      alert('Gagal mengubah kategori: ' + errMsg(e))
+      await errorDialog('Gagal mengubah kategori', e)
     } finally {
       setBusy(false)
     }

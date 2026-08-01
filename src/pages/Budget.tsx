@@ -12,6 +12,7 @@ import { useTransactions } from '@/hooks/useTransactions'
 import { buildPeriode } from '@/lib/dateRange'
 import { txFlow } from '@/lib/summary'
 import { formatRupiah, parseRupiah } from '@/lib/format'
+import { errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import { Repeat, CalendarClock } from 'lucide-react'
 
@@ -79,9 +80,10 @@ export function Budget() {
         }
       }
       setEditCat(null)
+      toast(amount <= 0 ? 'Anggaran dihapus' : allMonths ? 'Anggaran disimpan untuk semua bulan' : 'Anggaran bulan ini disimpan')
     } catch (e) {
       // Jangan gagal senyap — beri tahu user kalau simpan bermasalah
-      alert('Gagal menyimpan anggaran: ' + (e instanceof Error ? e.message : 'terjadi kesalahan.'))
+      await errorDialog('Gagal menyimpan anggaran', e)
     }
   }
 

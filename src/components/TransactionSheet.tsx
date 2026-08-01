@@ -21,6 +21,7 @@ import {
 } from '@/lib/voice'
 import { extractAmount, guessCategoryName } from '@/lib/parseAmount'
 import { isDemo } from '@/lib/demo'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import type { Transaction, TxType, ReceiptItem } from '@/types'
 
@@ -284,12 +285,15 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
 
   async function handleDelete() {
     if (!editing) return
-    if (!confirm('Hapus transaksi ini?')) return
+    const ok = await confirmDialog({ title: 'Hapus transaksi ini?', message: 'Transaksi akan dihapus permanen dan saldo dompet menyesuaikan.', confirmText: 'Hapus', tone: 'danger' })
+    if (!ok) return
     try {
       await remove.mutateAsync(editing.id)
       onClose()
+      toast('Transaksi dihapus')
     } catch (e) {
       setSaveError(errMsg(e, 'Gagal menghapus transaksi.'))
+      await errorDialog('Gagal menghapus transaksi', e)
     }
   }
 

@@ -8,6 +8,7 @@ import { Sheet } from '@/components/ui/Sheet'
 import { useRecurring, useRecurringMutations } from '@/hooks/useRecurring'
 import { useCategories } from '@/hooks/useCategories'
 import { formatTanggalPanjang, parseRupiah, formatRupiah, toISODate } from '@/lib/format'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import type { RecurrenceFreq, TxType } from '@/types'
 
@@ -93,7 +94,11 @@ export function Recurring() {
                   <Power size={14} /> {r.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                 </button>
                 <button
-                  onClick={() => confirm('Hapus transaksi berulang ini?') && remove.mutate(r.id)}
+                  onClick={async () => {
+                    const ok = await confirmDialog({ title: 'Hapus transaksi berulang?', message: 'Jadwal otomatis ini akan berhenti. Transaksi yang sudah tercatat sebelumnya tetap ada.', confirmText: 'Hapus', tone: 'danger' })
+                    if (!ok) return
+                    remove.mutate(r.id, { onSuccess: () => toast('Transaksi berulang dihapus'), onError: (e) => errorDialog('Gagal menghapus', e) })
+                  }}
                   className="flex-1 rounded-xl bg-wine-50 py-1.5 text-xs font-medium text-wine-500 dark:bg-wine-500/10"
                 >
                   Hapus

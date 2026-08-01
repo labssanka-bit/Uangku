@@ -14,6 +14,7 @@ import { formatRupiah, parseRupiah } from '@/lib/format'
 import { supabase } from '@/lib/supabase'
 import { isDemo, demoBlock } from '@/lib/demo'
 import { THEMES } from '@/lib/themes'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 
 export function Settings() {
@@ -52,8 +53,9 @@ export function Settings() {
     setBusy(true)
     try {
       await exportTransactionsCSV()
-    } catch {
-      alert('Gagal mengekspor data.')
+      toast('Data diekspor ke CSV')
+    } catch (e) {
+      await errorDialog('Gagal mengekspor data', e)
     } finally {
       setBusy(false)
     }
@@ -61,7 +63,17 @@ export function Settings() {
 
   async function handleReset() {
     if (isDemo()) { demoBlock(); return }
-    if (!confirm('Hapus SEMUA transaksi? Tindakan ini tidak bisa dibatalkan.')) return
+    const ok = await confirmDialog({
+      title: 'Hapus semua transaksi?',
+      message: 'Seluruh riwayat transaksi di akunmu akan dihapus.',
+      bullets: [
+        'Dompet, kategori, dan saldo awal tetap ada.',
+        'Tindakan ini tidak bisa dibatalkan.',
+      ],
+      confirmText: 'Hapus semua',
+      tone: 'danger',
+    })
+    if (!ok) return
     // .select() → tahu berapa baris benar-benar terhapus (deteksi kalau 0)
     const { data, error } = await supabase
       .from('transactions')
@@ -69,17 +81,29 @@ export function Settings() {
       .eq('user_id', user!.id)
       .select('id')
     if (error) {
-      alert('Gagal mereset: ' + error.message)
+      await errorDialog('Gagal mereset', error)
       return
     }
     // Segarkan semua data terkait agar saldo & list langsung kosong
     await qc.invalidateQueries()
-    alert(`${data?.length ?? 0} transaksi dihapus.`)
+    toast(`${data?.length ?? 0} transaksi dihapus`)
   }
 
   async function handleResetTotal() {
     if (isDemo()) { demoBlock(); return }
-    if (!confirm('RESET TOTAL: hapus SEMUA transaksi DAN nol-kan Saldo Awal semua dompet?\nTotal Saldo jadi Rp 0. Tindakan ini tidak bisa dibatalkan.')) return
+    const ok = await confirmDialog({
+      title: 'Reset total?',
+      message: 'Mengembalikan akunmu ke kondisi benar-benar kosong.',
+      bullets: [
+        'Semua transaksi dihapus.',
+        'Saldo awal semua dompet dinolkan — Total Saldo jadi Rp 0.',
+        'Tindakan ini tidak bisa dibatalkan.',
+      ],
+      note: 'Kalau hanya ingin menghapus riwayat, pakai "Reset Semua Transaksi" saja.',
+      confirmText: 'Reset total',
+      tone: 'danger',
+    })
+    if (!ok) return
     setBusy(true)
     try {
       // 1) Hapus semua transaksi milik user (RLS + filter user_id → hanya akun ini)
@@ -96,9 +120,9 @@ export function Settings() {
         .eq('user_id', user!.id)
       if (e2) throw e2
       await qc.invalidateQueries()
-      alert(`Reset total selesai. ${del?.length ?? 0} transaksi dihapus & saldo awal semua dompet jadi 0.`)
+      toast(`Reset total selesai — ${del?.length ?? 0} transaksi dihapus`)
     } catch (e) {
-      alert('Gagal reset total: ' + errMsg(e, 'terjadi kesalahan.'))
+      await errorDialog('Gagal reset total', e)
     } finally {
       setBusy(false)
     }
@@ -249,7 +273,7 @@ export function Settings() {
           </button>
         </div>
         <button
-          onClick={async () => { try { await updateProfile.mutateAsync({ spending_reasons: reasonList }); setReasonsOpen(false) } catch (e) { alert((e as Error).message) } }}
+          onClick={async () => { try { await updateProfile.mutateAsync({ spending_reasons: reasonList }); setReasonsOpen(false); toast('Keterangan belanja disimpan') } catch (e) { await errorDialog('Gagal menyimpan', e) } }}
           disabled={updateProfile.isPending}
           className="w-full rounded-2xl bg-maroon-700 py-3 font-bold text-white shadow-soft disabled:opacity-50"
         >

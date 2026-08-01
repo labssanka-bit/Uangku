@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { formatRupiah, formatRupiahRingkas, parseRupiah, toISODate } from '@/lib/format'
+import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
 import { clsx } from '@/lib/clsx'
 import type { Asset, AssetType } from '@/types'
 
@@ -560,7 +561,11 @@ export function Assets() {
 
         <div className="flex gap-2">
           {editing && (
-            <button onClick={() => confirm('Hapus aset ini?') && remove.mutate(editing.id, { onSuccess: () => setOpen(false) })} className="rounded-2xl bg-wine-50 px-4 font-semibold text-wine-500 dark:bg-wine-500/10">
+            <button onClick={async () => {
+              const ok = await confirmDialog({ title: 'Hapus aset ini?', message: 'Catatan aset ini akan dihapus permanen dari daftar kekayaanmu.', confirmText: 'Hapus', tone: 'danger' })
+              if (!ok) return
+              remove.mutate(editing.id, { onSuccess: () => { setOpen(false); toast('Aset dihapus') }, onError: (e) => errorDialog('Gagal menghapus aset', e) })
+            }} className="rounded-2xl bg-wine-50 px-4 font-semibold text-wine-500 dark:bg-wine-500/10">
               Hapus
             </button>
           )}

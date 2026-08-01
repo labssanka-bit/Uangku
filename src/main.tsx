@@ -8,6 +8,7 @@ import { initDemoFromUrl } from '@/lib/demo'
 import { applyTheme } from '@/lib/themes'
 import { useUIStore } from '@/store/uiStore'
 import App from './App'
+import { DialogHost } from '@/components/ui/DialogHost'
 import './index.css'
 
 // Aktifkan mode demo bila URL ?demo=1 (sebelum render)
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <AuthProvider>
         <BrowserRouter>
           <App />
+          <DialogHost />
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
