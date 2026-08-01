@@ -97,6 +97,8 @@ export interface Category {
   color: string
   type: TxType
   is_default: boolean
+  /** Disembunyikan dari pemilih transaksi & anggaran; riwayat lama tetap berlabel. */
+  hidden?: boolean
   created_at: string
 }
 

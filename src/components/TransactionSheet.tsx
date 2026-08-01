@@ -70,7 +70,13 @@ export function TransactionSheet({ open, onClose, editing, preset }: Props) {
   const { data: profile } = useProfile()
   const updateProfile = useUpdateProfile()
   const reasons = profile?.spending_reasons ?? []
-  const { data: categories = [] } = useCategories(type)
+  const { data: allCategories = [] } = useCategories(type, true)
+  // Kategori tersembunyi disembunyikan dari pilihan, KECUALI yang sedang dipakai
+  // transaksi ini — supaya mengedit transaksi lama tak mengganti kategorinya diam-diam.
+  const categories = useMemo(
+    () => allCategories.filter((c) => !c.hidden || c.id === editing?.category_id),
+    [allCategories, editing?.category_id]
+  )
   const { data: wallets = [] } = useWallets()
   const { create, update, remove } = useTransactionMutations()
   const { create: createAsset } = useAssetMutations()

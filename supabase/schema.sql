@@ -43,9 +43,11 @@ create table if not exists public.categories (
   color       text not null default '#6366f1', -- warna pastel hex
   type        tx_type not null,
   is_default  boolean not null default false,
+  hidden      boolean not null default false, -- disembunyikan dari pemilih; riwayat tetap berlabel
   created_at  timestamptz not null default now()
 );
 create index if not exists categories_user_idx on public.categories (user_id);
+create index if not exists categories_user_hidden_idx on public.categories (user_id, hidden);
 
 -- ============================================================================
 -- 3. TRANSACTIONS — catatan transaksi

@@ -9,6 +9,12 @@
       "autoPort": true
     },
     {
+      "name": "dev-alt",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5231", "--strictPort"],
+      "port": 5231
+    },
+    {
       "name": "landing",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["-y", "serve", "landing", "-l", "4178"],
