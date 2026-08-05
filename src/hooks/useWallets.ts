@@ -73,14 +73,20 @@ export function useWalletMutations() {
    *  - Cashflow→Saving  : "⇄ Menabung …"       (keluar dari cashflow = nabung)
    *  - Saving→Cashflow  : "⇄ Ambil tabungan …" (masuk ke cashflow = pakai tabungan)
    *  - grup sama         : "⇄ Transfer …"       (pindah murni, netral)
+   *
+   * `fee` (biaya admin bank) opsional → dicatat sebagai baris KETIGA: pengeluaran
+   * nyata dari dompet asal. Sengaja TANPA marker "⇄" karena uangnya benar-benar
+   * hilang (bukan pindah), jadi harus masuk hitungan pengeluaran & saldo cocok
+   * dengan mutasi bank.
    */
   const transfer = useMutation({
     mutationFn: async ({
-      fromId, fromName, fromGroup, toId, toName, toGroup, amount, note, date,
+      fromId, fromName, fromGroup, toId, toName, toGroup, amount, note, date, fee = 0, feeCategoryId = null,
     }: {
       fromId: string; fromName: string; fromGroup: WalletGroup
       toId: string; toName: string; toGroup: WalletGroup
       amount: number; note: string; date: string
+      fee?: number; feeCategoryId?: string | null
     }) => {
       if (isDemo()) return demoBlock()
       const tail = note ? ` (${note})` : ''
@@ -96,10 +102,18 @@ export function useWalletMutations() {
         fromNote = `⇄ Transfer ke ${toName}${tail}`
         toNote = `⇄ Transfer dari ${fromName}${tail}`
       }
-      const { error } = await supabase.from('transactions').insert([
+      const rows: Record<string, unknown>[] = [
         { user_id: user!.id, amount, type: 'expense', wallet_id: fromId, note: fromNote, date, category_id: null, is_recurring: false },
         { user_id: user!.id, amount, type: 'income', wallet_id: toId, note: toNote, date, category_id: null, is_recurring: false },
-      ])
+      ]
+      if (fee > 0) {
+        rows.push({
+          user_id: user!.id, amount: fee, type: 'expense', wallet_id: fromId,
+          note: `Biaya admin transfer ke ${toName}`, date,
+          category_id: feeCategoryId, is_recurring: false,
+        })
+      }
+      const { error } = await supabase.from('transactions').insert(rows)
       if (error) throw error
     },
     onSuccess: invalidate,

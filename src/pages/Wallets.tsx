@@ -9,6 +9,7 @@ import { Sheet } from '@/components/ui/Sheet'
 import { TransactionItem } from '@/components/TransactionItem'
 import { useWalletBalances, useWalletMutations, type WalletBalance } from '@/hooks/useWallets'
 import { useWalletTransactions } from '@/hooks/useTransactions'
+import { useCategories } from '@/hooks/useCategories'
 import { ICON_NAMES, COLOR_OPTIONS } from '@/lib/icons'
 import { formatRupiah, parseRupiah, toISODate } from '@/lib/format'
 import { confirmDialog, errorDialog, toast } from '@/lib/dialog'
@@ -25,6 +26,7 @@ const WALLET_ICONS = ['wallet', 'landmark', 'credit-card', 'piggy-bank', 'bankno
 export function Wallets() {
   const { wallets, cashflowTotal, savingTotal } = useWalletBalances()
   const { create, update, remove, transfer } = useWalletMutations()
+  const { data: expenseCats = [] } = useCategories('expense')
 
   // Sheet dompet baru/edit
   const [open, setOpen] = useState(false)
@@ -43,6 +45,9 @@ export function Wallets() {
   const [transferNote, setTransferNote] = useState('')
   const [transferDate, setTransferDate] = useState(toISODate(new Date()))
   const [transferError, setTransferError] = useState<string | null>(null)
+  // Biaya admin bank (opsional) — dicatat sbg pengeluaran nyata dari dompet asal
+  const [transferFee, setTransferFee] = useState('')
+  const [feeCatId, setFeeCatId] = useState('')
 
   // Sheet detail/mutasi dompet
   const [detailWallet, setDetailWallet] = useState<WalletBalance | null>(null)
@@ -88,6 +93,9 @@ export function Wallets() {
     setTransferNote('') // label otomatis dari jenis dompet (Menabung / Ambil / Transfer)
     setTransferDate(toISODate(new Date()))
     setTransferError(null)
+    setTransferFee('')
+    // Pilih otomatis kategori "Biaya Admin" bila user sudah punya
+    setFeeCatId(expenseCats.find((c) => /biaya admin|admin bank|biaya bank/i.test(c.name))?.id ?? '')
     setTransferOpen(true)
   }
 
@@ -126,8 +134,11 @@ export function Wallets() {
         amount: amt,
         note: transferNote.trim(),
         date: transferDate,
+        fee: parseRupiah(transferFee),
+        feeCategoryId: feeCatId || null,
       })
       setTransferOpen(false)
+      toast(parseRupiah(transferFee) > 0 ? 'Transfer & biaya admin tercatat' : 'Transfer tercatat')
     } catch (e) {
       setTransferError(e instanceof Error ? e.message : 'Gagal melakukan transfer.')
     }
@@ -242,6 +253,42 @@ export function Wallets() {
             className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-3 text-center text-2xl font-bold outline-none dark:bg-gray-800"
           />
         </label>
+
+        {/* Biaya admin bank (opsional) — biar saldo cocok dgn mutasi bank */}
+        <label className="mb-3 block">
+          <span className="text-xs text-gray-400">Biaya admin (opsional)</span>
+          <input
+            inputMode="numeric"
+            value={transferFee ? formatRupiah(parseRupiah(transferFee), false) : ''}
+            onChange={(e) => setTransferFee(e.target.value)}
+            placeholder="mis. 2.500"
+            className="nums mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-center text-base font-bold outline-none dark:bg-gray-800"
+          />
+        </label>
+
+        {parseRupiah(transferFee) > 0 && (
+          <>
+            <label className="mb-3 block">
+              <span className="text-xs text-gray-400">Kategori biaya admin</span>
+              <select
+                value={feeCatId}
+                onChange={(e) => setFeeCatId(e.target.value)}
+                className="mt-1 w-full rounded-2xl bg-gray-100 px-4 py-2.5 text-sm outline-none dark:bg-gray-800"
+              >
+                <option value="">Tanpa kategori</option>
+                {expenseCats.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </label>
+            <p className="mb-3 rounded-xl bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+              Total keluar dari <b>{wallets.find((w) => w.id === fromId)?.name ?? 'dompet asal'}</b>:{' '}
+              <b className="nums">{formatRupiah(parseRupiah(transferAmount) + parseRupiah(transferFee))}</b>
+              {' '}({formatRupiah(parseRupiah(transferAmount))} pindah + {formatRupiah(parseRupiah(transferFee))} biaya admin).
+              Biaya admin dicatat sebagai pengeluaran karena uangnya benar-benar hilang.
+            </p>
+          </>
+        )}
 
         <div className="mb-4 grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1">
